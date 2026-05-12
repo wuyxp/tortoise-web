@@ -1,0 +1,100 @@
+name: Uptime monitor
+
+# 议题: MEETING-2026-05-11-06-docs-isolation Phase B (P0-1)
+# 替代 UptimeRobot — GitHub Actions cron 每 30 分钟 curl 关键端点, fail 自动开 Issue
+# 监控范围: 主页 + docs 路由 + 双发线路 (Pages + Aliyun)
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # 每 30 分钟 (GitHub free tier 实际可能晚 5-10 分钟)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    name: Check endpoints
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check 6 endpoints
+        id: check
+        run: |
+          set +e  # 不让单个 endpoint fail 立刻 exit
+          fails=()
+
+          check_endpoint() {
+            local name="$1"
+            local url="$2"
+            local expected="$3"  # 200 or 301/200
+
+            local code=$(curl -sI -o /dev/null -w "%{http_code}" --max-time 10 "$url" 2>/dev/null)
+            if echo "$expected" | grep -qE "(^|/)$code(/|$)"; then
+              echo "✓ $name: $code"
+            else
+              echo "❌ $name: $code (expected $expected)"
+              fails+=("$name → $url → got $code, expected $expected")
+            fi
+          }
+
+          # 国内 (Aliyun nginx)
+          check_endpoint "国内主页 HTTPS"        "https://serpilo.com/"                                    "200"
+          check_endpoint "国内主页 HTTP→HTTPS"   "http://serpilo.com/"                                     "301"
+          check_endpoint "国内 docs 路由"        "https://serpilo.com/docs/01-overview/product-overview/"  "200"
+
+          # 国外 (GitHub Pages)
+          check_endpoint "国外主页 HTTPS"        "https://wuyxp.github.io/tortoise-web/"                   "200"
+          check_endpoint "国外 docs 路由"        "https://wuyxp.github.io/tortoise-web/docs/01-overview/product-overview/" "200"
+
+          # GitHub raw (主仓 + tortoise-docs sync 链路)
+          check_endpoint "tortoise-docs raw"     "https://raw.githubusercontent.com/wuyxp/tortoise-docs/main/README.md"  "200"
+
+          if [ ${#fails[@]} -gt 0 ]; then
+            echo ""
+            echo "❌ ${#fails[@]} endpoint(s) failed"
+            printf '%s\n' "${fails[@]}" > /tmp/fails.txt
+            echo "fails_count=${#fails[@]}" >> $GITHUB_OUTPUT
+            echo "has_fails=true" >> $GITHUB_OUTPUT
+            exit 0  # 不在这里 exit, 让下个 step 开 Issue
+          fi
+          echo "✓ 全部端点 OK"
+          echo "has_fails=false" >> $GITHUB_OUTPUT
+
+      - name: Open issue on failure
+        if: steps.check.outputs.has_fails == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const fails = fs.readFileSync('/tmp/fails.txt', 'utf8');
+            const title = `🚨 Uptime check failed (${{ steps.check.outputs.fails_count }} endpoints) ${new Date().toISOString().slice(0,16)}`;
+            const body = `Uptime workflow 检测到端点失败.\n\n## 失败端点\n\n\`\`\`\n${fails}\n\`\`\`\n\n## 排查建议\n\n- **国内端点 fail**: ssh 进 ECS 跑 \`nginx -t && systemctl reload nginx\` + \`curl -I http://localhost\`; 检查阿里云 ECS 状态 + 安全组\n- **国外端点 fail**: 检查 GitHub Pages 状态 https://www.githubstatus.com/\n- **docs 路由 fail 但主页 OK**: 可能 deploy 不完整, 手动重跑 deploy.yml\n\nWorkflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`;
+
+            // 防重复: 查最近 24h 是否已有同类 open issue
+            const since = new Date(Date.now() - 24*60*60*1000).toISOString();
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'uptime-alert',
+              since: since,
+            });
+            if (existing.data.length > 0) {
+              console.log(`Existing alert issue #${existing.data[0].number}, comment instead`);
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: existing.data[0].number,
+                body: body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title: title, body: body, labels: ['uptime-alert', 'auto-generated'],
+              });
+            }
+
+      - name: Fail workflow if any endpoint failed
+        if: steps.check.outputs.has_fails == 'true'
+        run: exit 1

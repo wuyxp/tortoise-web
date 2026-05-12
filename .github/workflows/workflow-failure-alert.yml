@@ -1,0 +1,61 @@
+name: Workflow failure alert
+
+# 议题: MEETING-2026-05-11-06-docs-isolation Phase B (P1-3)
+# 集中监控本仓所有 workflow 失败, 自动开 Issue.
+# 不需要给每个 workflow 加 failure() step, 一处管所有.
+
+on:
+  workflow_run:
+    workflows: ["*"]
+    types: [completed]
+
+permissions:
+  contents: read
+  issues: write
+  actions: read
+
+jobs:
+  alert:
+    name: Open issue on workflow failure
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.event != 'workflow_dispatch'
+    timeout-minutes: 2
+    steps:
+      - name: Skip self (workflow-failure-alert recursion)
+        if: github.event.workflow_run.name == 'Workflow failure alert'
+        run: exit 0
+
+      - name: Open issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            const wfName = run.name;
+            const branch = run.head_branch;
+            const sha = run.head_sha.substring(0, 7);
+            const url = run.html_url;
+            const time = new Date(run.updated_at).toISOString().slice(0,16);
+
+            const title = `🚨 Workflow failure: ${wfName} (${branch}@${sha})`;
+            const body = `Workflow **${wfName}** failed.\n\n- **Branch**: ${branch}\n- **Commit**: \`${sha}\`\n- **Triggered by**: ${run.event}\n- **Time**: ${time} UTC\n- **Run**: ${url}\n\n## 排查\n\n1. 打开 [run URL](${url}) 看 failed step log\n2. 常见根因:\n   - sync-public-docs 失败 → 检查 sync-public-docs.sh 的 staging 隐私守底\n   - deploy 失败 → 检查 ALIYUN_SSH_KEY secret / actions/checkout submodule\n   - uptime 失败 → 单独的 uptime-alert issue\n   - cert 检测失败 → 单独的 cert-alert issue\n\n## 自动关闭\n\n下次同 workflow 跑成功时, 本 issue 不会自动 close (人工关). 防止 false positive 一闪而过被忽略.`;
+
+            // 防重复: 同 workflow 24h 内已有 open issue → comment 而非新开
+            const since = new Date(Date.now() - 24*60*60*1000).toISOString();
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: 'open', labels: 'workflow-failure', since: since,
+            });
+            const sameWf = existing.data.find(i => i.title.includes(wfName));
+            if (sameWf) {
+              console.log(`Existing #${sameWf.number} for ${wfName}, comment`);
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: sameWf.number, body: body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title: title, body: body,
+                labels: ['workflow-failure', 'auto-generated'],
+              });
+            }

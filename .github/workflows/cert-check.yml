@@ -1,0 +1,95 @@
+name: SSL cert expiry check
+
+# 议题: MEETING-2026-05-11-06-docs-isolation Phase B (P0-2)
+# Weekly cron — openssl s_client 解析 https://serpilo.com cert 到期日, <30 天自动开 Issue
+# 防 acme.sh 续期失败时静默, cert 过期挂 HTTPS
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'  # 每周一 08:00 UTC (北京 16:00)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    name: Check cert expiry
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Probe cert + parse expiry
+        id: probe
+        run: |
+          set -e
+          DOMAIN="serpilo.com"
+
+          # openssl s_client 拉 cert 链, openssl x509 解 enddate
+          EXPIRY=$(echo | openssl s_client -servername "$DOMAIN" -connect "$DOMAIN:443" 2>/dev/null \
+            | openssl x509 -noout -enddate 2>/dev/null \
+            | cut -d= -f2)
+
+          if [ -z "$EXPIRY" ]; then
+            echo "❌ 无法获取 cert 到期日 (可能 SSL 已挂)"
+            echo "alert=true" >> $GITHUB_OUTPUT
+            echo "reason=ssl-unreachable" >> $GITHUB_OUTPUT
+            echo "days_left=0" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # 算剩余天数
+          EXPIRY_TS=$(date -d "$EXPIRY" +%s)
+          NOW_TS=$(date +%s)
+          DAYS_LEFT=$(( (EXPIRY_TS - NOW_TS) / 86400 ))
+
+          echo "Cert 到期: $EXPIRY"
+          echo "剩余: $DAYS_LEFT 天"
+          echo "expiry=$EXPIRY" >> $GITHUB_OUTPUT
+          echo "days_left=$DAYS_LEFT" >> $GITHUB_OUTPUT
+
+          if [ "$DAYS_LEFT" -lt 30 ]; then
+            echo "⚠ 剩余 < 30 天, 触发 alert"
+            echo "alert=true" >> $GITHUB_OUTPUT
+            echo "reason=expiring-soon" >> $GITHUB_OUTPUT
+          else
+            echo "✓ 剩余充足, 无需 alert"
+            echo "alert=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Open issue if alert
+        if: steps.probe.outputs.alert == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const reason = '${{ steps.probe.outputs.reason }}';
+            const days = '${{ steps.probe.outputs.days_left }}';
+            const expiry = '${{ steps.probe.outputs.expiry }}';
+
+            let title, body;
+            if (reason === 'ssl-unreachable') {
+              title = `🚨 SSL cert 探测失败 (HTTPS 可能已挂) ${new Date().toISOString().slice(0,10)}`;
+              body = `cert-check workflow 无法 openssl s_client 连 https://serpilo.com:443.\n\n可能原因:\n- nginx 挂了\n- SSL 配置错\n- ECS 网络中断\n\nssh 进 ECS 跑:\n\`\`\`\nsystemctl status nginx\nopenssl s_client -servername serpilo.com -connect serpilo.com:443 < /dev/null\n\`\`\`\n\n如 cert 真的过期, 重跑 acme.sh 续期:\n\`\`\`\n~/.acme.sh/acme.sh --renew -d serpilo.com --force\n\`\`\``;
+            } else {
+              title = `⚠ SSL cert 即将过期 (剩 ${days} 天) ${expiry}`;
+              body = `cert-check 检测到 https://serpilo.com cert 剩余 **${days} 天** (到期 ${expiry}).\n\n通常 acme.sh cron 会自动续期 (60 天检查一次). 但既然剩 < 30 天还没续, 可能续期失败.\n\nssh 进 ECS 检查:\n\`\`\`\n~/.acme.sh/acme.sh --list\ncrontab -l | grep acme\ntail -50 ~/.acme.sh/acme.sh.log\n\`\`\`\n\n手动强制续期:\n\`\`\`\n~/.acme.sh/acme.sh --renew -d serpilo.com --force\n\`\`\``;
+            }
+
+            // 防重复: 查近 7 天是否已有同类 issue
+            const since = new Date(Date.now() - 7*24*60*60*1000).toISOString();
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: 'open', labels: 'cert-alert', since: since,
+            });
+            if (existing.data.length > 0) {
+              console.log(`Existing #${existing.data[0].number}, comment`);
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: existing.data[0].number, body: body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title: title, body: body, labels: ['cert-alert', 'auto-generated'],
+              });
+            }

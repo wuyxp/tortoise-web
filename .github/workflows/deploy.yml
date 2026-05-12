@@ -43,6 +43,9 @@ jobs:
           test -f src/content/tortoise-source/SYNC_INFO.md
           echo "✓ tortoise-docs submodule 拉到 ($(find src/content/tortoise-source -name '*.md' | wc -l) .md)"
 
+      - name: Lint cross-repo docs links (P1-4)
+        run: bash scripts/check-docs-links.sh
+
       - name: Setup Node 22
         uses: actions/setup-node@v4
         with:

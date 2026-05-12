@@ -136,6 +136,18 @@ server {
     ssl_session_timeout 1d;
     ssl_session_tickets off;
 
+    # APK 下载支持 (MEETING-2026-05-12-02-apk-distribution)
+    # ^~ 优先匹配, 防 SPA fallback try_files 误把 .apk 当 SPA 路由
+    location ^~ /downloads/ {
+        types {
+            application/vnd.android.package-archive apk;
+            text/plain sha256;
+        }
+        add_header Content-Disposition 'attachment' always;
+        add_header X-Content-Type-Options 'nosniff' always;
+        autoindex off;  # 防列表泄露版本历史
+    }
+
     location / {
         try_files \$uri \$uri/ \$uri.html /index.html;
     }
@@ -153,13 +165,15 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    # HSTS preload (hstspreload.org 提交要求: max-age >= 31536000 + includeSubDomains + preload)
-    # 不可逆: 一旦提交并被 Chrome/Firefox preload list 收录, 6-12 个月才能撤. 详见 PL 议题决议
+    # HSTS preload (hstspreload.org 提交要求)
     add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
 }
 EOF
 
 ln -sf /etc/nginx/sites-available/tortoise-web /etc/nginx/sites-enabled/
+# 准备 /downloads/ 目录 (空目录, 等 release.yml rsync 来填)
+mkdir -p $DEPLOY_PATH/downloads
+chown -R www-data:www-data $DEPLOY_PATH/downloads 2>/dev/null || true
 nginx -t
 systemctl reload nginx
 echo "    ✓ nginx reload OK"

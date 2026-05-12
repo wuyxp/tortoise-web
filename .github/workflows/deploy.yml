@@ -64,6 +64,12 @@ jobs:
           PUBLIC_PLAY_STORE_URL: ${{ secrets.PUBLIC_PLAY_STORE_URL || '#' }}
           PUBLIC_DOMESTIC_STORE_URL: ${{ secrets.PUBLIC_DOMESTIC_STORE_URL || '#' }}
           PUBLIC_GITHUB_REPO: ${{ secrets.PUBLIC_GITHUB_REPO || 'https://github.com/wuyxp/kotlin-stop-shortTV' }}
+          # APK 直接下载 (MEETING-2026-05-12-02-apk-distribution)
+          PUBLIC_APK_DOWNLOAD_URL: ${{ secrets.PUBLIC_APK_DOWNLOAD_URL || '#' }}
+          PUBLIC_APK_DOWNLOAD_URL_CN: ${{ secrets.PUBLIC_APK_DOWNLOAD_URL_CN || '#' }}
+          PUBLIC_APK_VERSION: ${{ secrets.PUBLIC_APK_VERSION || 'v0.0.0-pending' }}
+          PUBLIC_APK_SHA256_FINGERPRINT: ${{ secrets.PUBLIC_APK_SHA256_FINGERPRINT || 'pending' }}
+          PUBLIC_APK_SIZE_MB: ${{ secrets.PUBLIC_APK_SIZE_MB || '80' }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

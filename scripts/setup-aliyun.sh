@@ -67,6 +67,17 @@ server {
     root $DEPLOY_PATH;
     index index.html;
 
+    # APK 下载支持 (MEETING-2026-05-12-02-apk-distribution)
+    location ^~ /downloads/ {
+        types {
+            application/vnd.android.package-archive apk;
+            text/plain sha256;
+        }
+        add_header Content-Disposition 'attachment' always;
+        add_header X-Content-Type-Options 'nosniff' always;
+        autoindex off;
+    }
+
     # SPA fallback
     location / {
         try_files \$uri \$uri/ \$uri.html /index.html;

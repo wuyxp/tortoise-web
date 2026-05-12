@@ -1,0 +1,95 @@
+---
+// MEETING-2026-05-12-02-apk-distribution
+// [claude-cover-gemini] PL 显式授权 (§1.补.8.2 触发条件 #4 同议题指示 + #5 接手收尾):
+//   "拆两部分, Claude 写功能骨架, PL 跑 Gemini 接力视觉精修"
+// Claude 域: 功能骨架 (props 接口 + 占位/真状态切换 + 真二维码 + 微信引导 + 系统要求)
+// Gemini 域: Phase A 步骤 5 视觉精修 (海岛风 / brand 按钮 / 微动画 / 二维码装饰)
+//
+// PL 通过 GitHub Secret PUBLIC_APK_DOWNLOAD_URL 控制开关:
+//   '#' (默认) → 占位状态 "V1 即将发布"
+//   真 URL    → 真下载状态 (按钮 + 二维码 encode 真 URL + 微信引导)
+import { Smartphone, Shield, Wifi } from 'lucide-astro';
+import QRCode from 'qrcode-svg';
+import type { ui } from '../i18n/ui';
+import { useTranslations } from '../i18n/utils';
+
+interface Props {
+  apkUrl: string;
+  apkUrlCn: string;
+  version: string;
+  sha256Fp: string;
+  sizeMb: string;
+  feedbackEmail: string;
+  lang: keyof typeof ui;
+}
+
+const { apkUrl, apkUrlCn, version, sha256Fp, sizeMb, feedbackEmail, lang } = Astro.props;
+const t = useTranslations(lang);
+const isAvailable = apkUrl !== '#';
+
+// 二维码: 真状态 encode APK URL, 占位状态 encode 邮箱订阅 link (mailto)
+const qrTarget = isAvailable
+  ? apkUrl
+  : `mailto:${feedbackEmail}?subject=Tortoise%20Subscribe`;
+
+const qrSvg = new QRCode({
+  content: qrTarget,
+  padding: 2,
+  width: 256,
+  height: 256,
+  color: '#1a1a2e',
+  background: 'transparent',
+  ecl: 'M',
+}).svg();
+
+const sha256Short = sha256Fp.length >= 8 ? sha256Fp.slice(0, 8) : sha256Fp;
+const sizeHint = t('download.size_hint').replace('{size}', sizeMb);
+---
+
+<div class="glass p-12 rounded-[4rem] border-2 border-brand-blue/10">
+  {!isAvailable ? (
+    <!-- 占位状态: V1 即将发布 -->
+    <div class="text-center">
+      <p class="text-2xl font-black text-brand-blue mb-3">{t('download.preparing')}</p>
+      <p class="text-lg text-gray-500 mb-8">{t('download.preparing_desc')}</p>
+      <div class="flex flex-col items-center gap-6">
+        <div class="w-56 h-56 glass p-6 rounded-[2.5rem] bg-white" set:html={qrSvg} />
+        <a href={`mailto:${feedbackEmail}`} class="text-brand-green font-black text-xl hover:scale-110 transition-transform">
+          {t('download.subscribe')} →
+        </a>
+      </div>
+    </div>
+  ) : (
+    <!-- 真状态: 下载按钮 + 副链 + 二维码 + 微信引导 + 系统要求 -->
+    <div class="text-center">
+      <a href={apkUrl}
+         class="inline-block bg-brand-green text-white px-12 py-6 rounded-[2rem] font-black text-2xl shadow-2xl hover:scale-105 transition">
+        {t('download.cta')} ({sizeMb} MB)
+      </a>
+
+      {apkUrlCn !== '#' && (
+        <div class="mt-4">
+          <a href={apkUrlCn} class="text-brand-blue text-base hover:underline">
+            {t('download.cn_mirror')}
+          </a>
+        </div>
+      )}
+
+      <div class="mt-8 flex flex-col items-center gap-3">
+        <div class="w-56 h-56 glass p-6 rounded-[2.5rem] bg-white" set:html={qrSvg} />
+        <p class="text-sm text-gray-500">{t('download.qr_hint')}</p>
+      </div>
+
+      <div class="mt-8 max-w-xl mx-auto bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-800/30 rounded-2xl p-4 text-sm text-left">
+        <p class="font-bold mb-1">⚠ {t('download.weixin_title')}</p>
+        <p class="text-gray-600 dark:text-gray-400">{t('download.weixin_blocked')}</p>
+      </div>
+
+      <div class="mt-6 text-sm text-gray-500 space-y-1">
+        <p><Smartphone class="inline w-4 h-4 mr-1" /> {t('download.system_req')}</p>
+        <p><Wifi class="inline w-4 h-4 mr-1" /> {sizeHint}</p>
+        <p><Shield class="inline w-4 h-4 mr-1" /> {version} · sha256 {sha256Short}…</p>
+      </div>
+    </div>
+  )}
+</div>

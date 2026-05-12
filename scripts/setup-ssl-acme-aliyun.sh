@@ -73,11 +73,13 @@ echo "==> [2/5] 用 DNS-01 challenge 申请 Let's Encrypt cert"
 echo "    (acme.sh 会调用阿里云 DNS API 加 TXT 记录, LE server 查 DNS 验证, 全程 ~30s)"
 
 # Ali_Key + Ali_Secret 已 export, acme.sh dns_ali 插件自动读取
+# 不加 --force: 已申请过的 cert 不会重新申请 (LE rate limit 5/week/domain), 仅
+# 更新过期/即将过期的 cert
 "$ACME" --issue --dns dns_ali \
   -d "$DOMAIN" -d "www.$DOMAIN" \
   --email "$CERT_EMAIL" \
-  --keylength 2048 \
-  --force 2>&1 | tail -20
+  --keylength 2048 2>&1 | tail -20 || \
+  echo "    (cert 已存在或 LE rate limit, 跳过 issue, 继续 install/nginx config)"
 
 # ===== 3. 安装 cert 到 nginx 目录 =====
 echo "==> [3/5] 安装 cert 到 $CERT_DIR/"
@@ -115,10 +117,11 @@ server {
 }
 
 # HTTPS 443
+# 注: 用 'listen 443 ssl http2;' 旧语法兼容 nginx <1.25.1 (Ubuntu 22.04 默认 1.18-1.24);
+# nginx 1.25.1+ 推荐独立 http2 on; 但旧语法会 deprecation warning 不报错, 兼容性更好
 server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-    http2 on;
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
     server_name $DOMAIN www.$DOMAIN;
     root $DEPLOY_PATH;
     index index.html;

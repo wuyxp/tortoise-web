@@ -1,15 +1,17 @@
 name: "Deploy (dual GitHub Pages + Aliyun nginx)"
 
-# 议题: MEETING-2026-05-11-05-static-website-v1
-# 双发: 国外用户走 GitHub Pages (Cloudflare 前置可选), 国内用户走阿里云 nginx
-# 任一失败不阻塞另一边 (continue-on-error + 独立 job)
+# 议题: MEETING-2026-05-11-06-docs-isolation
+# 架构: tortoise-web (PUBLIC) submodule 拉 wuyxp/tortoise-docs (PUBLIC)
+#       └─ tortoise-docs 由主仓 scripts/sync-public-docs.sh 同步 PRIVATE 主仓 docs/ 公开子集
+# 双发: 国外用户走 GitHub Pages, 国内用户走阿里云 nginx (任一失败不阻塞另一边)
 
 on:
-  # ⚠ PAUSED: MEETING-2026-05-11-06-docs-isolation 决议 PL 暂停 deploy 直到
-  # B 方案 (独立 tortoise-docs 公仓) 实施完成. push + repository_dispatch 触发
-  # 已删除, 防意外推送把主仓 PRIVATE 内容暴露公网.
-  # 等 sync-public-docs.sh 接通 + 验证后恢复 push: 与 repository_dispatch:.
+  push:
+    branches: [main]
   workflow_dispatch:
+  # 主仓 docs-dispatch.yml 跑 sync 脚本 + push tortoise-docs 后触发本 workflow
+  repository_dispatch:
+    types: [docs-updated]
 
 permissions:
   contents: read
@@ -27,24 +29,19 @@ jobs:
       - name: Checkout tortoise-web
         uses: actions/checkout@v4
 
-      - name: Download Tortoise main repo docs (codeload tarball, anonymous)
-        # 不用 git submodule / git clone — actions/checkout 注入的 GITHUB_TOKEN
-        # extraheader/insteadOf rewrite 无法可靠清除, 致跨仓 git fail.
-        # 改用 codeload tarball HTTP 下载 — 0 git 操作, public 仓 100% 匿名可访问.
+      - name: Checkout tortoise-docs (PUBLIC) into src/content/tortoise-source
+        # tortoise-docs 是 PUBLIC 仓, actions/checkout 跨仓 public 不需要 PAT.
+        uses: actions/checkout@v4
+        with:
+          repository: wuyxp/tortoise-docs
+          path: src/content/tortoise-source
+          ref: main
+
+      - name: Verify docs content
         run: |
-          rm -rf src/content/tortoise-source
-          mkdir -p src/content/tortoise-source
-          curl -sSL --fail \
-            https://codeload.github.com/wuyxp/kotlin-stop-shortTV/tar.gz/refs/heads/main \
-            -o /tmp/tortoise-main.tar.gz
-          tar xzf /tmp/tortoise-main.tar.gz -C /tmp
-          # tarball 解压后是 kotlin-stop-shortTV-main/, 把内容移到目标位置
-          shopt -s dotglob
-          mv /tmp/kotlin-stop-shortTV-main/* src/content/tortoise-source/
-          rm -rf /tmp/tortoise-main.tar.gz /tmp/kotlin-stop-shortTV-main
-          # 抽样验证
-          test -f src/content/tortoise-source/docs/README.md
-          echo "✓ Tortoise docs/ tarball 已就位 ($(find src/content/tortoise-source/docs -name '*.md' | wc -l) .md 文件)"
+          test -f src/content/tortoise-source/README.md
+          test -f src/content/tortoise-source/SYNC_INFO.md
+          echo "✓ tortoise-docs submodule 拉到 ($(find src/content/tortoise-source -name '*.md' | wc -l) .md)"
 
       - name: Setup Node 22
         uses: actions/setup-node@v4

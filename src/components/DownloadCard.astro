@@ -8,7 +8,7 @@
 // PL 通过 GitHub Secret PUBLIC_APK_DOWNLOAD_URL 控制开关:
 //   '#' (默认) → 占位状态 "V1 即将发布"
 //   真 URL    → 真下载状态 (按钮 + 二维码 encode 真 URL + 微信引导)
-import { Smartphone, Shield, Wifi, MessageCircle, MoreHorizontal, ExternalLink, Ship, Lock, X } from 'lucide-astro';
+import { Smartphone, Shield, Wifi, MessageCircle, MoreHorizontal, ExternalLink, Ship, Lock, X, Download, Info } from 'lucide-astro';
 import QRCode from 'qrcode-svg';
 import type { ui } from '../i18n/ui';
 import { useTranslations } from '../i18n/utils';
@@ -38,9 +38,9 @@ const qrSvg = new QRCode({
   ecl: 'M',
 }).svg();
 
-// 内部测试二维码 (始终指向 apkUrl, 即使是 #)
+// 内部测试二维码 (指向最新地址)
 const internalQrSvg = new QRCode({
-  content: apkUrl !== '#' ? apkUrl : 'https://serpilo.com',
+  content: 'https://serpilo.com/downloads/latest.apk',
   padding: 2,
   width: 256,
   height: 256,
@@ -186,23 +186,53 @@ const sizeHint = t('download.size_hint').replace('{size}', sizeMb);
 </div>
 
 <!-- 内部测试弹窗 -->
-<dialog id="internal-test-modal" class="bg-transparent backdrop:bg-black/50 p-4">
-  <div class="glass-darker p-8 rounded-[3rem] border-2 border-brand-blue/20 max-w-sm mx-auto flex flex-col items-center gap-6 relative animate-fade-in">
-    <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-brand-blue transition-colors">
+<dialog id="internal-test-modal" class="m-auto bg-transparent backdrop:bg-black/60 p-4 border-0">
+  <div class="glass-darker p-8 md:p-10 rounded-[3rem] border-2 border-brand-blue/20 max-w-md mx-auto flex flex-col items-center gap-8 relative animate-fade-in shadow-2xl">
+    <button id="close-modal" class="absolute top-6 right-6 text-gray-400 hover:text-brand-blue transition-all hover:rotate-90">
       <X class="w-6 h-6" />
     </button>
 
     <div class="text-center">
-      <h3 class="text-xl font-black text-brand-blue mb-1">{t('download.internal_test_title')}</h3>
-      <p class="text-xs text-gray-500">仅供开发与测试人员使用</p>
+      <h3 class="text-2xl font-black text-brand-blue mb-2">{t('download.internal_test_title')}</h3>
+      <p class="text-sm text-gray-500 opacity-80">FOR DEVELOPERS & TESTERS ONLY</p>
     </div>
 
-    <div class="bg-white p-4 rounded-[2rem] shadow-xl border-4 border-brand-blue/5">
-      <div class="w-64 h-64 flex items-center justify-center" set:html={internalQrSvg} />
+    <!-- 二维码展示区 -->
+    <div class="relative group">
+      <div class="absolute -inset-4 bg-brand-blue/5 rounded-[3rem] border border-brand-blue/10 animate-pulse"></div>
+      <div class="absolute -inset-2 bg-white rounded-[2.8rem] shadow-xl"></div>
+      <div class="relative w-64 h-64 flex items-center justify-center p-2" set:html={internalQrSvg} />
     </div>
 
-    <p class="text-xs font-mono text-gray-400 break-all text-center px-4">
-      {apkUrl !== '#' ? apkUrl : 'URL NOT CONFIGURED'}
+    <!-- 功能按钮区 -->
+    <div class="w-full space-y-3">
+      <a href="https://serpilo.com/downloads/latest.apk" target="_blank" class="flex items-center justify-between w-full glass px-6 py-4 rounded-2xl text-brand-blue font-bold hover:bg-brand-blue/10 transition-all hover:translate-x-1 group">
+        <div class="flex items-center gap-3">
+          <Download class="w-5 h-5" />
+          <span>{t('download.internal_test_dl1')}</span>
+        </div>
+        <ExternalLink class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+      </a>
+
+      <a href="https://github.com/wuyxp/tortoise-web/releases/latest/download/app-release.apk" target="_blank" class="flex items-center justify-between w-full glass px-6 py-4 rounded-2xl text-gray-600 font-bold hover:bg-gray-100 dark:hover:bg-gray-800 transition-all hover:translate-x-1 group">
+        <div class="flex items-center gap-3">
+          <Download class="w-5 h-5" />
+          <span>{t('download.internal_test_dl2')}</span>
+        </div>
+        <ExternalLink class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+      </a>
+
+      <a href="https://serpilo.com/downloads/version.txt" target="_blank" class="flex items-center justify-between w-full bg-brand-blue/5 px-6 py-4 rounded-2xl text-brand-blue/70 text-sm font-bold hover:bg-brand-blue/10 transition-all group">
+        <div class="flex items-center gap-3">
+          <Info class="w-5 h-5" />
+          <span>{t('download.internal_test_version')}</span>
+        </div>
+        <span class="text-xs opacity-40 group-hover:opacity-100 transition-opacity uppercase font-mono">version.txt</span>
+      </a>
+    </div>
+
+    <p class="text-[10px] font-mono text-gray-400 opacity-50 uppercase tracking-tighter">
+      Powered by Captain Tort Island Infra
     </p>
   </div>
 </dialog>
@@ -215,29 +245,49 @@ const sizeHint = t('download.size_hint').replace('{size}', sizeMb);
   if (openBtn && modal) {
     openBtn.addEventListener('click', () => {
       modal.showModal();
+      document.body.style.overflow = 'hidden'; // 防止背景滚动
     });
   }
 
   if (closeBtn && modal) {
-    closeBtn.addEventListener('click', () => {
+    const handleClose = () => {
       modal.close();
-    });
+      document.body.style.overflow = '';
+    };
+
+    closeBtn.addEventListener('click', handleClose);
 
     // 点击背景关闭
     modal.addEventListener('click', (e) => {
-      if (e.target === modal) modal.close();
+      if (e.target === modal) handleClose();
+    });
+
+    // ESC 关闭
+    modal.addEventListener('cancel', () => {
+      document.body.style.overflow = '';
     });
   }
 </script>
 
 <style>
   dialog::backdrop {
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(12px);
+    background-color: rgba(0, 0, 0, 0.4);
+    animation: fade-in 0.3s ease-out;
   }
 
   dialog[open] {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    animation: scale-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes scale-up {
+    from { opacity: 0; transform: scale(0.9) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 </style>

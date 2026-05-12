@@ -43,6 +43,9 @@ export const ui = {
     'download.preparing_desc': '正在进行最后的设备兼容性调试，敬请期待小海龟登岸。',
     'download.internal_test_entry': '内部测试通道',
     'download.internal_test_title': '开发者测试入口',
+    'download.internal_test_dl1': '下载地址一 (阿里云)',
+    'download.internal_test_dl2': '下载地址二 (GitHub)',
+    'download.internal_test_version': '查看版本说明',
     // MEETING-2026-05-12-02-apk-distribution (Claude 占位文案, Gemini 后续儿童柔软风格润色)
     'download.cta': '把小海龟带回家',
     'download.cn_mirror': '在大陆？试试阿里云分流岛',
@@ -108,6 +111,9 @@ export const ui = {
     'download.preparing_desc': 'Final device compatibility debugging is underway. Stay tuned for the Tortoise to land.',
     'download.internal_test_entry': 'Internal Test Entry',
     'download.internal_test_title': 'Internal Test Access',
+    'download.internal_test_dl1': 'Download (Aliyun)',
+    'download.internal_test_dl2': 'Download (GitHub)',
+    'download.internal_test_version': 'Release Notes',
     // MEETING-2026-05-12-02-apk-distribution (Claude placeholder copy, Gemini later polish)
     'download.cta': 'Bring Captain Tort Home',
     'download.cn_mirror': 'In Mainland? Try Aliyun Branch Island',

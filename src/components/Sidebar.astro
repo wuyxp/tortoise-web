@@ -1,11 +1,8 @@
 ---
-import { getCollection } from 'astro:content';
-
-const { activeSlug } = Astro.props;
-
-// 读取 _sidebar.md 内容 (简单解析，支持二级结构)
 import fs from 'node:fs';
 import path from 'node:path';
+
+const { activeSlug } = Astro.props;
 
 const sidebarPath = path.resolve('src/content/tortoise-source/_sidebar.md');
 const sidebarContent = fs.readFileSync(sidebarPath, 'utf-8');
@@ -14,7 +11,6 @@ interface SidebarItem {
   title: string;
   slug?: string;
   children?: SidebarItem[];
-  isHeader?: boolean;
 }
 
 function parseSidebar(content: string): SidebarItem[] {
@@ -26,7 +22,7 @@ function parseSidebar(content: string): SidebarItem[] {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith('<!--')) continue;
 
-    // 一级标题 (无链接的 * 文本)
+    // Header Match: * Text
     const headerMatch = trimmed.match(/^\* ([^\[].+)$/);
     if (headerMatch) {
       currentHeader = { title: headerMatch[1], children: [] };
@@ -34,17 +30,23 @@ function parseSidebar(content: string): SidebarItem[] {
       continue;
     }
 
-    // 链接项 (支持一级或二级)
-    const linkMatch = trimmed.match(/^(\s*)\* \[([^\]]+)\]\(([^)]+)\)/);
+    // Link Match: * [Title](Path)
+    // Matches indentation for children
+    const linkMatch = line.match(/^(\s*)\* \[([^\]]+)\]\(([^)]+)\)/);
     if (linkMatch) {
       const indent = linkMatch[1].length;
       const title = linkMatch[2];
-      let slug = linkMatch[3].replace('.md', '');
+      let rawPath = linkMatch[3];
 
-      // README -> readme
-      if (slug.toLowerCase() === 'readme') slug = 'readme';
+      // Normalize path to ID: 01-overview/product-overview.md -> 01-overview/product-overview
+      let id = rawPath.replace(/\.mdx?$/, '');
 
-      const item = { title, slug };
+      // Content layer IDs are lowercase by default if folder names are lowercase,
+      // but let's keep it consistent with what glob loader produces.
+      // Usually it's lowercase.
+      id = id.toLowerCase();
+
+      const item = { title, slug: id };
 
       if (indent > 0 && currentHeader) {
         currentHeader.children?.push(item);
@@ -59,30 +61,33 @@ function parseSidebar(content: string): SidebarItem[] {
 const sidebarItems = parseSidebar(sidebarContent);
 ---
 
-<nav class="space-y-8 text-sm">
+<nav class="space-y-10 text-sm font-bold">
   {sidebarItems.map(item => (
-    <div>
+    <div class="space-y-4">
       {item.slug ? (
         <a
           href={`/docs/${item.slug}`}
-          class={`block py-2 font-bold transition-colors ${activeSlug === item.slug ? 'text-brand-blue' : 'hover:text-brand-blue text-gray-900 dark:text-gray-100'}`}
+          class={`block py-2 px-4 rounded-xl transition-all ${activeSlug?.toLowerCase() === item.slug ? 'glass-darker text-brand-blue translate-x-1' : 'hover:bg-black/5 dark:hover:bg-white/5 text-gray-900 dark:text-gray-100'}`}
         >
           {item.title}
         </a>
       ) : (
-        <h5 class="mb-3 font-bold text-gray-400 uppercase tracking-wider text-[10px]">
+        <h5 class="px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
           {item.title}
         </h5>
       )}
 
       {item.children && item.children.length > 0 && (
-        <ul class="space-y-2 border-l border-gray-100 dark:border-gray-800 ml-1">
+        <ul class="space-y-1 ml-4 border-l-2 border-black/5 dark:border-white/5">
           {item.children.map(child => (
             <li>
               <a
                 href={`/docs/${child.slug}`}
-                class={`block py-1.5 pl-4 -ml-px border-l transition-colors ${activeSlug === child.slug ? 'border-brand-blue text-brand-blue font-medium' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'}`}
+                class={`block py-2.5 pl-6 -ml-[2px] border-l-2 transition-all group relative ${activeSlug?.toLowerCase() === child.slug ? 'border-brand-blue text-brand-blue' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-300'}`}
               >
+                {activeSlug?.toLowerCase() === child.slug && (
+                  <div class="absolute left-[-2px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-brand-blue rounded-full blur-[2px]"></div>
+                )}
                 {child.title}
               </a>
             </li>

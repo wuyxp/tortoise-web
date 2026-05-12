@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { ShieldCheck, Zap, Smartphone, ArrowRight, Mail, QrCode } from 'lucide-astro';
+import { ShieldCheck, Zap, Smartphone, ArrowRight, QrCode, Sparkles } from 'lucide-astro';
 
 const playStoreUrl = import.meta.env.PUBLIC_PLAY_STORE_URL ?? '#';
 const domesticStoreUrl = import.meta.env.PUBLIC_DOMESTIC_STORE_URL ?? '#';
@@ -13,217 +13,162 @@ const showDomesticStore = domesticStoreUrl !== '#';
 ---
 
 <BaseLayout>
-  <!-- 1. Hero -->
-  <section class="relative overflow-hidden pt-20 pb-24 md:pt-32 md:pb-40">
-    <div class="absolute inset-0 -z-10 bg-[radial-gradient(45%_45%_at_50%_50%,rgba(91,108,246,0.08)_0%,rgba(238,247,240,0)_100%)] dark:bg-[radial-gradient(45%_45%_at_50%_50%,rgba(91,108,246,0.15)_0%,rgba(3,7,18,0)_100%)]"></div>
-    <div class="max-w-6xl mx-auto px-6 text-center">
-      <div class="inline-block animate-float mb-8">
-        <img src="/images/illu_tortoise_sunrise.webp" alt="Captain Tort Sunrise" class="w-48 h-48 md:w-64 md:h-64 object-contain drop-shadow-2xl" />
-      </div>
-      <h1 class="text-4xl md:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-b from-headline-blue to-brand-blue bg-clip-text text-transparent">
-        陪伴孩子建立健康<br class="hidden md:block" />的屏幕使用习惯
-      </h1>
-      <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-10 leading-relaxed">
-        {siteName} 通过游戏化激励和六阶段渐进式提醒，<br class="hidden md:block" />
-        引导 6-14 岁儿童学会自主管理短视频时间，守护专注力与好奇心。
-      </p>
-      <div class="flex flex-col sm:flex-row justify-center gap-4">
-        <a href="#download" class="px-8 py-4 bg-brand-green text-white rounded-full font-bold shadow-lg shadow-brand-green/20 hover:scale-105 transition-transform active:scale-95">
-          立即开始探索
-        </a>
-        <a href="/docs/readme" class="px-8 py-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full font-bold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
-          查看技术文档 <ArrowRight size={18} />
-        </a>
-      </div>
-      <p class="text-sm text-brand-green mt-8 font-medium italic opacity-80">
-        "温柔引导, 逐步收紧" — 离线优先，隐私守底
-      </p>
+  <!-- 1. Hero Section -->
+  <section class="relative pt-24 pb-32 md:pt-40 md:pb-56 overflow-hidden">
+    <!-- Background Elements -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] h-full -z-10 opacity-40">
+       <div class="absolute top-0 left-1/4 w-96 h-96 bg-brand-green/20 blur-[120px] rounded-full"></div>
+       <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-brand-blue/20 blur-[120px] rounded-full"></div>
     </div>
 
-    <!-- Wave Decoration -->
-    <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] transform rotate-180">
-        <svg class="relative block w-[calc(100%+1.3px)] h-[60px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="fill-white dark:fill-gray-950 opacity-10"></path>
-        </svg>
-    </div>
-  </section>
-
-  <!-- 2. Why Tortoise -->
-  <section class="py-24 bg-white dark:bg-gray-900/50">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl md:text-4xl font-bold text-headline-blue mb-4">为什么选择 {siteName}</h2>
-        <p class="text-gray-500 dark:text-gray-400">拒绝暴力锁屏，建立信任连接</p>
+    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 items-center gap-16">
+      <div class="space-y-10 text-center md:text-left">
+        <div class="inline-flex items-center gap-2 px-5 py-2 glass rounded-full text-sm font-black text-brand-blue animate-fade-in">
+           <Sparkles size={16} /> <span>THE FUTURE OF TIME MANAGEMENT</span>
+        </div>
+        <h1 class="text-5xl md:text-8xl font-black tracking-tight leading-[1.1]">
+           让屏幕时间<br />
+           <span class="text-gradient">回归自由</span>
+        </h1>
+        <p class="text-xl md:text-2xl text-gray-500 dark:text-gray-400 max-w-xl leading-relaxed font-medium">
+          {siteName} 是专为 6-14 岁儿童设计的探险伙伴。通过透明的技术逻辑与游戏化叙事，引导孩子学会自主掌控。
+        </p>
+        <div class="flex flex-col sm:flex-row gap-5">
+          <a href="#download" class="px-10 py-5 bg-brand-green text-white rounded-[2rem] font-black text-lg shadow-[0_20px_40px_-15px_rgba(61,170,106,0.3)] hover:scale-105 active:scale-95 transition-all">
+            开始探险
+          </a>
+          <a href="/docs/readme" class="px-10 py-5 glass rounded-[2rem] font-black text-lg hover:bg-white/60 dark:hover:bg-gray-800/60 flex items-center justify-center gap-3 transition-all group">
+            技术白皮书 <ArrowRight size={20} class="group-hover:translate-x-2 transition-transform" />
+          </a>
+        </div>
       </div>
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="group p-8 rounded-3xl bg-mint/30 dark:bg-gray-800/30 border border-brand-green/10 hover:border-brand-green/30 hover:shadow-xl hover:shadow-brand-green/5 transition-all duration-300 hover:-translate-y-2">
-          <div class="w-14 h-14 bg-brand-green/10 rounded-2xl flex items-center justify-center text-brand-green mb-6 group-hover:scale-110 transition-transform">
-            <Zap size={28} />
-          </div>
-          <h3 class="text-xl font-bold mb-3 text-gray-800 dark:text-white">不强制锁屏</h3>
-          <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-            六阶段渐进提醒 (温和→友好→严肃→100%阻断)，引导式而非对抗式，让孩子学会自主管理而非被惩罚。
-          </p>
+
+      <div class="relative group">
+        <!-- Floating Illustration -->
+        <div class="relative z-10 animate-float">
+           <img src="/images/illu_tortoise_sunrise.webp" alt="Hero" class="w-full max-w-lg mx-auto drop-shadow-[0_40px_60px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_40px_60px_rgba(91,108,246,0.3)]" />
         </div>
-        <div class="group p-8 rounded-3xl bg-lavender/30 dark:bg-gray-800/30 border border-brand-blue/10 hover:border-brand-blue/30 hover:shadow-xl hover:shadow-brand-blue/5 transition-all duration-300 hover:-translate-y-2">
-          <div class="w-14 h-14 bg-brand-blue/10 rounded-2xl flex items-center justify-center text-brand-blue mb-6 group-hover:scale-110 transition-transform">
-            <ShieldCheck size={28} />
-          </div>
-          <h3 class="text-xl font-bold mb-3 text-gray-800 dark:text-white">离线优先</h3>
-          <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-            所有数据本地存储，零云端追踪，零账号注册。匿名 ID 仅用于崩溃统计，符合儿童隐私守底。
-          </p>
-        </div>
-        <div class="group p-8 rounded-3xl bg-coach-card/30 dark:bg-gray-800/30 border border-orange-200/20 hover:border-orange-200/40 hover:shadow-xl hover:shadow-orange-200/5 transition-all duration-300 hover:-translate-y-2">
-          <div class="w-14 h-14 bg-orange-100/50 dark:bg-orange-900/20 rounded-2xl flex items-center justify-center text-orange-600 dark:text-orange-400 mb-6 group-hover:scale-110 transition-transform">
-            <Smartphone size={28} />
-          </div>
-          <h3 class="text-xl font-bold mb-3 text-gray-800 dark:text-white">全品牌兼容</h3>
-          <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-            华为 / 小米 / OPPO / vivo / 三星 / 一加 / 魅族 / 联想 全适配，基于能力探测 + 引导表驱动，无厂商分支。
-          </p>
-        </div>
+        <!-- Decorative Organic Shape -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] glass organic-radius -z-10 opacity-20 scale-90 group-hover:scale-100 transition-transform duration-1000"></div>
       </div>
     </div>
   </section>
 
-  <!-- 3. Captain Tort Letter -->
-  <section class="py-24 overflow-hidden">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="bg-coach-card dark:bg-gray-800 rounded-[3rem] p-8 md:p-16 relative flex flex-col md:flex-row items-center gap-12">
-        <div class="flex-1 space-y-6">
-          <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/50 dark:bg-gray-700/50 rounded-full text-sm font-bold text-orange-600 dark:text-orange-400">
-            🐢 Captain Tort 的信
-          </div>
-          <h3 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white">把“节省的时间”<br />变成真实的探险</h3>
-          <p class="text-gray-600 dark:text-gray-400 leading-relaxed text-lg">
-            探险队长会带孩子在龟岛上完成派遣任务，把节省下的屏幕时间变成探险币，解锁岛屿建筑、收集图鉴、写下日记 — 让节制变成乐趣。
-          </p>
-          <div class="pt-4">
-             <a href="/docs/04-narrative/e14-island-lore-bible" class="text-brand-blue font-bold flex items-center gap-2 hover:gap-3 transition-all">
-               探索龟岛传说 <ArrowRight size={18} />
+  <!-- 2. Bento Why Tortoise -->
+  <section class="py-32">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid md:grid-cols-4 md:grid-rows-2 gap-6 h-[700px]">
+        <!-- Main Logic Card -->
+        <div class="md:col-span-2 md:row-span-2 glass p-12 rounded-[3.5rem] relative overflow-hidden group">
+           <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-brand-green/10 rounded-full blur-[80px] group-hover:bg-brand-green/20 transition-colors"></div>
+           <Zap size={64} class="text-brand-green mb-10" />
+           <h3 class="text-4xl font-black mb-6">六阶段<br />温和提醒</h3>
+           <p class="text-xl text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
+             从低优先级通知到高亮遮罩，我们不搞突然袭击。给予孩子足够的“缓冲区”，让他们在最后锁定前有时间完成手中的游戏。
+           </p>
+           <img src="/images/illu_tortoise_wave.webp" class="absolute right-12 bottom-12 w-32 h-32 object-contain opacity-20 group-hover:rotate-12 transition-transform duration-700" alt="" />
+        </div>
+
+        <!-- Privacy Card -->
+        <div class="md:col-span-2 glass-darker p-10 rounded-[3.5rem] flex flex-col justify-between border-brand-blue/20">
+           <div class="flex justify-between items-start">
+              <ShieldCheck size={48} class="text-brand-blue" />
+              <div class="px-4 py-1.5 bg-brand-blue/10 rounded-full text-[10px] font-black text-brand-blue">SECURITY: HIGH</div>
+           </div>
+           <div>
+              <h3 class="text-3xl font-black mb-4">隐私即是正义</h3>
+              <p class="text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+                零云端同步。所有计时、配置、日记均存储在设备本地 Room 数据库中。
+              </p>
+           </div>
+        </div>
+
+        <!-- Compatibility Card -->
+        <div class="md:col-span-1 glass p-8 rounded-[3.5rem] flex flex-col items-center justify-center text-center gap-4">
+           <Smartphone size={40} class="text-headline-blue" />
+           <h4 class="font-black text-xl">8 品牌<br />完美适配</h4>
+        </div>
+
+        <!-- Transparency Card -->
+        <div class="md:col-span-1 bg-gray-900 dark:bg-white p-8 rounded-[3.5rem] flex flex-col items-center justify-center text-center gap-4 group">
+           <a href="/docs/readme" class="text-white dark:text-black font-black flex flex-col items-center gap-2 group-hover:scale-110 transition-transform">
+              <Sparkles size={32} />
+              <span>逻辑全透明</span>
+           </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Crystal Journal Section -->
+  <section class="py-32 relative">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="glass rounded-[4rem] p-12 md:p-24 flex flex-col md:row items-center gap-20 relative overflow-hidden">
+        <!-- Decoration Sand Texture -->
+        <div class="absolute inset-0 noise opacity-5 pointer-events-none"></div>
+
+        <div class="flex-1 space-y-10 relative z-10 text-center md:text-left">
+           <div class="inline-block px-5 py-2 glass rounded-2xl organic-radius text-sm font-black text-orange-600">ADVENTURE LOG</div>
+           <h3 class="text-4xl md:text-6xl font-black leading-tight">将每一秒节省的时间<br /><span class="text-gradient">铸造成勋章</span></h3>
+           <p class="text-xl text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
+             Captain Tort 不仅是监管者，更是探险队长。孩子节省下的屏幕时间会变成“探险币”，用于解锁龟岛上的神秘建筑。
+           </p>
+           <div class="pt-6">
+             <a href="/docs/04-narrative/e14-island-lore-bible" class="inline-flex items-center gap-3 font-black text-brand-blue group">
+                探索岛屿传说圣经 <div class="w-12 h-12 glass rounded-full flex items-center justify-center group-hover:translate-x-4 transition-all"><ArrowRight size={20} /></div>
              </a>
-          </div>
+           </div>
         </div>
-        <div class="flex-1 relative">
-           <img src="/images/captain_tort_letter.webp" alt="Captain Tort Letter" class="w-full max-w-md mx-auto drop-shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500" />
-           <img src="/images/illu_tortoise_peek.webp" alt="Tortoise Peek" class="absolute -bottom-10 -left-10 w-32 h-32 object-contain animate-float" />
+
+        <div class="flex-1 relative group">
+           <!-- Letter with Glass Overlay -->
+           <div class="relative">
+              <img src="/images/captain_tort_letter.webp" alt="Letter" class="w-full max-w-md mx-auto rotate-[-2deg] drop-shadow-2xl group-hover:rotate-0 transition-transform duration-700" />
+              <div class="absolute -top-10 -right-10 glass-darker w-48 h-48 organic-radius p-8 animate-float">
+                 <img src="/images/illu_tortoise_peek.webp" class="w-full h-full object-contain" alt="Peek" />
+              </div>
+           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 4. Download Section -->
-  <section id="download" class="py-24 text-center">
-    <div class="max-w-4xl mx-auto px-6">
-      <h2 class="text-3xl md:text-4xl font-bold text-headline-blue mb-8">立即下载</h2>
+  <!-- 4. Download Crystal Panel -->
+  <section id="download" class="py-32">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      <h2 class="text-4xl md:text-6xl font-black mb-16 tracking-tight">立即加入<br /><span class="text-gradient">Alpha 测试</span></h2>
 
       {(!showPlayStore && !showDomesticStore) ? (
-        <div class="bg-lavender dark:bg-gray-800 p-8 rounded-3xl border-2 border-dashed border-brand-blue/20">
-          <p class="text-xl font-bold text-brand-blue mb-4">应用上架准备中, 敬请期待</p>
-          <p class="text-gray-600 dark:text-gray-400 mb-8">首个 Alpha 版本正在内部测试中，你可以扫码加入开发者群获取内测资格：</p>
-          <div class="flex flex-col items-center gap-4">
-            <div class="w-48 h-48 bg-white p-4 rounded-2xl shadow-inner flex items-center justify-center text-gray-300">
-              <QrCode size={120} strokeWidth={1} />
+        <div class="glass p-16 rounded-[4rem] border-2 border-brand-blue/10 relative group">
+          <div class="absolute inset-0 bg-brand-blue/5 blur-3xl rounded-[4rem] -z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <p class="text-2xl font-black text-brand-blue mb-6 tracking-tight">APP 上架准备中</p>
+          <p class="text-lg text-gray-500 dark:text-gray-400 mb-12 font-medium">正在进行最后的设备兼容性调试。请扫码加入 Alpha 开发者群：</p>
+          <div class="flex flex-col items-center gap-8">
+            <div class="w-56 h-56 glass p-6 rounded-[2.5rem] relative">
+              <div class="absolute inset-0 bg-white dark:bg-gray-800 rounded-[2.5rem] -z-10"></div>
+              <QrCode size={176} strokeWidth={1.5} class="text-gray-300 dark:text-gray-600" />
             </div>
-            <p class="text-xs text-gray-400">[Alpha 内测群占位]</p>
-            <a href={`mailto:${feedbackEmail}`} class="mt-4 flex items-center gap-2 text-brand-green font-bold hover:underline">
-               <Mail size={18} /> 订阅上架通知
+            <a href={`mailto:${feedbackEmail}`} class="text-brand-green font-black text-xl hover:scale-110 transition-transform flex items-center gap-3">
+               订阅发布动态 <ArrowRight />
             </a>
           </div>
         </div>
       ) : (
-        <div class="flex justify-center gap-6 flex-wrap">
+        <div class="flex flex-col sm:flex-row justify-center gap-8">
           {showPlayStore && (
-            <a href={playStoreUrl} target="_blank" rel="noopener" class="flex items-center gap-3 bg-gray-900 text-white px-10 py-5 rounded-2xl font-bold hover:bg-black transition shadow-xl">
-               <img src="/favicon.svg" class="w-6 h-6" alt="Google Play" />
-               Google Play 下载
+            <a href={playStoreUrl} target="_blank" rel="noopener" class="flex items-center gap-4 glass-darker px-12 py-6 rounded-[2rem] font-black text-xl hover:scale-105 transition-all">
+               <img src="/favicon.svg" class="w-8 h-8" alt="" />
+               Google Play
             </a>
           )}
           {showDomesticStore && (
-            <a href={domesticStoreUrl} target="_blank" rel="noopener" class="flex items-center gap-3 bg-brand-blue text-white px-10 py-5 rounded-2xl font-bold hover:opacity-90 transition shadow-xl">
+            <a href={domesticStoreUrl} target="_blank" rel="noopener" class="flex items-center gap-4 bg-brand-blue text-white px-12 py-6 rounded-[2rem] font-black text-xl shadow-2xl shadow-brand-blue/30 hover:scale-105 transition-all">
                <Smartphone size={24} />
-               国内应用商店
+               本地应用商店
             </a>
           )}
         </div>
       )}
-    </div>
-  </section>
-
-  <!-- 5. Privacy Commitment -->
-  <section class="py-24 bg-mint/20 dark:bg-gray-900/40">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="text-center mb-16">
-        <h3 class="text-3xl font-bold text-headline-blue mb-4">隐私守底</h3>
-        <p class="text-gray-500">我们比你更在乎孩子的隐私</p>
-      </div>
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-8 text-center">
-        {[
-          { icon: ShieldCheck, label: "零账号注册", sub: "无手机号/邮箱绑定" },
-          { icon: Smartphone, label: "离线优先", sub: "数据仅存本地" },
-          { icon: Zap, label: "无云端追踪", sub: "拒绝行为大数据" },
-          { icon: Mail, label: "透明合规", sub: "COPPA 严苛设计" },
-          { icon: ShieldCheck, label: "一键清除", sub: "随存随删, 彻底告别" }
-        ].map(item => (
-          <div class="p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700">
-            <item.icon class="mx-auto mb-4 text-brand-green" size={32} />
-            <h4 class="font-bold text-sm mb-1">{item.label}</h4>
-            <p class="text-[10px] text-gray-400">{item.sub}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <!-- 6. Docs Hero Entry -->
-  <section class="py-24">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="bg-gradient-to-br from-brand-blue to-indigo-700 rounded-[3rem] p-8 md:p-16 text-white relative overflow-hidden group">
-         <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-white/20 transition-colors"></div>
-         <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
-            <div class="max-w-xl">
-               <h3 class="text-3xl md:text-4xl font-bold mb-6">技术透明性</h3>
-               <p class="text-white/80 text-lg mb-8 leading-relaxed">
-                 {siteName} 不只是一个 App，它是一套公开的、可被审计的教育逻辑。
-                 我们公开了全部的产品架构、决策日志和测试矩阵，让家长和开发者都放心。
-               </p>
-               <div class="space-y-4 mb-8">
-                 {["产品概述与系统架构", "权限与锁定设计", "七潮传说圣经"].map(doc => (
-                   <div class="flex items-center gap-3 text-sm text-white/90">
-                     <span class="w-1.5 h-1.5 bg-brand-green rounded-full"></span>
-                     {doc}
-                   </div>
-                 ))}
-               </div>
-               <a href="/docs/readme" class="inline-flex items-center gap-2 bg-white text-brand-blue px-8 py-4 rounded-full font-bold hover:scale-105 transition-transform">
-                 查阅技术文档 <ArrowRight size={18} />
-               </a>
-            </div>
-            <div class="hidden md:block">
-               <div class="w-80 h-96 bg-gray-900/50 backdrop-blur rounded-2xl border border-white/10 p-6 shadow-2xl rotate-3">
-                  <div class="flex gap-2 mb-4">
-                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                  </div>
-                  <div class="space-y-4 opacity-50 font-mono text-xs">
-                    <div class="h-2 w-3/4 bg-white/20 rounded"></div>
-                    <div class="h-2 w-1/2 bg-white/20 rounded"></div>
-                    <div class="h-2 w-5/6 bg-white/20 rounded"></div>
-                    <div class="pt-4 h-2 w-full bg-white/10 rounded"></div>
-                    <div class="h-2 w-full bg-white/10 rounded"></div>
-                    <div class="h-2 w-2/3 bg-white/10 rounded"></div>
-                    <div class="pt-4">
-                       <div class="h-32 w-full bg-brand-green/20 rounded-lg flex items-center justify-center">
-                          <img src="/favicon.svg" class="w-12 h-12 opacity-50" alt="" />
-                       </div>
-                    </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </div>
     </div>
   </section>
 

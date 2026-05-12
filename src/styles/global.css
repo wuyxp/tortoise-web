@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "@fontsource/lxgw-wenkai/index.css";
 
-/* Tortoise brand color tokens (复用 docs/05-design/ui-specification.md, MEETING-2026-05-11-05) */
 @theme {
   --color-mint: #EEF7F0;
   --color-lavender: #F5F6FF;
@@ -14,95 +13,167 @@
   --font-display: "LXGW WenKai", sans-serif;
   --font-sans: "LXGW WenKai", ui-sans-serif, system-ui, sans-serif;
 
-  --animate-fade-in: fade-in 0.6s ease-out;
-  --animate-float: float 3s ease-in-out infinite;
+  --animate-fade-in: fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-float: float 4s ease-in-out infinite;
+  --animate-wave: wave 15s linear infinite;
 
   @keyframes fade-in {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(20px) scale(0.98); filter: blur(10px); }
+    to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
   }
 
   @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    33% { transform: translateY(-12px) rotate(1deg); }
+    66% { transform: translateY(-5px) rotate(-1deg); }
   }
+
+  @keyframes wave {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(-25%); }
+    100% { transform: translateX(0); }
+  }
+}
+
+@utility glass {
+  backdrop-filter: blur(24px);
+  background-color: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+.dark @utility glass {
+  background-color: rgba(17, 24, 39, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@utility glass-darker {
+  backdrop-filter: blur(40px);
+  background-color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+}
+
+.dark @utility glass-darker {
+  background-color: rgba(17, 24, 39, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@utility organic-radius {
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+}
+
+@utility text-gradient {
+  background-image: linear-gradient(to bottom right, var(--color-brand-blue), var(--color-headline-blue), var(--color-brand-green));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility mesh-gradient {
+  background-color: #eef7f0;
+  background-image:
+    radial-gradient(at 0% 0%, hsla(232,88%,90%,1) 0, transparent 50%),
+    radial-gradient(at 50% 0%, hsla(142,50%,95%,1) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(232,88%,95%,1) 0, transparent 50%);
+}
+
+.dark @utility mesh-gradient {
+  background-color: #030712;
+  background-image:
+    radial-gradient(at 0% 0%, hsla(232,88%,15%,0.3) 0, transparent 50%),
+    radial-gradient(at 50% 0%, hsla(142,50%,10%,0.3) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(232,88%,15%,0.3) 0, transparent 50%);
 }
 
 @layer base {
   body {
-    @apply font-sans transition-colors duration-300;
+    @apply font-sans transition-colors duration-500 overflow-x-hidden;
   }
 }
 
-/* docs 渲染精修 (Gemini Refinement) */
+/* Documentation Content Refinement */
 .prose-tortoise {
   @apply max-w-4xl mx-auto leading-relaxed text-gray-700 dark:text-gray-300;
 }
 
 .prose-tortoise h1 {
-  @apply text-3xl font-bold text-headline-blue mt-8 mb-4 border-b pb-2;
+  @apply text-4xl font-bold text-headline-blue mt-12 mb-6 tracking-tight;
 }
 
 .prose-tortoise h2 {
-  @apply text-2xl font-bold text-headline-blue mt-8 mb-4 flex items-center gap-2;
+  @apply text-2xl font-bold text-headline-blue mt-12 mb-6 flex items-center gap-3 py-2 border-b border-black/5 dark:border-white/5;
 }
 
 .prose-tortoise h2::before {
-  content: "🐢";
-  @apply text-lg;
+  content: "";
+  @apply w-2 h-8 bg-brand-green rounded-full;
 }
 
 .prose-tortoise h3 {
-  @apply text-xl font-bold text-gray-800 dark:text-white mt-6 mb-3;
+  @apply text-xl font-bold text-gray-800 dark:text-white mt-8 mb-4;
 }
 
-.prose-tortoise p { @apply my-4; }
+.prose-tortoise p { @apply my-5 text-lg; opacity: 0.9; }
 
-.prose-tortoise ul, .prose-tortoise ol { @apply my-4 pl-6; }
-.prose-tortoise ul { @apply list-disc; }
-.prose-tortoise ol { @apply list-decimal; }
+.prose-tortoise ul, .prose-tortoise ol { @apply my-6 pl-8 space-y-2; }
+.prose-tortoise ul { @apply list-none; }
+.prose-tortoise ul li { @apply relative; }
+.prose-tortoise ul li::before {
+  content: "•";
+  @apply absolute -left-5 text-brand-green font-bold;
+}
 
-.prose-tortoise li { @apply my-1; }
+.prose-tortoise li { @apply my-2; }
 
 .prose-tortoise code {
-  @apply bg-mint dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-brand-green;
+  @apply bg-brand-green/10 dark:bg-brand-green/20 px-1.5 py-0.5 rounded text-sm font-mono text-brand-green font-semibold;
+}
+
+.mermaid-container {
+  @apply my-12 glass rounded-3xl p-8 relative overflow-hidden border-2 border-brand-blue/10;
+}
+
+.mermaid-container::after {
+  content: "SYSTEM ARCHITECTURE VIEW";
+  @apply absolute top-4 right-6 text-[10px] font-bold text-brand-blue/40 tracking-[0.2em];
 }
 
 .prose-tortoise pre {
-  @apply bg-gray-50 dark:bg-gray-900 p-4 rounded-xl overflow-x-auto my-6 border border-gray-100 dark:border-gray-800;
-}
-
-.prose-tortoise table {
-  @apply w-full my-6 border-collapse overflow-hidden rounded-lg border border-gray-200;
-}
-
-.prose-tortoise th, .prose-tortoise td {
-  @apply border border-gray-200 p-3 text-left;
-}
-
-.prose-tortoise th {
-  @apply bg-mint dark:bg-gray-800 font-bold;
+  @apply glass dark:bg-gray-950/80 p-6 rounded-2xl overflow-x-auto my-8 border-2 border-black/5 dark:border-white/5 shadow-inner;
 }
 
 .prose-tortoise blockquote {
-  @apply border-l-4 border-brand-blue pl-4 py-1 my-6 italic bg-blue-50/50 dark:bg-blue-900/20 rounded-r;
+  @apply glass border-l-8 border-brand-blue px-8 py-6 my-10 italic rounded-r-3xl text-gray-600 dark:text-gray-400;
 }
 
 .prose-tortoise img {
-  @apply rounded-xl shadow-md my-8 mx-auto;
+  @apply rounded-3xl shadow-2xl my-12 mx-auto transition-transform hover:scale-[1.02] duration-500;
 }
 
 .prose-tortoise a {
-  @apply text-brand-blue hover:underline decoration-brand-blue/30 underline-offset-4;
+  @apply text-brand-blue hover:text-brand-green transition-colors decoration-brand-blue/20 hover:decoration-brand-green/40 underline underline-offset-8 decoration-2;
 }
 
-/* Custom Scrollbar */
+.noise {
+  position: relative;
+}
+.noise::before {
+  content: "";
+  @apply absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
 ::-webkit-scrollbar-track {
-  @apply bg-transparent;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 dark:bg-gray-700 rounded-full hover:bg-gray-400;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
 }

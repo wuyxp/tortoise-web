@@ -51,37 +51,43 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
       }
     </script>
   </head>
-  <body class="min-h-screen bg-mint dark:bg-gray-950 text-gray-800 dark:text-gray-200 selection:bg-brand-blue selection:text-white">
+  <body class="min-h-screen mesh-gradient noise selection:bg-brand-blue selection:text-white">
     <!-- Header -->
-    <header class="border-b border-black/5 dark:border-white/5 bg-white/70 dark:bg-gray-900/70 backdrop-blur-md sticky top-0 z-50">
-      <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-        <a href="/" class="flex items-center gap-2 group transition-transform hover:scale-105">
-          <img src="/images/illu_tortoise_wave.webp" alt="Logo" class="w-8 h-8 object-contain animate-float" />
-          <span class="text-xl font-bold bg-gradient-to-r from-brand-green to-brand-blue bg-clip-text text-transparent">
+    <header class="glass sticky top-0 z-50 border-b-0">
+      <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-3 group transition-transform hover:scale-105 active:scale-95">
+          <div class="relative">
+            <div class="absolute inset-0 bg-brand-green/20 blur-lg rounded-full animate-pulse"></div>
+            <img src="/images/illu_tortoise_wave.webp" alt="Logo" class="w-10 h-10 object-contain relative animate-float" />
+          </div>
+          <span class="text-2xl font-black text-gradient tracking-tight">
             {siteName}
           </span>
         </a>
 
         <!-- Desktop Nav -->
-        <div class="hidden md:flex items-center gap-8 text-sm font-medium">
-          <a href="/" class="hover:text-brand-blue transition-colors">首页</a>
-          <a href="/docs/readme" class="hover:text-brand-blue transition-colors">技术文档</a>
-          <a href={githubRepo} target="_blank" rel="noopener" class="flex items-center gap-1 hover:text-brand-blue transition-colors">
-            <Github size={16} /> GitHub
-          </a>
-          <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="切换主题">
-            <Sun id="sun-icon" class="hidden dark:block" size={20} />
-            <Moon id="moon-icon" class="block dark:hidden" size={20} />
+        <div class="hidden md:flex items-center gap-10">
+          <div class="flex items-center gap-8 text-sm font-bold text-gray-600 dark:text-gray-300">
+            <a href="/" class="hover:text-brand-blue transition-all hover:translate-y-[-1px]">首页</a>
+            <a href="/docs/readme" class="hover:text-brand-blue transition-all hover:translate-y-[-1px]">技术文档</a>
+            <a href={githubRepo} target="_blank" rel="noopener" class="flex items-center gap-1.5 hover:text-brand-blue transition-all hover:translate-y-[-1px]">
+              <Github size={18} /> GitHub
+            </a>
+          </div>
+          <div class="h-4 w-px bg-black/10 dark:bg-white/10"></div>
+          <button id="theme-toggle" class="p-2.5 rounded-2xl glass hover:bg-white/60 dark:hover:bg-gray-800/60 transition-all active:scale-90" aria-label="切换主题">
+            <Sun id="sun-icon" class="hidden dark:block text-yellow-400" size={20} />
+            <Moon id="moon-icon" class="block dark:hidden text-brand-blue" size={20} />
           </button>
         </div>
 
         <!-- Mobile Menu Button -->
         <div class="md:hidden flex items-center gap-4">
-           <button id="theme-toggle-mobile" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="切换主题">
+           <button id="theme-toggle-mobile" class="p-2.5 rounded-xl glass" aria-label="切换主题">
             <Moon size={20} class="block dark:hidden" />
-            <Sun size={20} class="hidden dark:block" />
+            <Sun size={20} class="hidden dark:block text-yellow-400" />
           </button>
-          <button id="mobile-menu-btn" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="菜单">
+          <button id="mobile-menu-btn" class="p-2.5 rounded-xl glass active:scale-90" aria-label="菜单">
             <Menu id="menu-icon" size={24} />
             <X id="close-icon" size={24} class="hidden" />
           </button>
@@ -89,49 +95,71 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
       </nav>
 
       <!-- Mobile Nav Dropdown -->
-      <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 py-6 space-y-4 shadow-xl">
-        <a href="/" class="block text-lg font-medium hover:text-brand-blue">首页</a>
-        <a href="/docs/readme" class="block text-lg font-medium hover:text-brand-blue">技术文档</a>
-        <a href={githubRepo} target="_blank" rel="noopener" class="flex items-center gap-2 text-lg font-medium hover:text-brand-blue">
-          <Github size={20} /> GitHub
+      <div id="mobile-menu" class="hidden md:hidden glass border-t border-black/5 dark:border-white/5 px-6 py-8 space-y-6 shadow-2xl animate-fade-in">
+        <a href="/" class="block text-2xl font-bold hover:text-brand-blue transition-colors">首页</a>
+        <a href="/docs/readme" class="block text-2xl font-bold hover:text-brand-blue transition-colors">技术文档</a>
+        <a href={githubRepo} target="_blank" rel="noopener" class="flex items-center gap-3 text-2xl font-bold hover:text-brand-blue transition-colors">
+          <Github size={24} /> GitHub
         </a>
       </div>
     </header>
 
-    <main class="animate-fade-in">
+    <main class="animate-fade-in min-h-[calc(100vh-16rem)]">
       <slot />
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-black/5 dark:border-white/5 mt-24 py-16 bg-white/40 dark:bg-gray-900/40">
-      <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-4 gap-12">
+    <footer class="mt-32 pb-24 relative overflow-hidden">
+      <!-- Decoration Wave -->
+      <div class="absolute top-0 left-0 w-full overflow-hidden leading-[0] h-20 opacity-30">
+        <svg class="relative block w-[200%] h-full animate-wave" viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5,73.84-4.36,147.54,16.88,218.2,35.26,69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113,2,1200,34.29V0Z" class="fill-brand-blue"></path>
+        </svg>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-6 pt-24 grid md:grid-cols-4 gap-16 relative z-10">
         <div class="col-span-2">
-          <div class="flex items-center gap-2 mb-4">
-            <img src="/images/illu_tortoise_wave.webp" alt="Logo" class="w-6 h-6 object-contain" />
-            <span class="text-lg font-bold text-brand-green">{siteName}</span>
+          <div class="flex items-center gap-3 mb-8">
+            <img src="/images/illu_tortoise_wave.webp" alt="Logo" class="w-8 h-8 object-contain" />
+            <span class="text-2xl font-black text-brand-green tracking-tight">{siteName}</span>
           </div>
-          <p class="text-sm text-gray-500 dark:text-gray-400 max-w-sm leading-relaxed">
+          <p class="text-lg text-gray-500 dark:text-gray-400 max-w-md leading-relaxed">
             陪伴孩子建立健康的屏幕使用习惯。通过游戏化激励与温柔引导，让 6-14 岁儿童学会自主管理时间。
           </p>
+          <div class="flex gap-4 mt-8">
+             <a href={githubRepo} class="p-3 rounded-2xl glass hover:text-brand-blue transition-all"><Github size={24}/></a>
+             <a href={`mailto:${feedbackEmail}`} class="p-3 rounded-2xl glass hover:text-brand-blue transition-all"><Mail size={24}/></a>
+          </div>
         </div>
-        <div>
-          <h4 class="font-bold mb-4">资源</h4>
-          <ul class="space-y-2 text-sm text-gray-500 dark:text-gray-400">
+
+        <div class="space-y-6">
+          <h4 class="text-xs font-black uppercase tracking-[0.2em] text-gray-400">资源</h4>
+          <ul class="space-y-4 font-bold text-gray-600 dark:text-gray-300">
             <li><a href="/docs/readme" class="hover:text-brand-blue transition-colors">技术文档</a></li>
             <li><a href={githubRepo} class="hover:text-brand-blue transition-colors">GitHub 源码</a></li>
             <li><a href="/docs/04-narrative/e19-arch-data-legal" class="hover:text-brand-blue transition-colors">隐私政策</a></li>
           </ul>
         </div>
-        <div>
-          <h4 class="font-bold mb-4">联系我们</h4>
-          <ul class="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-            <li><a href={`mailto:${feedbackEmail}`} class="flex items-center gap-2 hover:text-brand-blue transition-colors"><Mail size={14}/> {feedbackEmail}</a></li>
+
+        <div class="space-y-6">
+          <h4 class="text-xs font-black uppercase tracking-[0.2em] text-gray-400">支持</h4>
+          <ul class="space-y-4 font-bold text-gray-600 dark:text-gray-300">
+            <li><a href={`mailto:${feedbackEmail}`} class="hover:text-brand-blue transition-colors flex items-center gap-2">反馈邮箱</a></li>
+            <li class="text-sm text-gray-400 font-normal leading-relaxed">基于 Android 7.0+ 原生开发，无云端数据存储。</li>
           </ul>
         </div>
       </div>
-      <div class="max-w-6xl mx-auto px-6 mt-16 pt-8 border-t border-black/5 dark:border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-400">
-        <p>© 2026 {siteName} · 离线优先 · 无追踪</p>
-        <p>Managed with ❤️ for the next generation</p>
+
+      <div class="max-w-7xl mx-auto px-6 mt-24 pt-12 border-t border-black/5 dark:border-white/5 flex flex-col md:row justify-between items-center gap-6">
+        <div class="flex items-center gap-4 text-xs font-bold text-gray-400">
+           <span>© 2026 {siteName}</span>
+           <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
+           <span>CRYSTAL ISLAND EDITION</span>
+        </div>
+        <div class="flex items-center gap-2 px-4 py-2 glass rounded-full text-[10px] font-black text-brand-blue">
+           <div class="w-2 h-2 bg-brand-green rounded-full animate-pulse"></div>
+           SYSTEM STATUS: OPERATIONAL
+        </div>
       </div>
     </footer>
 

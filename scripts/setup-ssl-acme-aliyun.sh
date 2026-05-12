@@ -81,21 +81,22 @@ echo "    (acme.sh 会调用阿里云 DNS API 加 TXT 记录, LE server 查 DNS 
   --keylength 2048 2>&1 | tail -20 || \
   echo "    (cert 已存在或 LE rate limit, 跳过 issue, 继续 install/nginx config)"
 
-# ===== 3. 安装 cert 到 nginx 目录 =====
-echo "==> [3/5] 安装 cert 到 $CERT_DIR/"
+# ===== 3. 安装 cert 到 nginx 目录 (不 reload, 因 nginx config 可能旧) =====
+echo "==> [3/5] 安装 cert 到 $CERT_DIR/ (不 reload, 留 [4/5] 写新 config 后 reload)"
 mkdir -p "$CERT_DIR"
 
+# reloadcmd 用 /bin/true 占位 — 当前 nginx config 可能是旧版 (上次 run 留下的
+# 含 'http2 on;' 等不兼容 directive). 等 [4/5] 写新 config 后再 reload.
 "$ACME" --install-cert -d "$DOMAIN" \
   --key-file       "$CERT_DIR/privkey.pem" \
   --fullchain-file "$CERT_DIR/fullchain.pem" \
-  --reloadcmd      "systemctl reload nginx"
+  --reloadcmd      "/bin/true"
 
 chmod 600 "$CERT_DIR/privkey.pem"
 echo "    ✓ cert + key 已装到 $CERT_DIR/"
-echo "    续期回调: systemctl reload nginx (acme.sh 续期后自动跑)"
 
-# ===== 4. 写 nginx config =====
-echo "==> [4/5] 写 nginx HTTPS config"
+# ===== 4. 写 nginx config + reload =====
+echo "==> [4/5] 写 nginx HTTPS config + reload"
 cat > /etc/nginx/sites-available/tortoise-web <<EOF
 # HTTP 80 → HTTPS 301
 server {
@@ -160,6 +161,14 @@ ln -sf /etc/nginx/sites-available/tortoise-web /etc/nginx/sites-enabled/
 nginx -t
 systemctl reload nginx
 echo "    ✓ nginx reload OK"
+
+# 把 acme.sh 续期 reloadcmd 改回 systemctl reload nginx (本次 install 用 /bin/true 占位)
+# 这样下次 acme.sh 自动续期后会 reload nginx 让新 cert 生效
+"$ACME" --install-cert -d "$DOMAIN" \
+  --key-file       "$CERT_DIR/privkey.pem" \
+  --fullchain-file "$CERT_DIR/fullchain.pem" \
+  --reloadcmd      "systemctl reload nginx" 2>&1 | tail -3
+echo "    ✓ 续期 reloadcmd 已设 (60 天后自动续期 + reload)"
 
 # ===== 5. 自检 + 续期信息 =====
 echo "==> [5/5] 自检"

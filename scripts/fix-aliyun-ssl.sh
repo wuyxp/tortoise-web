@@ -159,7 +159,8 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    # HSTS preload (hstspreload.org 提交要求)
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
 }
 EOF
 

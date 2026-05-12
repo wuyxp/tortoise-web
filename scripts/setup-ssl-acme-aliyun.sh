@@ -153,7 +153,9 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    # HSTS preload (hstspreload.org 提交要求: max-age >= 31536000 + includeSubDomains + preload)
+    # 不可逆: 一旦提交并被 Chrome/Firefox preload list 收录, 6-12 个月才能撤. 详见 PL 议题决议
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
 }
 EOF
 

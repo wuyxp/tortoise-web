@@ -8,7 +8,7 @@
 // PL 通过 GitHub Secret PUBLIC_APK_DOWNLOAD_URL 控制开关:
 //   '#' (默认) → 占位状态 "V1 即将发布"
 //   真 URL    → 真下载状态 (按钮 + 二维码 encode 真 URL + 微信引导)
-import { Smartphone, Shield, Wifi } from 'lucide-astro';
+import { Smartphone, Shield, Wifi, MessageCircle, MoreHorizontal, ExternalLink, Ship } from 'lucide-astro';
 import QRCode from 'qrcode-svg';
 import type { ui } from '../i18n/ui';
 import { useTranslations } from '../i18n/utils';
@@ -37,7 +37,7 @@ const qrSvg = new QRCode({
   padding: 2,
   width: 256,
   height: 256,
-  color: '#1a1a2e',
+  color: isAvailable ? '#B45309' : '#1D4ED8', // 金色 vs 蓝色
   background: 'transparent',
   ecl: 'M',
 }).svg();
@@ -46,49 +46,120 @@ const sha256Short = sha256Fp.length >= 8 ? sha256Fp.slice(0, 8) : sha256Fp;
 const sizeHint = t('download.size_hint').replace('{size}', sizeMb);
 ---
 
-<div class="glass p-12 rounded-[4rem] border-2 border-brand-blue/10">
+<div class="glass-darker p-8 md:p-16 rounded-[4rem] border-2 border-brand-blue/10 relative overflow-hidden">
+  <!-- 背景装饰: 海浪 -->
+  <div class="absolute bottom-0 left-0 w-full opacity-10 pointer-events-none">
+    <svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto translate-y-20">
+      <path fill="currentColor" class="text-brand-blue" d="M0,160L48,176C96,192,192,224,288,224C384,224,480,192,576,165.3C672,139,768,117,864,128C960,139,1056,181,1152,197.3C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+    </svg>
+  </div>
+
   {!isAvailable ? (
     <!-- 占位状态: V1 即将发布 -->
-    <div class="text-center">
-      <p class="text-2xl font-black text-brand-blue mb-3">{t('download.preparing')}</p>
-      <p class="text-lg text-gray-500 mb-8">{t('download.preparing_desc')}</p>
-      <div class="flex flex-col items-center gap-6">
-        <div class="w-56 h-56 glass p-6 rounded-[2.5rem] bg-white" set:html={qrSvg} />
-        <a href={`mailto:${feedbackEmail}`} class="text-brand-green font-black text-xl hover:scale-110 transition-transform">
-          {t('download.subscribe')} →
+    <div class="text-center relative z-10">
+      <div class="inline-flex items-center gap-2 px-4 py-2 bg-brand-blue/10 rounded-full text-brand-blue font-bold text-sm mb-6 animate-pulse">
+        <Ship class="w-4 h-4" />
+        {t('download.preparing')}
+      </div>
+      <p class="text-3xl md:text-5xl font-black text-brand-blue mb-4 leading-tight">{t('download.title2')}</p>
+      <p class="text-lg text-gray-500 mb-12 max-w-md mx-auto">{t('download.preparing_desc')}</p>
+
+      <div class="flex flex-col items-center gap-8">
+        <div class="relative group">
+          <!-- 二维码装饰边框: 蓝色海洋风 -->
+          <div class="absolute -inset-4 bg-brand-blue/5 rounded-[3rem] -rotate-2 group-hover:rotate-0 transition-transform duration-500 border border-brand-blue/10"></div>
+          <div class="absolute -inset-2 bg-white rounded-[2.8rem] shadow-xl"></div>
+
+          <div class="relative w-56 h-56 p-4" set:html={qrSvg} />
+
+          <!-- 装饰元素 -->
+          <div class="absolute -top-6 -right-6 text-4xl animate-bounce">🐢</div>
+        </div>
+
+        <a href={`mailto:${feedbackEmail}`} class="group flex items-center gap-2 text-brand-green font-black text-xl hover:scale-105 transition-all">
+          <span class="border-b-4 border-brand-green/20 group-hover:border-brand-green/60 transition-colors">
+            {t('download.subscribe')}
+          </span>
+          <span class="group-hover:translate-x-2 transition-transform">→</span>
         </a>
       </div>
     </div>
   ) : (
     <!-- 真状态: 下载按钮 + 副链 + 二维码 + 微信引导 + 系统要求 -->
-    <div class="text-center">
-      <a href={apkUrl}
-         class="inline-block bg-brand-green text-white px-12 py-6 rounded-[2rem] font-black text-2xl shadow-2xl hover:scale-105 transition">
-        {t('download.cta')} ({sizeMb} MB)
-      </a>
+    <div class="text-center relative z-10">
+      <div class="flex flex-col items-center gap-6 mb-12">
+        <a href={apkUrl}
+           class="inline-block bg-brand-green text-white px-12 py-6 rounded-full font-black text-2xl shadow-[0_20px_50px_rgba(61,170,106,0.3)] hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(91,108,246,0.4)] transition-all duration-300">
+          {t('download.cta')}
+        </a>
 
-      {apkUrlCn !== '#' && (
-        <div class="mt-4">
-          <a href={apkUrlCn} class="text-brand-blue text-base hover:underline">
+        {apkUrlCn !== '#' && (
+          <a href={apkUrlCn} class="text-brand-blue font-bold text-base hover:underline underline-offset-8 decoration-2 flex items-center gap-1">
+            <ExternalLink class="w-4 h-4" />
             {t('download.cn_mirror')}
           </a>
+        )}
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-12 items-center max-w-4xl mx-auto">
+        <!-- 二维码列 -->
+        <div class="flex flex-col items-center gap-4">
+          <div class="relative group">
+            <!-- 二维码装饰边框: 金色沙滩风 -->
+            <div class="absolute -inset-4 bg-amber-100 rounded-[3rem] rotate-2 group-hover:rotate-0 transition-transform duration-500 border border-amber-200"></div>
+            <div class="absolute -inset-2 bg-white rounded-[2.8rem] shadow-xl"></div>
+
+            <div class="relative w-56 h-56 p-4" set:html={qrSvg} />
+
+            <!-- 装饰元素: 海星/贝壳感 -->
+            <div class="absolute -bottom-4 -left-4 text-3xl animate-float">⭐</div>
+          </div>
+          <p class="text-sm font-bold text-gray-500 mt-2">{t('download.qr_hint')}</p>
         </div>
-      )}
 
-      <div class="mt-8 flex flex-col items-center gap-3">
-        <div class="w-56 h-56 glass p-6 rounded-[2.5rem] bg-white" set:html={qrSvg} />
-        <p class="text-sm text-gray-500">{t('download.qr_hint')}</p>
-      </div>
+        <!-- 微信引导 + 系统要求列 -->
+        <div class="text-left space-y-8">
+          <div class="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-3xl p-6 shadow-sm">
+            <div class="flex items-center gap-3 mb-4 text-amber-700 dark:text-amber-400">
+              <MessageCircle class="w-6 h-6" />
+              <p class="font-black text-lg">{t('download.weixin_title')}</p>
+            </div>
 
-      <div class="mt-8 max-w-xl mx-auto bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-800/30 rounded-2xl p-4 text-sm text-left">
-        <p class="font-bold mb-1">⚠ {t('download.weixin_title')}</p>
-        <p class="text-gray-600 dark:text-gray-400">{t('download.weixin_blocked')}</p>
-      </div>
+            <div class="space-y-4">
+              <div class="flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full bg-amber-200 dark:bg-amber-800 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</div>
+                <p class="text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                  点击右上角 <MoreHorizontal class="w-4 h-4 inline" /> 菜单
+                </p>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full bg-amber-200 dark:bg-amber-800 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</div>
+                <p class="text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                  选择 <ExternalLink class="w-4 h-4 inline" /> {lang === 'zh' ? '在浏览器中打开' : 'Open in Browser'}
+                </p>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full bg-brand-green/20 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 text-brand-green">3</div>
+                <p class="text-brand-green font-bold">{lang === 'zh' ? '自动登岛下载' : 'Start landing!'}</p>
+              </div>
+            </div>
+          </div>
 
-      <div class="mt-6 text-sm text-gray-500 space-y-1">
-        <p><Smartphone class="inline w-4 h-4 mr-1" /> {t('download.system_req')}</p>
-        <p><Wifi class="inline w-4 h-4 mr-1" /> {sizeHint}</p>
-        <p><Shield class="inline w-4 h-4 mr-1" /> {version} · sha256 {sha256Short}…</p>
+          <div class="space-y-3 px-2">
+            <div class="flex items-center gap-3 text-sm text-gray-500">
+              <Smartphone class="w-5 h-5 text-brand-blue/60" />
+              <span>{t('download.system_req')}</span>
+            </div>
+            <div class="flex items-center gap-3 text-sm text-gray-500">
+              <Wifi class="w-5 h-5 text-brand-blue/60" />
+              <span>{sizeHint}</span>
+            </div>
+            <div class="flex items-center gap-3 text-sm text-gray-500">
+              <Shield class="w-5 h-5 text-brand-blue/60" />
+              <span class="font-mono">{version} · <span class="bg-gray-100 dark:bg-gray-800 px-1 rounded">sha256:{sha256Short}</span></span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )}

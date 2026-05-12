@@ -5,12 +5,11 @@ name: "Deploy (dual GitHub Pages + Aliyun nginx)"
 # 任一失败不阻塞另一边 (continue-on-error + 独立 job)
 
 on:
-  push:
-    branches: [main]
+  # ⚠ PAUSED: MEETING-2026-05-11-06-docs-isolation 决议 PL 暂停 deploy 直到
+  # B 方案 (独立 tortoise-docs 公仓) 实施完成. push + repository_dispatch 触发
+  # 已删除, 防意外推送把主仓 PRIVATE 内容暴露公网.
+  # 等 sync-public-docs.sh 接通 + 验证后恢复 push: 与 repository_dispatch:.
   workflow_dispatch:
-  # Tortoise 主仓 push docs/** 时通过 docs-dispatch.yml 触发本 workflow
-  repository_dispatch:
-    types: [docs-updated]
 
 permissions:
   contents: read

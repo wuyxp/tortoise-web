@@ -1,0 +1,120 @@
+name: Deploy (dual: GitHub Pages + Aliyun nginx)
+
+# 议题: MEETING-2026-05-11-04-static-website-v1
+# 双发: 国外用户走 GitHub Pages (Cloudflare 前置可选), 国内用户走阿里云 nginx
+# 任一失败不阻塞另一边 (continue-on-error + 独立 job)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Astro build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout (with submodule)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        run: npm run build
+        env:
+          PUBLIC_SITE_URL: ${{ secrets.PUBLIC_SITE_URL || 'https://serpilo.com' }}
+          PUBLIC_SITE_NAME: ${{ secrets.PUBLIC_SITE_NAME || 'Tortoise' }}
+          PUBLIC_FEEDBACK_EMAIL: ${{ secrets.PUBLIC_FEEDBACK_EMAIL || 'tortoise@example.com' }}
+          PUBLIC_PLAY_STORE_URL: ${{ secrets.PUBLIC_PLAY_STORE_URL || '#' }}
+          PUBLIC_DOMESTIC_STORE_URL: ${{ secrets.PUBLIC_DOMESTIC_STORE_URL || '#' }}
+          PUBLIC_GITHUB_REPO: ${{ secrets.PUBLIC_GITHUB_REPO || 'https://github.com/wuyxp/kotlin-stop-shortTV' }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
+
+  deploy-pages:
+    name: Deploy to GitHub Pages (国外用户)
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    continue-on-error: true
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload to Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  deploy-aliyun:
+    name: Deploy to Aliyun nginx (国内用户)
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    continue-on-error: true
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Verify Aliyun secrets present
+        run: |
+          if [ -z "${{ secrets.ALIYUN_HOST }}" ]; then
+            echo "::warning::ALIYUN_HOST 未配置, 跳过阿里云部署 (PL 需在 Settings → Secrets 配置)"
+            exit 0
+          fi
+          echo "✓ Aliyun secrets ready"
+
+      - name: Rsync dist to Aliyun nginx
+        if: ${{ secrets.ALIYUN_HOST != '' }}
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.ALIYUN_HOST }}
+          username: ${{ secrets.ALIYUN_SSH_USER || 'root' }}
+          key: ${{ secrets.ALIYUN_SSH_KEY }}
+          source: "dist/*"
+          target: ${{ secrets.ALIYUN_DEPLOY_PATH || '/var/www/serpilo' }}
+          strip_components: 1
+          rm: true

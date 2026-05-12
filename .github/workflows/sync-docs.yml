@@ -1,0 +1,44 @@
+name: Sync docs from Tortoise main repo
+
+# 议题: MEETING-2026-05-11-04-static-website-v1
+# 接收 Tortoise 主仓 push docs/** 时的 repository_dispatch 事件
+# 升级 submodule 到 main 最新, commit + push (触发 deploy.yml 双发)
+
+on:
+  repository_dispatch:
+    types: [docs-updated]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    name: Update submodule to main HEAD
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive
+
+      - name: Update submodule to remote main
+        run: |
+          cd src/content/tortoise-source
+          git fetch origin main
+          git checkout origin/main
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/content/tortoise-source
+          if git diff --staged --quiet; then
+            echo "✓ submodule 无变化, 跳过 commit"
+            exit 0
+          fi
+          PAYLOAD_SHA="${{ github.event.client_payload.sha || 'manual' }}"
+          git commit -m "chore: sync docs from tortoise main @ ${PAYLOAD_SHA}"
+          git push

@@ -1,10 +1,10 @@
 ---
 import { getCollection, render } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import Sidebar from '../../components/Sidebar.astro';
-import TableOfContents from '../../components/TableOfContents.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Sidebar from '../../../components/Sidebar.astro';
+import TableOfContents from '../../../components/TableOfContents.astro';
 import { ChevronRight, ExternalLink, Github, BookOpen, PanelLeftClose, PanelRightClose, PanelLeft, PanelRight } from 'lucide-astro';
-import { getLangFromUrl, useTranslations, useTranslatedPath } from '../../i18n/utils';
+import { getLangFromUrl, useTranslations, useTranslatedPath } from '../../../i18n/utils';
 
 export async function getStaticPaths() {
   const docs = await getCollection('docs', ({ data }) => data.public !== false);
@@ -203,7 +203,7 @@ const githubUrl = `${import.meta.env.PUBLIC_GITHUB_REPO ?? 'https://github.com/w
   </script>
 
   <style is:global>
-    @reference "../../styles/global.css";
+    @reference "../../../styles/global.css";
 
     .custom-scrollbar::-webkit-scrollbar {
       width: 4px;

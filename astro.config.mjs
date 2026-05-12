@@ -23,6 +23,13 @@ export default defineConfig({
     sitemap(),
     mdx(),
   ],
+  i18n: {
+    defaultLocale: 'zh',
+    locales: ['zh', 'en'],
+    routing: {
+      prefixDefaultLocale: false,
+    },
+  },
   markdown: {
     shikiConfig: {
       theme: 'github-light',

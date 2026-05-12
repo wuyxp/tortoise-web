@@ -2,8 +2,11 @@
 import { getCollection } from 'astro:content';
 import fs from 'node:fs';
 import path from 'node:path';
+import { getLangFromUrl, useTranslatedPath } from '../i18n/utils';
 
 const { activeSlug } = Astro.props;
+const lang = getLangFromUrl(Astro.url);
+const translatePath = useTranslatedPath(lang);
 
 // Load real docs to map sidebar paths to actual IDs
 const allDocs = await getCollection('docs');
@@ -68,7 +71,7 @@ const sidebarItems = parseSidebar(sidebarContent);
     <div class="space-y-4">
       {item.slug ? (
         <a
-          href={`/docs/${item.slug}`}
+          href={translatePath(`/docs/${item.slug}`)}
           class={`block py-2 px-4 rounded-xl transition-all ${activeSlug === item.slug ? 'glass-darker text-brand-blue translate-x-1' : 'hover:bg-black/5 dark:hover:bg-white/5 text-gray-900 dark:text-gray-100'}`}
         >
           {item.title}
@@ -84,7 +87,7 @@ const sidebarItems = parseSidebar(sidebarContent);
           {item.children.map(child => (
             <li>
               <a
-                href={`/docs/${child.slug}`}
+                href={translatePath(`/docs/${child.slug}`)}
                 class={`block py-2.5 pl-6 -ml-[2px] border-l-2 transition-all group relative ${activeSlug === child.slug ? 'border-brand-blue text-brand-blue' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-300'}`}
               >
                 {activeSlug === child.slug && (

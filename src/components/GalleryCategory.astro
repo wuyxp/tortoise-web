@@ -1,6 +1,7 @@
 ---
 import GalleryCard from './GalleryCard.astro';
 import type { DrawableAsset } from '../data/drawables';
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
 
 interface Props {
   title: string;
@@ -8,6 +9,8 @@ interface Props {
 }
 
 const { title, assets } = Astro.props;
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 ---
 
 <section class="mb-20">
@@ -15,7 +18,7 @@ const { title, assets } = Astro.props;
     <div class="h-[2px] w-12 bg-brand-blue/20"></div>
     <h2 class="text-2xl font-black tracking-widest text-brand-blue uppercase">{title}</h2>
     <div class="flex-1 h-[2px] bg-brand-blue/10"></div>
-    <span class="text-xs font-bold text-gray-400">{assets.length} ITEMS</span>
+    <span class="text-xs font-bold text-gray-400">{assets.length} {t('gallery.items_suffix')}</span>
   </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">

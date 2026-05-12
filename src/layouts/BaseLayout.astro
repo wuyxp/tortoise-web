@@ -1,15 +1,20 @@
 ---
 import '../styles/global.css';
-import { Menu, X, Github, Mail, Sun, Moon } from 'lucide-astro';
+import { Menu, X, Github, Mail, Sun, Moon, Languages } from 'lucide-astro';
+import { getLangFromUrl, useTranslations, useTranslatedPath } from '../i18n/utils';
 
 interface Props {
   title?: string;
   description?: string;
 }
 
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const translatePath = useTranslatedPath(lang);
+
 const {
   title = import.meta.env.PUBLIC_SITE_NAME ?? 'Tortoise',
-  description = import.meta.env.PUBLIC_SITE_DESCRIPTION ?? '陪伴孩子建立健康的屏幕使用习惯',
+  description = t('footer.description'),
 } = Astro.props;
 
 const siteName = import.meta.env.PUBLIC_SITE_NAME ?? 'Tortoise';
@@ -19,7 +24,7 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
 ---
 
 <!doctype html>
-<html lang={import.meta.env.PUBLIC_SITE_LOCALE ?? 'zh-CN'} class="scroll-smooth">
+<html lang={lang} class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -31,7 +36,7 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:locale" content={lang === 'zh' ? 'zh_CN' : 'en_US'} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <script is:inline>
@@ -55,7 +60,7 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
     <!-- Header -->
     <header class="glass sticky top-0 z-50 border-b border-white/10">
       <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <a href="/" class="flex items-center gap-4 group transition-transform hover:scale-105 active:scale-95">
+        <a href={translatePath('/')} class="flex items-center gap-4 group transition-transform hover:scale-105 active:scale-95">
           <div class="relative w-12 h-12 flex items-center justify-center glass organic-radius overflow-hidden shadow-inner border border-white/20 rotate-[-3deg] group-hover:rotate-0 transition-transform duration-500">
             <div class="absolute inset-0 bg-brand-green/10 blur-md rounded-full group-hover:bg-brand-green/20 transition-colors"></div>
             <img src="/images/illu_tortoise_peek.webp" alt="Logo" class="w-10 h-10 object-contain relative z-10 group-hover:scale-110 transition-transform duration-500" />
@@ -71,21 +76,32 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
         <!-- Desktop Nav -->
         <div class="hidden md:flex items-center gap-10">
           <div class="flex items-center gap-8 text-sm font-bold text-gray-600 dark:text-gray-300">
-            <a href="/" class="hover:text-brand-blue transition-all hover:translate-y-[-1px]">首页</a>
-            <a href="/docs/readme" class="hover:text-brand-blue transition-all hover:translate-y-[-1px]">技术文档</a>
+            <a href={translatePath('/')} class="hover:text-brand-blue transition-all hover:translate-y-[-1px]">{t('nav.home')}</a>
+            <a href={translatePath('/docs/readme')} class="hover:text-brand-blue transition-all hover:translate-y-[-1px]">{t('nav.docs')}</a>
+            <a href={translatePath('/gallery')} class="hover:text-brand-blue transition-all hover:translate-y-[-1px]">{t('nav.gallery')}</a>
             <a href={githubRepo} target="_blank" rel="noopener" class="flex items-center gap-1.5 hover:text-brand-blue transition-all hover:translate-y-[-1px]">
-              <Github size={18} /> GitHub
+              <Github size={18} /> {t('nav.github')}
             </a>
           </div>
           <div class="h-4 w-px bg-black/10 dark:bg-white/10"></div>
-          <button id="theme-toggle" class="p-2.5 rounded-2xl glass hover:bg-white/60 dark:hover:bg-gray-800/60 transition-all active:scale-90" aria-label="切换主题">
-            <Sun id="sun-icon" class="hidden dark:block text-yellow-400" size={20} />
-            <Moon id="moon-icon" class="block dark:hidden text-brand-blue" size={20} />
-          </button>
+          <div class="flex items-center gap-2">
+            <button id="lang-toggle" class="p-2.5 rounded-2xl glass hover:bg-white/60 dark:hover:bg-gray-800/60 transition-all active:scale-90 flex items-center gap-2 text-xs font-black text-brand-blue" aria-label="Toggle Language">
+               <Languages size={18} />
+               <span class="uppercase">{lang}</span>
+            </button>
+            <button id="theme-toggle" class="p-2.5 rounded-2xl glass hover:bg-white/60 dark:hover:bg-gray-800/60 transition-all active:scale-90" aria-label="切换主题">
+              <Sun id="sun-icon" class="hidden dark:block text-yellow-400" size={20} />
+              <Moon id="moon-icon" class="block dark:hidden text-brand-blue" size={20} />
+            </button>
+          </div>
         </div>
 
         <!-- Mobile Menu Button -->
         <div class="md:hidden flex items-center gap-4">
+           <button id="lang-toggle-mobile" class="p-2.5 rounded-xl glass flex items-center gap-2 text-xs font-black text-brand-blue" aria-label="Toggle Language">
+            <Languages size={18} />
+            <span class="uppercase">{lang}</span>
+          </button>
            <button id="theme-toggle-mobile" class="p-2.5 rounded-xl glass" aria-label="切换主题">
             <Moon size={20} class="block dark:hidden" />
             <Sun size={20} class="hidden dark:block text-yellow-400" />
@@ -99,10 +115,11 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
 
       <!-- Mobile Nav Dropdown -->
       <div id="mobile-menu" class="hidden md:hidden glass border-t border-black/5 dark:border-white/5 px-6 py-8 space-y-6 shadow-2xl animate-fade-in">
-        <a href="/" class="block text-2xl font-bold hover:text-brand-blue transition-colors">首页</a>
-        <a href="/docs/readme" class="block text-2xl font-bold hover:text-brand-blue transition-colors">技术文档</a>
+        <a href={translatePath('/')} class="block text-2xl font-bold hover:text-brand-blue transition-colors">{t('nav.home')}</a>
+        <a href={translatePath('/docs/readme')} class="block text-2xl font-bold hover:text-brand-blue transition-colors">{t('nav.docs')}</a>
+        <a href={translatePath('/gallery')} class="block text-2xl font-bold hover:text-brand-blue transition-colors">{t('nav.gallery')}</a>
         <a href={githubRepo} target="_blank" rel="noopener" class="flex items-center gap-3 text-2xl font-bold hover:text-brand-blue transition-colors">
-          <Github size={24} /> GitHub
+          <Github size={24} /> {t('nav.github')}
         </a>
       </div>
     </header>
@@ -127,7 +144,7 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
             <span class="text-2xl font-black text-brand-green tracking-tight">{siteName}</span>
           </div>
           <p class="text-lg text-gray-500 dark:text-gray-400 max-w-md leading-relaxed">
-            陪伴孩子建立健康的屏幕使用习惯。通过游戏化激励与温柔引导，让 6-14 岁儿童学会自主管理时间。
+            {t('footer.description')}
           </p>
           <div class="flex gap-4 mt-8">
              <a href={githubRepo} class="p-3 rounded-2xl glass hover:text-brand-blue transition-all"><Github size={24}/></a>
@@ -136,32 +153,32 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
         </div>
 
         <div class="space-y-6">
-          <h4 class="text-xs font-black uppercase tracking-[0.2em] text-gray-400">资源</h4>
+          <h4 class="text-xs font-black uppercase tracking-[0.2em] text-gray-400">{t('footer.resources')}</h4>
           <ul class="space-y-4 font-bold text-gray-600 dark:text-gray-300">
-            <li><a href="/docs/readme" class="hover:text-brand-blue transition-colors">技术文档</a></li>
-            <li><a href={githubRepo} class="hover:text-brand-blue transition-colors">GitHub 源码</a></li>
-            <li><a href="/docs/04-narrative/e19-arch-data-legal" class="hover:text-brand-blue transition-colors">隐私政策</a></li>
+            <li><a href={translatePath('/docs/readme')} class="hover:text-brand-blue transition-colors">{t('nav.docs')}</a></li>
+            <li><a href={githubRepo} class="hover:text-brand-blue transition-colors">{t('nav.github')}</a></li>
+            <li><a href={translatePath('/docs/04-narrative/e19-arch-data-legal')} class="hover:text-brand-blue transition-colors">{t('footer.privacy')}</a></li>
           </ul>
         </div>
 
         <div class="space-y-6">
-          <h4 class="text-xs font-black uppercase tracking-[0.2em] text-gray-400">支持</h4>
+          <h4 class="text-xs font-black uppercase tracking-[0.2em] text-gray-400">{t('footer.support')}</h4>
           <ul class="space-y-4 font-bold text-gray-600 dark:text-gray-300">
-            <li><a href={`mailto:${feedbackEmail}`} class="hover:text-brand-blue transition-colors flex items-center gap-2">反馈邮箱</a></li>
-            <li class="text-sm text-gray-400 font-normal leading-relaxed">基于 Android 7.0+ 原生开发，无云端数据存储。</li>
+            <li><a href={`mailto:${feedbackEmail}`} class="hover:text-brand-blue transition-colors flex items-center gap-2">{t('footer.feedback')}</a></li>
+            <li class="text-sm text-gray-400 font-normal leading-relaxed">{t('footer.note')}</li>
           </ul>
         </div>
       </div>
 
       <div class="max-w-7xl mx-auto px-6 mt-24 pt-12 border-t border-black/5 dark:border-white/5 flex flex-col md:row justify-between items-center gap-6">
         <div class="flex items-center gap-4 text-xs font-bold text-gray-400">
-           <span>© 2026 {siteName}</span>
+           <span>{t('footer.copyright')}</span>
            <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
            <span>CRYSTAL ISLAND EDITION</span>
         </div>
         <div class="flex items-center gap-2 px-4 py-2 glass rounded-full text-[10px] font-black text-brand-blue">
            <div class="w-2 h-2 bg-brand-green rounded-full animate-pulse"></div>
-           SYSTEM STATUS: OPERATIONAL
+           {t('footer.status')}
         </div>
       </div>
     </footer>
@@ -188,6 +205,26 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
 
       setupTheme('theme-toggle');
       setupTheme('theme-toggle-mobile');
+
+      const setupLangToggle = (id: string) => {
+        const btn = document.getElementById(id);
+        btn?.addEventListener('click', () => {
+          const currentPath = window.location.pathname;
+          const currentLang = document.documentElement.lang;
+          const newLang = currentLang === 'zh' ? 'en' : 'zh';
+
+          let newPath = currentPath;
+          if (currentLang === 'zh') {
+            newPath = `/en${currentPath}`;
+          } else {
+            newPath = currentPath.replace(/^\/en/, '') || '/';
+          }
+          window.location.href = newPath;
+        });
+      };
+
+      setupLangToggle('lang-toggle');
+      setupLangToggle('lang-toggle-mobile');
     </script>
   </body>
 </html>

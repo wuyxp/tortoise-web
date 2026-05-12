@@ -16,11 +16,14 @@ fi
 
 echo "==> 扫描主页 hardcode docs 链接 (src/**/*.{astro,ts,tsx})"
 
-# grep src/ 内 href="/docs/<slug>" 或 href={'/docs/<slug>'} 形式的链接
-links=$(grep -rEhno 'href=["{`]?/docs/[A-Za-z0-9_/.-]+/?["}\` ]' "$SRC_DIR" 2>/dev/null \
-  | grep -oE '/docs/[A-Za-z0-9_/.-]+' \
+# 使用简单的正则表达式提取链接，并清理尾部的字符
+# 提取形如 /docs/xxx 的路径，直到遇到非路径合法字符为止
+links=$(grep -rEhno "href=.*docs/[A-Za-z0-9_/.\$-{}]+" "$SRC_DIR" 2>/dev/null \
+  | grep -oE "/docs/[A-Za-z0-9_/.\$-{}]+" \
+  | sed -E "s|['\"}\)\`].*||" \
+  | grep -v '\$' \
   | sed 's|/$||' \
-  | sort -u)
+  | sort -u || true)
 
 if [ -z "$links" ]; then
   echo "    (主页内无 hardcode /docs/* 链接)"
@@ -32,11 +35,7 @@ echo "    发现 $(echo "$links" | wc -l | tr -d ' ') 个 hardcode 链接"
 dead=()
 checked=0
 for link in $links; do
-  # 把 /docs/01-overview/product-overview → src/content/tortoise-source/01-overview/product-overview
-  # Astro slug 是文件名小写, 但 tortoise-docs 文件名可能含大写 (例 README.md slug=readme)
-  # 多形式查找:
   slug=${link#/docs/}
-  # 1. 直接匹配 (lower or upper)
   found=""
   for candidate in \
     "$DOCS_DIR/${slug}.md" \
@@ -48,8 +47,8 @@ for link in $links; do
     fi
   done
 
-  # 2. 大小写不敏感模糊查 (slug=readme → README.md)
   if [ -z "$found" ]; then
+    # 尝试模糊匹配 (大小写不敏感)
     base_dir=$(dirname "$DOCS_DIR/$slug")
     base_name=$(basename "$slug")
     if [ -d "$base_dir" ]; then

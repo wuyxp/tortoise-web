@@ -16,9 +16,9 @@ fi
 
 echo "==> 扫描主页 hardcode docs 链接 (src/**/*.{astro,ts,tsx})"
 
-# grep src/ 内 href="/docs/<slug>" 或 href={'/docs/<slug>'} 形式的链接 (slug 全小写)
-links=$(grep -rEhno 'href=["{`]?/docs/[a-z0-9_/.-]+/?["}\` ]' "$SRC_DIR" 2>/dev/null \
-  | grep -oE '/docs/[a-z0-9_/.-]+' \
+# grep src/ 内 href="/docs/<slug>" 或 href={'/docs/<slug>'} 形式的链接
+links=$(grep -rEhno 'href=["{`]?/docs/[A-Za-z0-9_/.-]+/?["}\` ]' "$SRC_DIR" 2>/dev/null \
+  | grep -oE '/docs/[A-Za-z0-9_/.-]+' \
   | sed 's|/$||' \
   | sort -u)
 

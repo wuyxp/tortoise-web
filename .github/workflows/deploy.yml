@@ -1,4 +1,4 @@
-name: Deploy (dual: GitHub Pages + Aliyun nginx)
+name: "Deploy (dual GitHub Pages + Aliyun nginx)"
 
 # 议题: MEETING-2026-05-11-05-static-website-v1
 # 双发: 国外用户走 GitHub Pages (Cloudflare 前置可选), 国内用户走阿里云 nginx

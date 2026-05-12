@@ -1,4 +1,0 @@
-[submodule "src/content/tortoise-source"]
-	path = src/content/tortoise-source
-	url = https://github.com/wuyxp/kotlin-stop-shortTV.git
-	branch = main

@@ -1,6 +1,6 @@
 #!/bin/bash
 # 一次性配置阿里云 ECS nginx + Let's Encrypt SSL
-# MEETING-2026-05-11-04-static-website-v1
+# MEETING-2026-05-11-05-static-website-v1
 #
 # 用法 (在本地终端执行):
 #   ssh root@<aliyun-ip> 'bash -s' < scripts/setup-aliyun.sh

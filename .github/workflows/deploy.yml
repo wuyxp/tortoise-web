@@ -1,6 +1,6 @@
 name: Deploy (dual: GitHub Pages + Aliyun nginx)
 
-# 议题: MEETING-2026-05-11-04-static-website-v1
+# 议题: MEETING-2026-05-11-05-static-website-v1
 # 双发: 国外用户走 GitHub Pages (Cloudflare 前置可选), 国内用户走阿里云 nginx
 # 任一失败不阻塞另一边 (continue-on-error + 独立 job)
 
@@ -99,22 +99,15 @@ jobs:
           name: dist
           path: dist/
 
-      - name: Verify Aliyun secrets present
-        run: |
-          if [ -z "${{ secrets.ALIYUN_HOST }}" ]; then
-            echo "::warning::ALIYUN_HOST 未配置, 跳过阿里云部署 (PL 需在 Settings → Secrets 配置)"
-            exit 0
-          fi
-          echo "✓ Aliyun secrets ready"
-
       - name: Rsync dist to Aliyun nginx
-        if: ${{ secrets.ALIYUN_HOST != '' }}
+        # 注: GitHub Actions 不允许 if 条件直接访问 secrets (security 限制).
+        # secret 缺失时 step 会 fail, continue-on-error: true 不阻塞 deploy-pages.
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.ALIYUN_HOST }}
-          username: ${{ secrets.ALIYUN_SSH_USER || 'root' }}
+          username: ${{ secrets.ALIYUN_SSH_USER }}
           key: ${{ secrets.ALIYUN_SSH_KEY }}
           source: "dist/*"
-          target: ${{ secrets.ALIYUN_DEPLOY_PATH || '/var/www/serpilo' }}
+          target: ${{ secrets.ALIYUN_DEPLOY_PATH }}
           strip_components: 1
           rm: true

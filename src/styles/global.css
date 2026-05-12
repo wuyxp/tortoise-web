@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Tortoise brand color tokens (复用 docs/05-design/ui-specification.md, MEETING-2026-05-11-04)
+/* Tortoise brand color tokens (复用 docs/05-design/ui-specification.md, MEETING-2026-05-11-05)
    Tailwind 4 用 @theme 指令注册, 类名直接 bg-mint / text-brand-blue 等. */
 @theme {
   --color-mint: #EEF7F0;

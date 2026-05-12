@@ -3,7 +3,7 @@ import { glob } from 'astro/loaders';
 
 // Content Layer API (Astro 5+):
 // 从 git submodule (Tortoise 主仓) 拉 docs/*.md 作为 'docs' collection
-// MEETING-2026-05-11-04-static-website-v1
+// MEETING-2026-05-11-05-static-website-v1
 const docs = defineCollection({
   loader: glob({
     pattern: '**/*.md',

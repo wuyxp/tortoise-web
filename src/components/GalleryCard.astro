@@ -1,0 +1,43 @@
+---
+interface Props {
+  id: string;
+  title: string;
+  description: string;
+  filename: string;
+}
+
+const { id, title, description, filename } = Astro.props;
+const imagePath = `/images/drawables/${filename}`;
+---
+
+<div
+  class="gallery-card group relative glass p-4 rounded-[2rem] border-2 border-brand-blue/10 hover:border-brand-blue/30 transition-all duration-500 hover:-translate-y-2 cursor-pointer"
+  data-id={id}
+  data-title={title}
+  data-description={description}
+  data-image={imagePath}
+>
+  <div class="relative aspect-square overflow-hidden rounded-[1.5rem] mb-4">
+    <img
+      src={imagePath}
+      alt={title}
+      class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+      loading="lazy"
+    />
+    <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+  </div>
+
+  <div class="px-2">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="text-[10px] font-black tracking-widest text-brand-blue/60 uppercase">System Asset</span>
+    </div>
+    <h3 class="text-lg font-black text-gray-800 dark:text-white mb-1">{title}</h3>
+    <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{description}</p>
+  </div>
+</div>
+
+<style>
+  .gallery-card {
+    background: radial-gradient(circle at top left, rgba(91,108,246,0.05), transparent);
+  }
+</style>

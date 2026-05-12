@@ -144,23 +144,36 @@ const githubUrl = `${import.meta.env.PUBLIC_GITHUB_REPO ?? 'https://github.com/w
     const isDark = document.documentElement.classList.contains('dark');
     mermaid.initialize({
       startOnLoad: true,
-      theme: isDark ? 'dark' : 'default',
+      theme: isDark ? 'dark' : 'base',
       securityLevel: 'loose',
       fontFamily: 'LXGW WenKai',
       themeVariables: {
         primaryColor: '#5B6CF6',
-        primaryTextColor: '#fff',
+        primaryTextColor: isDark ? '#fff' : '#1a1a1a',
+        primaryBorderColor: '#5B6CF6',
         lineColor: '#5B6CF6',
         secondaryColor: '#3DAA6A',
+        tertiaryColor: '#f3f4f6',
+        mainBkg: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
+        nodeBorder: '#5B6CF6',
+        clusterBkg: 'rgba(91,108,246,0.05)',
+        clusterBorder: 'rgba(91,108,246,0.2)',
+        edgeLabelBackground: isDark ? '#1a1a1a' : '#fff',
       }
     });
 
     const mermaidDivs = document.querySelectorAll('.mermaid');
     mermaidDivs.forEach(div => {
       const container = document.createElement('div');
-      container.className = 'mermaid-container';
+      container.className = 'mermaid-glass-canvas';
       div.parentNode?.insertBefore(container, div);
       container.appendChild(div);
+
+      // Add a decorative badge
+      const badge = document.createElement('div');
+      badge.className = 'mermaid-badge';
+      badge.innerHTML = 'SYSTEM ARCHITECTURE';
+      container.prepend(badge);
     });
 
     // Copy buttons
@@ -193,11 +206,64 @@ const githubUrl = `${import.meta.env.PUBLIC_GITHUB_REPO ?? 'https://github.com/w
       border-radius: 9999px;
     }
 
+    /* Premium Mermaid Styling */
+    .mermaid-glass-canvas {
+      @apply glass my-12 p-8 md:p-12 rounded-[3rem] border-2 border-brand-blue/10 relative overflow-hidden;
+      background: radial-gradient(circle at top left, rgba(91,108,246,0.05), transparent);
+    }
+
+    .mermaid-badge {
+      @apply absolute top-6 left-8 text-[10px] font-black tracking-[0.2em] text-brand-blue/40 uppercase;
+    }
+
     .mermaid svg {
-      max-width: 100%;
-      height: auto;
-      margin-left: auto;
-      margin-right: auto;
+      max-width: 100% !important;
+      height: auto !important;
+      margin: 0 auto;
+      filter: drop-shadow(0 10px 30px rgba(0,0,0,0.05));
+    }
+
+    /* Override Mermaid internal styles for that glass look */
+    .mermaid .node rect,
+    .mermaid .node polygon,
+    .mermaid .node circle,
+    .mermaid .node ellipse,
+    .mermaid .node path {
+      fill: rgba(255, 255, 255, 0.6) !important;
+      stroke: #5B6CF6 !important;
+      stroke-width: 1.5px !important;
+      rx: 12 !important;
+      ry: 12 !important;
+    }
+
+    .dark .mermaid .node rect,
+    .dark .mermaid .node polygon,
+    .dark .mermaid .node circle,
+    .dark .mermaid .node ellipse,
+    .dark .mermaid .node path {
+      fill: rgba(30, 41, 59, 0.6) !important;
+    }
+
+    .mermaid .edgePath path {
+      stroke: #5B6CF6 !important;
+      stroke-width: 2px !important;
+    }
+
+    .mermaid .marker {
+      fill: #5B6CF6 !important;
+      stroke: none !important;
+    }
+
+    .mermaid .label {
+      font-weight: 800 !important;
+      color: #5B6CF6 !important;
+    }
+
+    .mermaid .cluster rect {
+      fill: rgba(91, 108, 246, 0.03) !important;
+      stroke: rgba(91, 108, 246, 0.2) !important;
+      stroke-dasharray: 5, 5;
+      rx: 20;
     }
   </style>
 </BaseLayout>

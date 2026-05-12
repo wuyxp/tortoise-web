@@ -1,0 +1,127 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GalleryCategory from '../components/GalleryCategory.astro';
+import { drawables } from '../data/drawables';
+import { ChevronRight, Image as ImageIcon, X, Maximize2 } from 'lucide-astro';
+
+const categories = ['Creatures', 'Environment', 'Items', 'Story'] as const;
+const title = "Gallery — Tortoise Exquisite Assets";
+const description = "Explore the refined visual assets of the Tortoise project.";
+
+const groupedAssets = categories.map(category => ({
+  name: category,
+  assets: drawables.filter(d => d.category === category)
+}));
+---
+
+<BaseLayout title={title} description={description}>
+  <!-- Background Light Glow -->
+  <div class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-40">
+     <div class="absolute top-1/4 right-0 w-[500px] h-[500px] bg-brand-blue/10 blur-[150px] rounded-full"></div>
+     <div class="absolute bottom-1/4 left-0 w-[500px] h-[500px] bg-brand-green/10 blur-[150px] rounded-full"></div>
+  </div>
+
+  <main class="max-w-[1600px] mx-auto px-6 py-12 md:py-20">
+    <!-- Breadcrumbs -->
+    <nav class="flex items-center gap-3 text-[11px] font-black uppercase tracking-[0.15em] text-gray-400 mb-12">
+      <a href="/" class="hover:text-brand-blue transition-colors">HOME</a>
+      <ChevronRight size={14} class="text-gray-300" />
+      <span class="text-brand-blue">GALLERY</span>
+    </nav>
+
+    <!-- Header Section -->
+    <header class="mb-20 text-center">
+      <div class="inline-flex items-center gap-3 glass px-6 py-2 rounded-2xl text-brand-blue text-sm font-black mb-8">
+        <ImageIcon size={18} />
+        <span>VISUAL ARCHIVE</span>
+      </div>
+      <h1 class="text-5xl md:text-7xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">
+        Exquisite <span class="text-brand-blue">Drawables</span>
+      </h1>
+      <p class="text-xl text-gray-500 max-w-2xl mx-auto font-medium">
+        A collection of refined assets from the Tortoise ecosystem, categorized for exploration and system architecture reference.
+      </p>
+    </header>
+
+    <!-- Gallery Categories -->
+    {groupedAssets.map(group => (
+      <GalleryCategory title={group.name} assets={group.assets} />
+    ))}
+  </main>
+
+  <!-- Lightbox Modal -->
+  <div id="lightbox" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-500">
+    <button id="close-lightbox" class="absolute top-8 right-8 p-4 glass rounded-2xl text-white hover:scale-110 active:scale-90 transition-all">
+      <X size={32} />
+    </button>
+
+    <div class="max-w-5xl w-full p-6 flex flex-col items-center">
+      <div class="glass p-4 rounded-[3rem] border-2 border-white/10 relative group mb-8">
+        <img id="lightbox-img" src="" alt="" class="max-h-[70vh] w-auto rounded-[2rem] shadow-2xl" />
+        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+           <div class="p-4 glass rounded-full text-white">
+             <Maximize2 size={48} />
+           </div>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <h2 id="lightbox-title" class="text-4xl font-black text-white mb-4"></h2>
+        <p id="lightbox-description" class="text-xl text-gray-400 max-w-2xl"></p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
+  const lightboxTitle = document.getElementById('lightbox-title');
+  const lightboxDescription = document.getElementById('lightbox-description');
+  const closeBtn = document.getElementById('close-lightbox');
+  const cards = document.querySelectorAll('.gallery-card');
+
+  const openLightbox = (title: string, desc: string, img: string) => {
+    if (!lightbox || !lightboxImg || !lightboxTitle || !lightboxDescription) return;
+
+    lightboxImg.src = img;
+    lightboxTitle.textContent = title;
+    lightboxDescription.textContent = desc;
+
+    lightbox.classList.remove('opacity-0', 'pointer-events-none');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeLightbox = () => {
+    if (!lightbox) return;
+    lightbox.classList.add('opacity-0', 'pointer-events-none');
+    document.body.style.overflow = '';
+  };
+
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      const { title, description, image } = (card as HTMLElement).dataset;
+      if (title && description && image) {
+        openLightbox(title, description, image);
+      }
+    });
+  });
+
+  closeBtn?.addEventListener('click', closeLightbox);
+  lightbox?.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
+  });
+</script>
+
+<style is:global>
+  /* Premium Glass Lightbox Effect */
+  #lightbox .glass {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+</style>

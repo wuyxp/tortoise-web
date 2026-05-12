@@ -32,9 +32,12 @@ jobs:
         # 不用 git submodule, 改匿名 git clone — 避开跨仓 GITHUB_TOKEN 鉴权问题.
         # Tortoise 主仓是 public, 匿名 clone 即可; 永远拉最新 main, 等价于
         # submodule 自动跟踪 main 分支.
+        # 用 -c http.extraheader= 清掉 actions/checkout 自动注入的
+        # GITHUB_TOKEN 鉴权 header (否则跨仓鉴权失败 → 走交互式提问 → fatal).
         run: |
           rm -rf src/content/tortoise-source
-          git clone --depth=1 --branch main \
+          git -c http."https://github.com/".extraheader= \
+            clone --depth=1 --branch main \
             https://github.com/wuyxp/kotlin-stop-shortTV.git \
             src/content/tortoise-source
 

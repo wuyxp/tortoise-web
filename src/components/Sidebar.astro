@@ -1,0 +1,94 @@
+---
+import { getCollection } from 'astro:content';
+
+const { activeSlug } = Astro.props;
+
+// 读取 _sidebar.md 内容 (简单解析，支持二级结构)
+import fs from 'node:fs';
+import path from 'node:path';
+
+const sidebarPath = path.resolve('src/content/tortoise-source/_sidebar.md');
+const sidebarContent = fs.readFileSync(sidebarPath, 'utf-8');
+
+interface SidebarItem {
+  title: string;
+  slug?: string;
+  children?: SidebarItem[];
+  isHeader?: boolean;
+}
+
+function parseSidebar(content: string): SidebarItem[] {
+  const lines = content.split('\n');
+  const items: SidebarItem[] = [];
+  let currentHeader: SidebarItem | null = null;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('<!--')) continue;
+
+    // 一级标题 (无链接的 * 文本)
+    const headerMatch = trimmed.match(/^\* ([^\[].+)$/);
+    if (headerMatch) {
+      currentHeader = { title: headerMatch[1], children: [] };
+      items.push(currentHeader);
+      continue;
+    }
+
+    // 链接项 (支持一级或二级)
+    const linkMatch = trimmed.match(/^(\s*)\* \[([^\]]+)\]\(([^)]+)\)/);
+    if (linkMatch) {
+      const indent = linkMatch[1].length;
+      const title = linkMatch[2];
+      let slug = linkMatch[3].replace('.md', '');
+
+      // README -> readme
+      if (slug.toLowerCase() === 'readme') slug = 'readme';
+
+      const item = { title, slug };
+
+      if (indent > 0 && currentHeader) {
+        currentHeader.children?.push(item);
+      } else {
+        items.push(item);
+      }
+    }
+  }
+  return items;
+}
+
+const sidebarItems = parseSidebar(sidebarContent);
+---
+
+<nav class="space-y-8 text-sm">
+  {sidebarItems.map(item => (
+    <div>
+      {item.slug ? (
+        <a
+          href={`/docs/${item.slug}`}
+          class={`block py-2 font-bold transition-colors ${activeSlug === item.slug ? 'text-brand-blue' : 'hover:text-brand-blue text-gray-900 dark:text-gray-100'}`}
+        >
+          {item.title}
+        </a>
+      ) : (
+        <h5 class="mb-3 font-bold text-gray-400 uppercase tracking-wider text-[10px]">
+          {item.title}
+        </h5>
+      )}
+
+      {item.children && item.children.length > 0 && (
+        <ul class="space-y-2 border-l border-gray-100 dark:border-gray-800 ml-1">
+          {item.children.map(child => (
+            <li>
+              <a
+                href={`/docs/${child.slug}`}
+                class={`block py-1.5 pl-4 -ml-px border-l transition-colors ${activeSlug === child.slug ? 'border-brand-blue text-brand-blue font-medium' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'}`}
+              >
+                {child.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  ))}
+</nav>

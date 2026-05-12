@@ -1,7 +1,7 @@
 @import "tailwindcss";
+@import "@fontsource/lxgw-wenkai/index.css";
 
-/* Tortoise brand color tokens (复用 docs/05-design/ui-specification.md, MEETING-2026-05-11-05)
-   Tailwind 4 用 @theme 指令注册, 类名直接 bg-mint / text-brand-blue 等. */
+/* Tortoise brand color tokens (复用 docs/05-design/ui-specification.md, MEETING-2026-05-11-05) */
 @theme {
   --color-mint: #EEF7F0;
   --color-lavender: #F5F6FF;
@@ -10,72 +10,99 @@
   --color-accent-green: #4CAF50;
   --color-coach-card: #FFF5F0;
   --color-headline-blue: #4A6CF7;
+
+  --font-display: "LXGW WenKai", sans-serif;
+  --font-sans: "LXGW WenKai", ui-sans-serif, system-ui, sans-serif;
+
+  --animate-fade-in: fade-in 0.6s ease-out;
+  --animate-float: float 3s ease-in-out infinite;
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
 }
 
-/* docs 渲染基础样式 (Gemini 后续精修视觉) */
+@layer base {
+  body {
+    @apply font-sans transition-colors duration-300;
+  }
+}
+
+/* docs 渲染精修 (Gemini Refinement) */
 .prose-tortoise {
-  max-width: 48rem;
-  margin: 0 auto;
-  line-height: 1.75;
+  @apply max-w-4xl mx-auto leading-relaxed text-gray-700 dark:text-gray-300;
 }
+
 .prose-tortoise h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--color-headline-blue);
-  margin: 1.5rem 0 1rem;
+  @apply text-3xl font-bold text-headline-blue mt-8 mb-4 border-b pb-2;
 }
+
 .prose-tortoise h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--color-headline-blue);
-  margin: 1.25rem 0 0.75rem;
+  @apply text-2xl font-bold text-headline-blue mt-8 mb-4 flex items-center gap-2;
 }
+
+.prose-tortoise h2::before {
+  content: "🐢";
+  @apply text-lg;
+}
+
 .prose-tortoise h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 1rem 0 0.5rem;
+  @apply text-xl font-bold text-gray-800 dark:text-white mt-6 mb-3;
 }
-.prose-tortoise p { margin: 0.75rem 0; }
-.prose-tortoise ul, .prose-tortoise ol { margin: 0.75rem 0; padding-left: 1.5rem; }
-.prose-tortoise li { margin: 0.25rem 0; }
+
+.prose-tortoise p { @apply my-4; }
+
+.prose-tortoise ul, .prose-tortoise ol { @apply my-4 pl-6; }
+.prose-tortoise ul { @apply list-disc; }
+.prose-tortoise ol { @apply list-decimal; }
+
+.prose-tortoise li { @apply my-1; }
+
 .prose-tortoise code {
-  background: var(--color-mint);
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-  font-size: 0.875em;
+  @apply bg-mint dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-brand-green;
 }
+
 .prose-tortoise pre {
-  background: #f6f8fa;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  overflow-x: auto;
-  margin: 1rem 0;
+  @apply bg-gray-50 dark:bg-gray-900 p-4 rounded-xl overflow-x-auto my-6 border border-gray-100 dark:border-gray-800;
 }
-.prose-tortoise pre code {
-  background: transparent;
-  padding: 0;
-}
+
 .prose-tortoise table {
-  border-collapse: collapse;
-  margin: 1rem 0;
-  width: 100%;
+  @apply w-full my-6 border-collapse overflow-hidden rounded-lg border border-gray-200;
 }
+
 .prose-tortoise th, .prose-tortoise td {
-  border: 1px solid #e5e7eb;
-  padding: 0.5rem 0.75rem;
-  text-align: left;
+  @apply border border-gray-200 p-3 text-left;
 }
+
 .prose-tortoise th {
-  background: var(--color-mint);
-  font-weight: 600;
+  @apply bg-mint dark:bg-gray-800 font-bold;
 }
+
 .prose-tortoise blockquote {
-  border-left: 4px solid var(--color-brand-blue);
-  padding-left: 1rem;
-  margin: 1rem 0;
-  color: #4b5563;
+  @apply border-l-4 border-brand-blue pl-4 py-1 my-6 italic bg-blue-50/50 dark:bg-blue-900/20 rounded-r;
 }
+
+.prose-tortoise img {
+  @apply rounded-xl shadow-md my-8 mx-auto;
+}
+
 .prose-tortoise a {
-  color: var(--color-brand-blue);
-  text-decoration: underline;
+  @apply text-brand-blue hover:underline decoration-brand-blue/30 underline-offset-4;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-700 rounded-full hover:bg-gray-400;
 }

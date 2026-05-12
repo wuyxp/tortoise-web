@@ -28,18 +28,24 @@ jobs:
       - name: Checkout tortoise-web
         uses: actions/checkout@v4
 
-      - name: Clone Tortoise main repo docs (anonymous, public repo)
-        # 不用 git submodule, 改匿名 git clone — 避开跨仓 GITHUB_TOKEN 鉴权问题.
-        # Tortoise 主仓是 public, 匿名 clone 即可; 永远拉最新 main, 等价于
-        # submodule 自动跟踪 main 分支.
-        # 用 -c http.extraheader= 清掉 actions/checkout 自动注入的
-        # GITHUB_TOKEN 鉴权 header (否则跨仓鉴权失败 → 走交互式提问 → fatal).
+      - name: Download Tortoise main repo docs (codeload tarball, anonymous)
+        # 不用 git submodule / git clone — actions/checkout 注入的 GITHUB_TOKEN
+        # extraheader/insteadOf rewrite 无法可靠清除, 致跨仓 git fail.
+        # 改用 codeload tarball HTTP 下载 — 0 git 操作, public 仓 100% 匿名可访问.
         run: |
           rm -rf src/content/tortoise-source
-          git -c http."https://github.com/".extraheader= \
-            clone --depth=1 --branch main \
-            https://github.com/wuyxp/kotlin-stop-shortTV.git \
-            src/content/tortoise-source
+          mkdir -p src/content/tortoise-source
+          curl -sSL --fail \
+            https://codeload.github.com/wuyxp/kotlin-stop-shortTV/tar.gz/refs/heads/main \
+            -o /tmp/tortoise-main.tar.gz
+          tar xzf /tmp/tortoise-main.tar.gz -C /tmp
+          # tarball 解压后是 kotlin-stop-shortTV-main/, 把内容移到目标位置
+          shopt -s dotglob
+          mv /tmp/kotlin-stop-shortTV-main/* src/content/tortoise-source/
+          rm -rf /tmp/tortoise-main.tar.gz /tmp/kotlin-stop-shortTV-main
+          # 抽样验证
+          test -f src/content/tortoise-source/docs/README.md
+          echo "✓ Tortoise docs/ tarball 已就位 ($(find src/content/tortoise-source/docs -name '*.md' | wc -l) .md 文件)"
 
       - name: Setup Node 22
         uses: actions/setup-node@v4

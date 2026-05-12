@@ -28,6 +28,7 @@ DEPLOY_PATH="${SETUP_DEPLOY_PATH:-/var/www/serpilo}"
 CERT_EMAIL="${SETUP_CERT_EMAIL:-956826374@qq.com}"
 CERT_DIR="/etc/nginx/ssl/letsencrypt/$DOMAIN"
 ACME_HOME="${ACME_HOME:-$HOME/.acme.sh}"
+NGINX_ONLY="${NGINX_ONLY:-0}"  # MEETING-2026-05-12-02: 仅更新 nginx config (跳过 cert 申请/续期, 不需要 Ali_Key/Secret)
 
 # ===== 0. 验证 ENV =====
 echo "==> 配置参数"
@@ -35,65 +36,80 @@ echo "    DOMAIN:      $DOMAIN"
 echo "    DEPLOY_PATH: $DEPLOY_PATH"
 echo "    CERT_EMAIL:  $CERT_EMAIL"
 echo "    CERT_DIR:    $CERT_DIR"
+echo "    NGINX_ONLY:  $NGINX_ONLY  ($([ "$NGINX_ONLY" = "1" ] && echo '仅更新 nginx config 模式 (cert 操作 skip)' || echo '完整模式 (含 cert 申请/续期)'))"
 echo ""
 
-if [ -z "${Ali_Key:-}" ] || [ -z "${Ali_Secret:-}" ]; then
-  echo "ERROR: Ali_Key 和 Ali_Secret 环境变量必须先 export"
+if [ "$NGINX_ONLY" != "1" ] && { [ -z "${Ali_Key:-}" ] || [ -z "${Ali_Secret:-}" ]; }; then
+  echo "ERROR: Ali_Key 和 Ali_Secret 环境变量必须先 export (完整模式 cert 申请/续期需要)"
   echo ""
-  echo "在跑本脚本之前, ECS 上先跑:"
+  echo "完整模式 (首次申请 / cert 即将到期续期, 需 Ali_Key/Secret):"
   echo "  read -s -p 'Ali_Key (AccessKey ID): '       Ali_Key       && echo"
   echo "  read -s -p 'Ali_Secret (AccessKey Secret): ' Ali_Secret    && echo"
   echo "  export Ali_Key Ali_Secret"
+  echo "  curl -sSL ... | bash"
   echo ""
-  echo "然后再跑本脚本 (用 read -s 不显示输入, AccessKey 不进 history)"
+  echo "仅更新 nginx config 模式 (cert 已存在, 仅刷 nginx 配置, 0 凭证):"
+  echo "  curl -sSL ... | NGINX_ONLY=1 bash"
+  echo "  # 或: export NGINX_ONLY=1; curl -sSL ... | bash"
   exit 1
 fi
 
 # ===== 1. 装 acme.sh =====
-echo "==> [1/5] 安装 acme.sh"
-if [ ! -f "$ACME_HOME/acme.sh" ]; then
-  curl -sSL https://get.acme.sh | sh -s email="$CERT_EMAIL" 2>&1 | tail -3
-  echo "    ✓ acme.sh 已装到 $ACME_HOME"
+if [ "$NGINX_ONLY" = "1" ]; then
+  echo "==> [1/5] [NGINX_ONLY=1] 跳过 acme.sh 安装/cert 申请/cert install (cert 已存在, 仅刷 nginx config)"
+  ACME=""  # 占位, [4/5] 不引用
+  # 验证 cert 文件确实存在 (NGINX_ONLY 前提是 cert 已装)
+  if [ ! -f "$CERT_DIR/fullchain.pem" ] || [ ! -f "$CERT_DIR/privkey.pem" ]; then
+    echo "ERROR: NGINX_ONLY=1 模式要求 $CERT_DIR/{fullchain,privkey}.pem 已存在"
+    echo "       但当前不存在 → 你需要先跑完整模式申请 cert (set Ali_Key/Ali_Secret + NGINX_ONLY=0)"
+    exit 1
+  fi
+  echo "    ✓ cert 已存在 $CERT_DIR/, 直跑 [4/5] 写 nginx config"
 else
-  echo "    ✓ acme.sh 已存在 $ACME_HOME, 跳过装"
+  echo "==> [1/5] 安装 acme.sh"
+  if [ ! -f "$ACME_HOME/acme.sh" ]; then
+    curl -sSL https://get.acme.sh | sh -s email="$CERT_EMAIL" 2>&1 | tail -3
+    echo "    ✓ acme.sh 已装到 $ACME_HOME"
+  else
+    echo "    ✓ acme.sh 已存在 $ACME_HOME, 跳过装"
+  fi
+
+  ACME="$ACME_HOME/acme.sh"
+  if [ ! -x "$ACME" ]; then
+    echo "ERROR: $ACME 不存在或不可执行"
+    exit 1
+  fi
+
+  # 默认 CA 用 Let's Encrypt (acme.sh 3.x 默认 ZeroSSL, 改回 LE)
+  "$ACME" --set-default-ca --server letsencrypt 2>&1 | tail -2
+
+  # ===== 2. 申请 cert (DNS-01) =====
+  echo "==> [2/5] 用 DNS-01 challenge 申请 Let's Encrypt cert"
+  echo "    (acme.sh 会调用阿里云 DNS API 加 TXT 记录, LE server 查 DNS 验证, 全程 ~30s)"
+
+  # Ali_Key + Ali_Secret 已 export, acme.sh dns_ali 插件自动读取
+  # 不加 --force: 已申请过的 cert 不会重新申请 (LE rate limit 5/week/domain), 仅
+  # 更新过期/即将过期的 cert
+  "$ACME" --issue --dns dns_ali \
+    -d "$DOMAIN" -d "www.$DOMAIN" \
+    --email "$CERT_EMAIL" \
+    --keylength 2048 2>&1 | tail -20 || \
+    echo "    (cert 已存在或 LE rate limit, 跳过 issue, 继续 install/nginx config)"
+
+  # ===== 3. 安装 cert 到 nginx 目录 (不 reload, 因 nginx config 可能旧) =====
+  echo "==> [3/5] 安装 cert 到 $CERT_DIR/ (不 reload, 留 [4/5] 写新 config 后 reload)"
+  mkdir -p "$CERT_DIR"
+
+  # reloadcmd 用 /bin/true 占位 — 当前 nginx config 可能是旧版 (上次 run 留下的
+  # 含 'http2 on;' 等不兼容 directive). 等 [4/5] 写新 config 后再 reload.
+  "$ACME" --install-cert -d "$DOMAIN" \
+    --key-file       "$CERT_DIR/privkey.pem" \
+    --fullchain-file "$CERT_DIR/fullchain.pem" \
+    --reloadcmd      "/bin/true"
+
+  chmod 600 "$CERT_DIR/privkey.pem"
+  echo "    ✓ cert + key 已装到 $CERT_DIR/"
 fi
-
-# 确保 acme.sh 在 PATH
-ACME="$ACME_HOME/acme.sh"
-if [ ! -x "$ACME" ]; then
-  echo "ERROR: $ACME 不存在或不可执行"
-  exit 1
-fi
-
-# 默认 CA 用 Let's Encrypt (acme.sh 3.x 默认 ZeroSSL, 改回 LE)
-"$ACME" --set-default-ca --server letsencrypt 2>&1 | tail -2
-
-# ===== 2. 申请 cert (DNS-01) =====
-echo "==> [2/5] 用 DNS-01 challenge 申请 Let's Encrypt cert"
-echo "    (acme.sh 会调用阿里云 DNS API 加 TXT 记录, LE server 查 DNS 验证, 全程 ~30s)"
-
-# Ali_Key + Ali_Secret 已 export, acme.sh dns_ali 插件自动读取
-# 不加 --force: 已申请过的 cert 不会重新申请 (LE rate limit 5/week/domain), 仅
-# 更新过期/即将过期的 cert
-"$ACME" --issue --dns dns_ali \
-  -d "$DOMAIN" -d "www.$DOMAIN" \
-  --email "$CERT_EMAIL" \
-  --keylength 2048 2>&1 | tail -20 || \
-  echo "    (cert 已存在或 LE rate limit, 跳过 issue, 继续 install/nginx config)"
-
-# ===== 3. 安装 cert 到 nginx 目录 (不 reload, 因 nginx config 可能旧) =====
-echo "==> [3/5] 安装 cert 到 $CERT_DIR/ (不 reload, 留 [4/5] 写新 config 后 reload)"
-mkdir -p "$CERT_DIR"
-
-# reloadcmd 用 /bin/true 占位 — 当前 nginx config 可能是旧版 (上次 run 留下的
-# 含 'http2 on;' 等不兼容 directive). 等 [4/5] 写新 config 后再 reload.
-"$ACME" --install-cert -d "$DOMAIN" \
-  --key-file       "$CERT_DIR/privkey.pem" \
-  --fullchain-file "$CERT_DIR/fullchain.pem" \
-  --reloadcmd      "/bin/true"
-
-chmod 600 "$CERT_DIR/privkey.pem"
-echo "    ✓ cert + key 已装到 $CERT_DIR/"
 
 # ===== 4. 写 nginx config + reload =====
 echo "==> [4/5] 写 nginx HTTPS config + reload"
@@ -180,11 +196,16 @@ echo "    ✓ nginx reload OK"
 
 # 把 acme.sh 续期 reloadcmd 改回 systemctl reload nginx (本次 install 用 /bin/true 占位)
 # 这样下次 acme.sh 自动续期后会 reload nginx 让新 cert 生效
-"$ACME" --install-cert -d "$DOMAIN" \
-  --key-file       "$CERT_DIR/privkey.pem" \
-  --fullchain-file "$CERT_DIR/fullchain.pem" \
-  --reloadcmd      "systemctl reload nginx" 2>&1 | tail -3
-echo "    ✓ 续期 reloadcmd 已设 (60 天后自动续期 + reload)"
+# NGINX_ONLY=1 模式跳过 (acme.sh 没装/不存在 ACME 变量)
+if [ "$NGINX_ONLY" != "1" ] && [ -n "$ACME" ]; then
+  "$ACME" --install-cert -d "$DOMAIN" \
+    --key-file       "$CERT_DIR/privkey.pem" \
+    --fullchain-file "$CERT_DIR/fullchain.pem" \
+    --reloadcmd      "systemctl reload nginx" 2>&1 | tail -3
+  echo "    ✓ 续期 reloadcmd 已设 (60 天后自动续期 + reload)"
+else
+  echo "    [NGINX_ONLY=1] 跳过续期 reloadcmd 重置 (cert 续期由完整模式管)"
+fi
 
 # ===== 5. 自检 + 续期信息 =====
 echo "==> [5/5] 自检"

@@ -1,8 +1,13 @@
 ---
+import { getCollection } from 'astro:content';
 import fs from 'node:fs';
 import path from 'node:path';
 
 const { activeSlug } = Astro.props;
+
+// Load real docs to map sidebar paths to actual IDs
+const allDocs = await getCollection('docs');
+const docIdMap = new Map(allDocs.map(doc => [doc.id.toLowerCase(), doc.id]));
 
 const sidebarPath = path.resolve('src/content/tortoise-source/_sidebar.md');
 const sidebarContent = fs.readFileSync(sidebarPath, 'utf-8');
@@ -31,22 +36,19 @@ function parseSidebar(content: string): SidebarItem[] {
     }
 
     // Link Match: * [Title](Path)
-    // Matches indentation for children
     const linkMatch = line.match(/^(\s*)\* \[([^\]]+)\]\(([^)]+)\)/);
     if (linkMatch) {
       const indent = linkMatch[1].length;
       const title = linkMatch[2];
       let rawPath = linkMatch[3];
 
-      // Normalize path to ID: 01-overview/product-overview.md -> 01-overview/product-overview
-      let id = rawPath.replace(/\.mdx?$/, '');
+      // Clean path: 01-overview/product-overview.md -> 01-overview/product-overview
+      let id = rawPath.replace(/\.mdx?$/, '').replace(/^\.\//, '');
 
-      // Content layer IDs are lowercase by default if folder names are lowercase,
-      // but let's keep it consistent with what glob loader produces.
-      // Usually it's lowercase.
-      id = id.toLowerCase();
+      // Attempt to find actual doc ID from map (case-insensitive lookup)
+      const actualId = docIdMap.get(id.toLowerCase()) || id.toLowerCase();
 
-      const item = { title, slug: id };
+      const item = { title, slug: actualId };
 
       if (indent > 0 && currentHeader) {
         currentHeader.children?.push(item);
@@ -61,13 +63,13 @@ function parseSidebar(content: string): SidebarItem[] {
 const sidebarItems = parseSidebar(sidebarContent);
 ---
 
-<nav class="space-y-10 text-sm font-bold">
+<nav class="space-y-10 text-sm font-bold pb-20">
   {sidebarItems.map(item => (
     <div class="space-y-4">
       {item.slug ? (
         <a
           href={`/docs/${item.slug}`}
-          class={`block py-2 px-4 rounded-xl transition-all ${activeSlug?.toLowerCase() === item.slug ? 'glass-darker text-brand-blue translate-x-1' : 'hover:bg-black/5 dark:hover:bg-white/5 text-gray-900 dark:text-gray-100'}`}
+          class={`block py-2 px-4 rounded-xl transition-all ${activeSlug === item.slug ? 'glass-darker text-brand-blue translate-x-1' : 'hover:bg-black/5 dark:hover:bg-white/5 text-gray-900 dark:text-gray-100'}`}
         >
           {item.title}
         </a>
@@ -83,9 +85,9 @@ const sidebarItems = parseSidebar(sidebarContent);
             <li>
               <a
                 href={`/docs/${child.slug}`}
-                class={`block py-2.5 pl-6 -ml-[2px] border-l-2 transition-all group relative ${activeSlug?.toLowerCase() === child.slug ? 'border-brand-blue text-brand-blue' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-300'}`}
+                class={`block py-2.5 pl-6 -ml-[2px] border-l-2 transition-all group relative ${activeSlug === child.slug ? 'border-brand-blue text-brand-blue' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-300'}`}
               >
-                {activeSlug?.toLowerCase() === child.slug && (
+                {activeSlug === child.slug && (
                   <div class="absolute left-[-2px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-brand-blue rounded-full blur-[2px]"></div>
                 )}
                 {child.title}

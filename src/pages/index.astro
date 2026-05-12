@@ -4,7 +4,6 @@ import { ShieldCheck, Zap, Smartphone, ArrowRight, QrCode, Sparkles } from 'luci
 
 const playStoreUrl = import.meta.env.PUBLIC_PLAY_STORE_URL ?? '#';
 const domesticStoreUrl = import.meta.env.PUBLIC_DOMESTIC_STORE_URL ?? '#';
-const githubRepo = import.meta.env.PUBLIC_GITHUB_REPO ?? 'https://github.com/wuyxp/kotlin-stop-shortTV';
 const feedbackEmail = import.meta.env.PUBLIC_FEEDBACK_EMAIL ?? 'tortoise@example.com';
 const siteName = import.meta.env.PUBLIC_SITE_NAME ?? 'Tortoise';
 
@@ -15,7 +14,6 @@ const showDomesticStore = domesticStoreUrl !== '#';
 <BaseLayout>
   <!-- 1. Hero Section -->
   <section class="relative pt-24 pb-32 md:pt-40 md:pb-56 overflow-hidden">
-    <!-- Background Elements -->
     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] h-full -z-10 opacity-40">
        <div class="absolute top-0 left-1/4 w-96 h-96 bg-brand-green/20 blur-[120px] rounded-full"></div>
        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-brand-blue/20 blur-[120px] rounded-full"></div>
@@ -44,11 +42,12 @@ const showDomesticStore = domesticStoreUrl !== '#';
       </div>
 
       <div class="relative group">
-        <!-- Floating Illustration -->
+        <!-- Floating Illustration with Glass Frame and Fade Mask -->
         <div class="relative z-10 animate-float">
-           <img src="/images/illu_tortoise_sunrise.webp" alt="Hero" class="w-full max-w-lg mx-auto drop-shadow-[0_40px_60px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_40px_60px_rgba(91,108,246,0.3)]" />
+           <div class="glass-frame overflow-hidden">
+              <img src="/images/illu_tortoise_sunrise.webp" alt="Hero" class="w-full max-w-lg mx-auto drop-shadow-2xl fade-mask" />
+           </div>
         </div>
-        <!-- Decorative Organic Shape -->
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] glass organic-radius -z-10 opacity-20 scale-90 group-hover:scale-100 transition-transform duration-1000"></div>
       </div>
     </div>
@@ -57,8 +56,7 @@ const showDomesticStore = domesticStoreUrl !== '#';
   <!-- 2. Bento Why Tortoise -->
   <section class="py-32">
     <div class="max-w-7xl mx-auto px-6">
-      <div class="grid md:grid-cols-4 md:grid-rows-2 gap-6 h-[700px]">
-        <!-- Main Logic Card -->
+      <div class="grid md:grid-cols-4 md:grid-rows-2 gap-6 min-h-[700px]">
         <div class="md:col-span-2 md:row-span-2 glass p-12 rounded-[3.5rem] relative overflow-hidden group">
            <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-brand-green/10 rounded-full blur-[80px] group-hover:bg-brand-green/20 transition-colors"></div>
            <Zap size={64} class="text-brand-green mb-10" />
@@ -69,7 +67,6 @@ const showDomesticStore = domesticStoreUrl !== '#';
            <img src="/images/illu_tortoise_wave.webp" class="absolute right-12 bottom-12 w-32 h-32 object-contain opacity-20 group-hover:rotate-12 transition-transform duration-700" alt="" />
         </div>
 
-        <!-- Privacy Card -->
         <div class="md:col-span-2 glass-darker p-10 rounded-[3.5rem] flex flex-col justify-between border-brand-blue/20">
            <div class="flex justify-between items-start">
               <ShieldCheck size={48} class="text-brand-blue" />
@@ -83,15 +80,13 @@ const showDomesticStore = domesticStoreUrl !== '#';
            </div>
         </div>
 
-        <!-- Compatibility Card -->
         <div class="md:col-span-1 glass p-8 rounded-[3.5rem] flex flex-col items-center justify-center text-center gap-4">
            <Smartphone size={40} class="text-headline-blue" />
            <h4 class="font-black text-xl">8 品牌<br />完美适配</h4>
         </div>
 
-        <!-- Transparency Card -->
         <div class="md:col-span-1 bg-gray-900 dark:bg-white p-8 rounded-[3.5rem] flex flex-col items-center justify-center text-center gap-4 group">
-           <a href="/docs/readme" class="text-white dark:text-black font-black flex flex-col items-center gap-2 group-hover:scale-110 transition-transform">
+           <a href="/docs/readme" class="text-white dark:text-black font-black flex flex-col items-center gap-2 group-hover:scale-110 transition-transform text-center">
               <Sparkles size={32} />
               <span>逻辑全透明</span>
            </a>
@@ -103,8 +98,7 @@ const showDomesticStore = domesticStoreUrl !== '#';
   <!-- 3. Crystal Journal Section -->
   <section class="py-32 relative">
     <div class="max-w-7xl mx-auto px-6">
-      <div class="glass rounded-[4rem] p-12 md:p-24 flex flex-col md:row items-center gap-20 relative overflow-hidden">
-        <!-- Decoration Sand Texture -->
+      <div class="glass rounded-[4rem] p-12 md:p-24 flex flex-col md:flex-row items-center gap-20 relative overflow-hidden">
         <div class="absolute inset-0 noise opacity-5 pointer-events-none"></div>
 
         <div class="flex-1 space-y-10 relative z-10 text-center md:text-left">
@@ -121,10 +115,11 @@ const showDomesticStore = domesticStoreUrl !== '#';
         </div>
 
         <div class="flex-1 relative group">
-           <!-- Letter with Glass Overlay -->
            <div class="relative">
-              <img src="/images/captain_tort_letter.webp" alt="Letter" class="w-full max-w-md mx-auto rotate-[-2deg] drop-shadow-2xl group-hover:rotate-0 transition-transform duration-700" />
-              <div class="absolute -top-10 -right-10 glass-darker w-48 h-48 organic-radius p-8 animate-float">
+              <div class="glass-frame p-6 organic-radius shadow-inner">
+                <img src="/images/captain_tort_letter.webp" alt="Letter" class="w-full max-w-md mx-auto rotate-[-2deg] group-hover:rotate-0 transition-transform duration-700 fade-mask" />
+              </div>
+              <div class="absolute -top-10 -right-10 glass-darker w-48 h-48 organic-radius p-8 animate-float shadow-2xl">
                  <img src="/images/illu_tortoise_peek.webp" class="w-full h-full object-contain" alt="Peek" />
               </div>
            </div>

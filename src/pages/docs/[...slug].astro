@@ -3,7 +3,7 @@ import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Sidebar from '../../components/Sidebar.astro';
 import TableOfContents from '../../components/TableOfContents.astro';
-import { ChevronRight, ExternalLink, Github, BookOpen } from 'lucide-astro';
+import { ChevronRight, ExternalLink, Github, BookOpen, PanelLeftClose, PanelRightClose, PanelLeft, PanelRight } from 'lucide-astro';
 
 export async function getStaticPaths() {
   const docs = await getCollection('docs', ({ data }) => data.public !== false);
@@ -27,14 +27,28 @@ const githubUrl = `${import.meta.env.PUBLIC_GITHUB_REPO ?? 'https://github.com/w
      <div class="absolute top-1/4 right-0 w-[500px] h-[500px] bg-brand-blue/10 blur-[150px] rounded-full"></div>
   </div>
 
-  <div class="max-w-7xl mx-auto px-6 py-12 md:py-20 flex flex-col lg:flex-row gap-16 relative">
-    <!-- Left Sidebar -->
-    <aside class="hidden lg:block w-72 shrink-0 sticky top-32 h-[calc(100vh-12rem)] overflow-y-auto pr-6 custom-scrollbar scroll-smooth">
-      <Sidebar activeSlug={doc.id} />
+  <div class="max-w-[1600px] mx-auto px-6 py-12 md:py-20 flex flex-col lg:flex-row gap-8 relative">
+
+    <!-- Collapsible Sidebar Wrapper -->
+    <aside id="sidebar-container" class="hidden lg:block w-80 shrink-0 sticky top-32 h-[calc(100vh-12rem)] transition-all duration-500 ease-in-out">
+      <div id="sidebar-content" class="h-full overflow-y-auto pr-6 custom-scrollbar scroll-smooth">
+        <div class="flex justify-between items-center mb-10 px-4">
+           <span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Navigation</span>
+           <button id="close-sidebar" class="p-2 glass rounded-xl hover:bg-white/60 dark:hover:bg-gray-800/60 transition-colors" title="Collapse Sidebar">
+             <PanelLeftClose size={18} class="text-brand-blue" />
+           </button>
+        </div>
+        <Sidebar activeSlug={doc.id} />
+      </div>
     </aside>
 
+    <!-- Sidebar Toggle (When closed) -->
+    <button id="open-sidebar" class="hidden fixed left-6 top-1/2 -translate-y-1/2 p-3 glass rounded-2xl z-40 hover:scale-110 active:scale-90 transition-all opacity-0 pointer-events-none shadow-2xl" title="Open Sidebar">
+       <PanelLeft size={24} class="text-brand-blue" />
+    </button>
+
     <!-- Main Content -->
-    <article class="flex-1 min-w-0">
+    <article id="main-content" class="flex-1 min-w-0 transition-all duration-500 ease-in-out">
       <!-- Premium Breadcrumbs -->
       <nav class="flex items-center gap-3 text-[11px] font-black uppercase tracking-[0.15em] text-gray-400 mb-12">
         <a href="/" class="hover:text-brand-blue transition-colors">HOME</a>
@@ -45,14 +59,14 @@ const githubUrl = `${import.meta.env.PUBLIC_GITHUB_REPO ?? 'https://github.com/w
       </nav>
 
       <!-- Glass Content Wrap -->
-      <div class="glass p-8 md:p-16 rounded-[3rem] shadow-2xl relative">
+      <div class="glass p-8 md:p-16 rounded-[3rem] shadow-2xl relative w-full overflow-hidden">
         <!-- Floating Badge -->
         <div class="absolute -top-6 left-12 glass-darker px-6 py-3 rounded-2xl flex items-center gap-3 text-sm font-black text-brand-blue shadow-lg border-2 border-brand-blue/10">
            <BookOpen size={18} />
            <span>INTERNAL DECISION LOG</span>
         </div>
 
-        <div class="prose-tortoise">
+        <div class="prose-tortoise w-full">
           <Content />
         </div>
       </div>
@@ -68,22 +82,63 @@ const githubUrl = `${import.meta.env.PUBLIC_GITHUB_REPO ?? 'https://github.com/w
              <Github size={18} /> EDIT ON GITHUB <ExternalLink size={16} />
            </a>
         </div>
-
-        <!-- Next/Prev Placeholder logic could go here -->
       </footer>
     </article>
 
-    <!-- Right TOC -->
-    <aside class="hidden xl:block w-64 shrink-0 sticky top-32 h-fit max-h-[calc(100vh-12rem)] overflow-y-auto">
-      <div class="glass p-8 rounded-[2.5rem] border-2 border-black/5 dark:border-white/5">
+    <!-- Collapsible TOC Wrapper -->
+    <aside id="toc-container" class="hidden xl:block w-72 shrink-0 sticky top-32 h-fit max-h-[calc(100vh-12rem)] transition-all duration-500 ease-in-out">
+      <div class="glass p-8 rounded-[2.5rem] border-2 border-black/5 dark:border-white/5 relative">
+        <div class="flex justify-between items-center mb-6">
+           <span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">On this page</span>
+           <button id="close-toc" class="p-1.5 glass rounded-lg hover:bg-white/40 transition-colors" title="Collapse TOC">
+             <PanelRightClose size={14} class="text-brand-blue" />
+           </button>
+        </div>
         <TableOfContents headings={headings} />
       </div>
     </aside>
+
+     <!-- TOC Toggle (When closed) -->
+     <button id="open-toc" class="hidden fixed right-6 top-1/2 -translate-y-1/2 p-3 glass rounded-2xl z-40 hover:scale-110 active:scale-90 transition-all opacity-0 pointer-events-none shadow-2xl" title="Open TOC">
+       <PanelRight size={24} class="text-brand-blue" />
+    </button>
   </div>
 
-  <!-- Mermaid & Script Injection -->
   <script>
     import mermaid from 'mermaid';
+
+    // Sidebar & TOC Collapsible Logic
+    const sidebarContainer = document.getElementById('sidebar-container');
+    const closeSidebarBtn = document.getElementById('close-sidebar');
+    const openSidebarBtn = document.getElementById('open-sidebar');
+
+    const tocContainer = document.getElementById('toc-container');
+    const closeTocBtn = document.getElementById('close-toc');
+    const openTocBtn = document.getElementById('open-toc');
+
+    const togglePanel = (container, openBtn, state) => {
+      if (state === 'close') {
+        container.style.width = '0';
+        container.style.opacity = '0';
+        container.style.pointerEvents = 'none';
+        container.style.marginRight = '0';
+        container.style.marginLeft = '0';
+        openBtn.style.opacity = '1';
+        openBtn.style.pointerEvents = 'auto';
+      } else {
+        container.style.width = container.id === 'sidebar-container' ? '20rem' : '18rem';
+        container.style.opacity = '1';
+        container.style.pointerEvents = 'auto';
+        openBtn.style.opacity = '0';
+        openBtn.style.pointerEvents = 'none';
+      }
+    };
+
+    closeSidebarBtn?.addEventListener('click', () => togglePanel(sidebarContainer, openSidebarBtn, 'close'));
+    openSidebarBtn?.addEventListener('click', () => togglePanel(sidebarContainer, openSidebarBtn, 'open'));
+
+    closeTocBtn?.addEventListener('click', () => togglePanel(tocContainer, openTocBtn, 'close'));
+    openTocBtn?.addEventListener('click', () => togglePanel(tocContainer, openTocBtn, 'open'));
 
     // Initialize Mermaid
     const isDark = document.documentElement.classList.contains('dark');
@@ -100,7 +155,6 @@ const githubUrl = `${import.meta.env.PUBLIC_GITHUB_REPO ?? 'https://github.com/w
       }
     });
 
-    // Wrap Mermaid diagrams in dashboards
     const mermaidDivs = document.querySelectorAll('.mermaid');
     mermaidDivs.forEach(div => {
       const container = document.createElement('div');
@@ -109,7 +163,7 @@ const githubUrl = `${import.meta.env.PUBLIC_GITHUB_REPO ?? 'https://github.com/w
       container.appendChild(div);
     });
 
-    // Code block copy buttons
+    // Copy buttons
     const codeBlocks = document.querySelectorAll('pre');
     codeBlocks.forEach((block) => {
       const button = document.createElement('button');
@@ -122,7 +176,6 @@ const githubUrl = `${import.meta.env.PUBLIC_GITHUB_REPO ?? 'https://github.com/w
       button.addEventListener('click', async () => {
         const code = block.querySelector('code')?.innerText || '';
         await navigator.clipboard.writeText(code);
-
         button.innerHTML = '<svg class="w-4 h-4 text-brand-green" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
         setTimeout(() => {
           button.innerHTML = '<svg class="w-4 h-4 text-brand-blue" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>';
@@ -140,7 +193,6 @@ const githubUrl = `${import.meta.env.PUBLIC_GITHUB_REPO ?? 'https://github.com/w
       border-radius: 9999px;
     }
 
-    /* Ensure Mermaid diagrams are responsive inside container */
     .mermaid svg {
       max-width: 100%;
       height: auto;

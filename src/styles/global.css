@@ -94,7 +94,8 @@
 
 /* Documentation Content Refinement */
 .prose-tortoise {
-  @apply max-w-4xl mx-auto leading-relaxed text-gray-700 dark:text-gray-300;
+  @apply max-w-none leading-relaxed text-gray-700 dark:text-gray-300;
+  word-break: break-word;
 }
 
 .prose-tortoise h1 {
@@ -128,10 +129,11 @@
 
 .prose-tortoise code {
   @apply bg-brand-green/10 dark:bg-brand-green/20 px-1.5 py-0.5 rounded text-sm font-mono text-brand-green font-semibold;
+  word-break: break-all;
 }
 
 .mermaid-container {
-  @apply my-12 glass rounded-3xl p-8 relative overflow-hidden border-2 border-brand-blue/10;
+  @apply my-12 glass rounded-3xl p-8 relative overflow-hidden border-2 border-brand-blue/10 w-full;
 }
 
 .mermaid-container::after {
@@ -141,6 +143,8 @@
 
 .prose-tortoise pre {
   @apply glass dark:bg-gray-950/80 p-6 rounded-2xl overflow-x-auto my-8 border-2 border-black/5 dark:border-white/5 shadow-inner;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 
 .prose-tortoise blockquote {
@@ -153,6 +157,15 @@
 
 .prose-tortoise a {
   @apply text-brand-blue hover:text-brand-green transition-colors decoration-brand-blue/20 hover:decoration-brand-green/40 underline underline-offset-8 decoration-2;
+}
+
+/* Glass Frame for Images */
+.glass-frame {
+  @apply relative inline-block p-4 glass rounded-[2.5rem] shadow-2xl;
+}
+
+.fade-mask {
+  mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
 }
 
 .noise {

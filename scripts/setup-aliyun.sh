@@ -89,10 +89,8 @@ server {
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 
-    # ACME challenge (Let's Encrypt 续期需要)
-    location /.well-known/acme-challenge/ {
-        root /var/www/html;
-    }
+    # 注: 不预设 location /.well-known/acme-challenge/ — certbot --nginx 模式
+    # 自己接管, 预设 location 会冲突致 cert 申请 403 (PL 实测踩坑).
 }
 EOF
 

@@ -7,7 +7,13 @@ import { ChevronRight, BookOpen, PanelLeftClose, PanelRightClose, PanelLeft, Pan
 import { getLangFromUrl, useTranslations, useTranslatedPath } from '../../i18n/utils';
 
 export async function getStaticPaths() {
-  const docs = await getCollection('docs', ({ data }) => data.public !== false);
+  const docs = await getCollection('docs', ({ data, id }) => {
+    if (data.public === false) return false;
+    if (data.public === 'internal') return false;
+    // ZH route: exclude EN translations (they live under public/en/)
+    if (id.startsWith('public/en/')) return false;
+    return true;
+  });
   return docs.map(doc => ({
     params: { slug: doc.id },
     props: { doc },

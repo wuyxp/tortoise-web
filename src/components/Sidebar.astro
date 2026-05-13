@@ -12,7 +12,11 @@ const translatePath = useTranslatedPath(lang);
 const allDocs = await getCollection('docs');
 const docIdMap = new Map(allDocs.map(doc => [doc.id.toLowerCase(), doc.id]));
 
-const sidebarPath = path.resolve('src/content/tortoise-source/_sidebar.md');
+// [via-sonnet-subagent] MEETING-2026-05-12-07 bilingual: load _sidebar.en.md when lang=en
+const sidebarFile = lang === 'en' ? '_sidebar.en.md' : '_sidebar.md';
+const primaryPath = path.resolve(`src/content/tortoise-source/${sidebarFile}`);
+const fallbackPath = path.resolve('src/content/tortoise-source/_sidebar.md');
+const sidebarPath = fs.existsSync(primaryPath) ? primaryPath : fallbackPath;
 const sidebarContent = fs.readFileSync(sidebarPath, 'utf-8');
 
 interface SidebarItem {

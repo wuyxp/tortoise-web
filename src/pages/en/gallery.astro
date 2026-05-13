@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import GalleryCategory from '../../components/GalleryCategory.astro';
 import { drawables } from '../../data/drawables';
-import { ChevronRight, ChevronLeft, ChevronRight as ChevronRightIcon, Image as ImageIcon, X, Maximize2 } from 'lucide-astro';
+import { ChevronRight, ChevronLeft, ChevronRight as ChevronRightIcon, Image as ImageIcon, X } from 'lucide-astro';
 import { getLangFromUrl, useTranslations, useTranslatedPath } from '../../i18n/utils';
 
 const lang = getLangFromUrl(Astro.url);
@@ -57,43 +57,45 @@ const groupedAssets = categories.map(category => ({
     ))}
   </main>
 
-  <!-- Lightbox Modal -->
-  <div id="lightbox" class="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-2xl opacity-0 pointer-events-none transition-all duration-500">
-    <button id="close-lightbox" class="absolute top-8 right-8 p-4 glass rounded-2xl text-white/50 hover:text-white hover:scale-110 active:scale-90 transition-all z-[60]">
-      <X size={32} />
-    </button>
+  <!-- Lightbox Modal (Dialog) -->
+  <dialog id="lightbox-dialog" class="m-auto bg-transparent backdrop:bg-black/95 backdrop:backdrop-blur-2xl p-0 border-0 overflow-visible max-w-[95vw] max-h-[95vh]">
+    <div class="relative flex flex-col items-center justify-center p-4 md:p-12 w-full h-full group">
 
-    <!-- Navigation Buttons -->
-    <button id="prev-btn" class="absolute left-4 md:left-8 p-4 glass rounded-full text-white/50 hover:text-white hover:scale-110 active:scale-90 transition-all z-[60]">
-      <ChevronLeft size={48} />
-    </button>
-    <button id="next-btn" class="absolute right-4 md:right-8 p-4 glass rounded-full text-white/50 hover:text-white hover:scale-110 active:scale-90 transition-all z-[60]">
-      <ChevronRightIcon size={48} />
-    </button>
+      <!-- Close Button -->
+      <button id="close-lightbox" class="fixed top-8 right-8 p-4 glass rounded-2xl text-white/50 hover:text-white hover:scale-110 active:scale-90 transition-all z-[10001]">
+        <X size={32} />
+      </button>
 
-    <div class="max-w-6xl w-full p-6 flex flex-col items-center relative">
-      <div class="glass p-4 rounded-[3rem] border-2 border-white/10 relative group mb-8 shadow-2xl overflow-hidden">
-        <img id="lightbox-img" src="" alt="" class="max-h-[75vh] w-auto rounded-[2rem] object-contain transition-all duration-500 block" />
-        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-           <div class="p-4 glass rounded-full text-white shadow-2xl">
-             <Maximize2 size={48} />
-           </div>
+      <!-- Navigation Buttons -->
+      <button id="prev-btn" class="fixed left-4 md:left-8 p-4 glass rounded-full text-white/50 hover:text-white hover:scale-110 active:scale-90 transition-all z-[10001] top-1/2 -translate-y-1/2">
+        <ChevronLeft size={48} />
+      </button>
+      <button id="next-btn" class="fixed right-4 md:right-8 p-4 glass rounded-full text-white/50 hover:text-white hover:scale-110 active:scale-90 transition-all z-[10001] top-1/2 -translate-y-1/2">
+        <ChevronRightIcon size={48} />
+      </button>
+
+      <div class="flex flex-col items-center max-w-5xl w-full">
+        <!-- Image Container -->
+        <div class="glass p-3 md:p-6 rounded-[3rem] border-2 border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.5)] mb-8 transition-transform duration-500 hover:scale-[1.02]">
+          <img id="lightbox-img" src="" alt="" class="max-h-[65vh] w-auto rounded-[2rem] object-contain block opacity-0 transition-opacity duration-300" />
+        </div>
+
+        <!-- Info Area -->
+        <div id="lightbox-info" class="text-center opacity-0 transition-opacity duration-300">
+          <h2 id="lightbox-title" class="text-2xl md:text-5xl font-black text-white mb-4 tracking-tight"></h2>
+          <p id="lightbox-description" class="text-sm md:text-xl text-gray-400 max-w-2xl mx-auto font-medium"></p>
         </div>
       </div>
-
-      <div id="lightbox-info" class="text-center animate-fade-in">
-        <h2 id="lightbox-title" class="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight"></h2>
-        <p id="lightbox-description" class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-medium"></p>
-      </div>
     </div>
-  </div>
+  </dialog>
 </BaseLayout>
 
 <script>
-  const lightbox = document.getElementById('lightbox');
+  const dialog = document.getElementById('lightbox-dialog') as HTMLDialogElement;
   const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
   const lightboxTitle = document.getElementById('lightbox-title');
   const lightboxDescription = document.getElementById('lightbox-description');
+  const lightboxInfo = document.getElementById('lightbox-info');
   const closeBtn = document.getElementById('close-lightbox');
   const prevBtn = document.getElementById('prev-btn');
   const nextBtn = document.getElementById('next-btn');
@@ -103,7 +105,8 @@ const groupedAssets = categories.map(category => ({
   let allAssets: any[] = [];
 
   const initAssets = () => {
-    allAssets = Array.from(document.querySelectorAll('.gallery-card')).map(card => {
+    const latestCards = document.querySelectorAll('.gallery-card');
+    allAssets = Array.from(latestCards).map(card => {
       const htmlCard = card as HTMLElement;
       return {
         id: htmlCard.dataset.id,
@@ -115,45 +118,45 @@ const groupedAssets = categories.map(category => ({
   };
 
   const updateLightbox = (index: number, immediate = false) => {
-    if (!lightboxImg || !lightboxTitle || !lightboxDescription) return;
+    if (!lightboxImg || !lightboxTitle || !lightboxDescription || !lightboxInfo) return;
 
     const asset = allAssets[index];
     if (!asset) return;
 
     currentIndex = index;
 
-    if (immediate) {
+    if (!immediate) {
+      lightboxImg.style.opacity = '0';
+      lightboxInfo.style.opacity = '0';
+    }
+
+    const swap = () => {
       lightboxImg.src = asset.image || '';
       lightboxTitle.textContent = asset.title || '';
       lightboxDescription.textContent = asset.description || '';
       lightboxImg.style.opacity = '1';
-      lightboxImg.style.transform = 'scale(1)';
-    } else {
-      lightboxImg.style.opacity = '0';
-      lightboxImg.style.transform = 'scale(0.95)';
+      lightboxInfo.style.opacity = '1';
+    };
 
-      setTimeout(() => {
-        lightboxImg.src = asset.image || '';
-        lightboxTitle.textContent = asset.title || '';
-        lightboxDescription.textContent = asset.description || '';
-        lightboxImg.style.opacity = '1';
-        lightboxImg.style.transform = 'scale(1)';
-      }, 200);
+    if (immediate) {
+      swap();
+    } else {
+      setTimeout(swap, 300);
     }
   };
 
   const openLightbox = (index: number) => {
-    if (!lightbox) return;
+    if (!dialog) return;
     if (allAssets.length === 0) initAssets();
 
     updateLightbox(index, true);
-    lightbox.classList.remove('opacity-0', 'pointer-events-none');
+    dialog.showModal();
     document.body.style.overflow = 'hidden';
   };
 
   const closeLightbox = () => {
-    if (!lightbox) return;
-    lightbox.classList.add('opacity-0', 'pointer-events-none');
+    if (!dialog) return;
+    dialog.close();
     document.body.style.overflow = '';
   };
 
@@ -168,42 +171,56 @@ const groupedAssets = categories.map(category => ({
   };
 
   cards.forEach((card, index) => {
-    card.addEventListener('click', () => openLightbox(index));
+    card.addEventListener('click', (e) => {
+      e.preventDefault();
+      openLightbox(index);
+    });
   });
 
   closeBtn?.addEventListener('click', closeLightbox);
   prevBtn?.addEventListener('click', (e) => { e.stopPropagation(); prevImage(); });
   nextBtn?.addEventListener('click', (e) => { e.stopPropagation(); nextImage(); });
 
-  lightbox?.addEventListener('click', (e) => {
-    if (e.target === lightbox) closeLightbox();
+  dialog?.addEventListener('click', (e) => {
+    if (e.target === dialog) closeLightbox();
   });
 
   document.addEventListener('keydown', (e) => {
-    if (lightbox?.classList.contains('pointer-events-none')) return;
+    if (!dialog?.open) return;
 
     if (e.key === 'Escape') closeLightbox();
     if (e.key === 'ArrowRight') nextImage();
     if (e.key === 'ArrowLeft') prevImage();
+  });
+
+  dialog?.addEventListener('cancel', () => {
+    document.body.style.overflow = '';
   });
 </script>
 
 <style is:global>
   @reference "../../styles/global.css";
 
-  /* Premium Glass Lightbox Effect */
-  #lightbox .glass {
+  dialog#lightbox-dialog {
+    display: none;
+  }
+
+  dialog#lightbox-dialog[open] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  dialog#lightbox-dialog .glass {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
   }
 
-  @keyframes fade-in {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .animate-fade-in {
-    animation: fade-in 0.5s ease-out forwards;
+  dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(12px);
   }
 </style>

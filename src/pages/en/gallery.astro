@@ -72,16 +72,16 @@ const groupedAssets = categories.map(category => ({
     </button>
 
     <div class="max-w-6xl w-full p-6 flex flex-col items-center relative">
-      <div class="glass p-4 rounded-[3rem] border-2 border-white/10 relative group mb-8 shadow-2xl">
-        <img id="lightbox-img" src="" alt="" class="max-h-[75vh] w-auto rounded-[2rem] object-contain transition-all duration-500" />
-        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+      <div class="glass p-4 rounded-[3rem] border-2 border-white/10 relative group mb-8 shadow-2xl overflow-hidden">
+        <img id="lightbox-img" src="" alt="" class="max-h-[75vh] w-auto rounded-[2rem] object-contain transition-all duration-500 block" />
+        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
            <div class="p-4 glass rounded-full text-white shadow-2xl">
              <Maximize2 size={48} />
            </div>
         </div>
       </div>
 
-      <div class="text-center animate-fade-in">
+      <div id="lightbox-info" class="text-center animate-fade-in">
         <h2 id="lightbox-title" class="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight"></h2>
         <p id="lightbox-description" class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-medium"></p>
       </div>
@@ -100,17 +100,21 @@ const groupedAssets = categories.map(category => ({
   const cards = document.querySelectorAll('.gallery-card');
 
   let currentIndex = 0;
-  const allAssets = Array.from(cards).map(card => {
-    const htmlCard = card as HTMLElement;
-    return {
-      id: htmlCard.dataset.id,
-      title: htmlCard.dataset.title,
-      description: htmlCard.dataset.description,
-      image: htmlCard.dataset.image
-    };
-  });
+  let allAssets: any[] = [];
 
-  const updateLightbox = (index: number) => {
+  const initAssets = () => {
+    allAssets = Array.from(document.querySelectorAll('.gallery-card')).map(card => {
+      const htmlCard = card as HTMLElement;
+      return {
+        id: htmlCard.dataset.id,
+        title: htmlCard.dataset.title,
+        description: htmlCard.dataset.description,
+        image: htmlCard.dataset.image
+      };
+    });
+  };
+
+  const updateLightbox = (index: number, immediate = false) => {
     if (!lightboxImg || !lightboxTitle || !lightboxDescription) return;
 
     const asset = allAssets[index];
@@ -118,22 +122,31 @@ const groupedAssets = categories.map(category => ({
 
     currentIndex = index;
 
-    // Smooth transition
-    lightboxImg.style.opacity = '0';
-    lightboxImg.style.transform = 'scale(0.95)';
-
-    setTimeout(() => {
+    if (immediate) {
       lightboxImg.src = asset.image || '';
       lightboxTitle.textContent = asset.title || '';
       lightboxDescription.textContent = asset.description || '';
       lightboxImg.style.opacity = '1';
       lightboxImg.style.transform = 'scale(1)';
-    }, 200);
+    } else {
+      lightboxImg.style.opacity = '0';
+      lightboxImg.style.transform = 'scale(0.95)';
+
+      setTimeout(() => {
+        lightboxImg.src = asset.image || '';
+        lightboxTitle.textContent = asset.title || '';
+        lightboxDescription.textContent = asset.description || '';
+        lightboxImg.style.opacity = '1';
+        lightboxImg.style.transform = 'scale(1)';
+      }, 200);
+    }
   };
 
   const openLightbox = (index: number) => {
     if (!lightbox) return;
-    updateLightbox(index);
+    if (allAssets.length === 0) initAssets();
+
+    updateLightbox(index, true);
     lightbox.classList.remove('opacity-0', 'pointer-events-none');
     document.body.style.overflow = 'hidden';
   };
@@ -166,7 +179,6 @@ const groupedAssets = categories.map(category => ({
     if (e.target === lightbox) closeLightbox();
   });
 
-  // Keyboard support
   document.addEventListener('keydown', (e) => {
     if (lightbox?.classList.contains('pointer-events-none')) return;
 

@@ -9,7 +9,6 @@ export const ui = {
   zh: {
     'nav.home': '首页',
     'nav.docs': '技术文档',
-    'nav.github': 'GitHub',
     'nav.gallery': '艺术画廊',
     'footer.description': '陪伴孩子建立健康的屏幕使用习惯。通过游戏化激励与温柔引导，让 6-14 岁儿童学会自主管理时间。',
     'footer.resources': '资源',
@@ -43,10 +42,10 @@ export const ui = {
     'download.preparing_desc': '正在进行最后的设备兼容性调试，敬请期待小海龟登岸。',
     'download.internal_test_entry': '内部测试通道',
     'download.internal_test_title': '开发者测试入口',
-    'download.internal_test_dl1': '下载地址一 (阿里云)',
-    'download.internal_test_dl2': '下载地址二 (GitHub)',
+    'download.internal_test_dl1': '下载地址一 (官方分流)',
+    'download.internal_test_dl2': '下载地址二 (镜像分流)',
     'download.internal_test_version': '查看版本说明',
-    // MEETING-2026-05-12-02-apk-distribution (Claude 占位文案, Gemini 后续儿童柔软风格润色)
+    // APK Distribution (Gemini 后续儿童柔软风格润色)
     'download.cta': '把小海龟带回家',
     'download.cn_mirror': '在大陆？试试阿里云分流岛',
     'download.qr_hint': '手机扫一扫，海龟就来啦',
@@ -58,7 +57,6 @@ export const ui = {
     'docs.navigation': 'Navigation',
     'docs.on_this_page': 'On this page',
     'docs.source': 'SOURCE',
-    'docs.edit_on_github': 'EDIT ON GITHUB',
     'gallery.title1': '精选',
     'gallery.title2': '素材资产',
     'gallery.description': 'Tortoise 生态系统中精选的视觉资产合集，按类别整理，用于探索和系统架构参考。',
@@ -164,7 +162,6 @@ export const ui = {
   en: {
     'nav.home': 'Home',
     'nav.docs': 'Docs',
-    'nav.github': 'GitHub',
     'nav.gallery': 'Gallery',
     'footer.description': 'Helping children build healthy screen time habits. Gentle guidance and gamified incentives for 6-14 year olds.',
     'footer.resources': 'Resources',
@@ -198,10 +195,10 @@ export const ui = {
     'download.preparing_desc': 'Final device compatibility debugging is underway. Stay tuned for the Tortoise to land.',
     'download.internal_test_entry': 'Internal Test Entry',
     'download.internal_test_title': 'Internal Test Access',
-    'download.internal_test_dl1': 'Download (Aliyun)',
-    'download.internal_test_dl2': 'Download (GitHub)',
+    'download.internal_test_dl1': 'Download (Mirror 1)',
+    'download.internal_test_dl2': 'Download (Mirror 2)',
     'download.internal_test_version': 'Release Notes',
-    // MEETING-2026-05-12-02-apk-distribution (Claude placeholder copy, Gemini later polish)
+    // APK Distribution
     'download.cta': 'Bring Captain Tort Home',
     'download.cn_mirror': 'In Mainland? Try Aliyun Branch Island',
     'download.qr_hint': 'Scan to welcome the Tortoise!',
@@ -213,7 +210,6 @@ export const ui = {
     'docs.navigation': 'Navigation',
     'docs.on_this_page': 'On this page',
     'docs.source': 'SOURCE',
-    'docs.edit_on_github': 'EDIT ON GITHUB',
     'gallery.title1': 'Exquisite',
     'gallery.title2': 'Drawables',
     'gallery.description': 'A collection of refined assets from the Tortoise ecosystem, categorized for exploration and system architecture reference.',

@@ -3,7 +3,7 @@ import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Sidebar from '../../components/Sidebar.astro';
 import TableOfContents from '../../components/TableOfContents.astro';
-import { ChevronRight, ExternalLink, Github, BookOpen, PanelLeftClose, PanelRightClose, PanelLeft, PanelRight } from 'lucide-astro';
+import { ChevronRight, BookOpen, PanelLeftClose, PanelRightClose, PanelLeft, PanelRight } from 'lucide-astro';
 import { getLangFromUrl, useTranslations, useTranslatedPath } from '../../i18n/utils';
 
 export async function getStaticPaths() {
@@ -34,7 +34,6 @@ const getBadge = (id: string) => {
 };
 
 const badge = getBadge(doc.id);
-const githubUrl = `${import.meta.env.PUBLIC_GITHUB_REPO ?? 'https://github.com/wuyxp/kotlin-stop-shortTV'}/blob/main/docs/${doc.id}.md`;
 ---
 
 <BaseLayout title={title} description={description}>
@@ -94,9 +93,6 @@ const githubUrl = `${import.meta.env.PUBLIC_GITHUB_REPO ?? 'https://github.com/w
              <span>{t('docs.source')}</span>
              <code class="bg-black/5 dark:bg-white/5 px-2 py-1 rounded text-[10px]">{doc.id}.md</code>
            </div>
-           <a href={githubUrl} target="_blank" rel="noopener" class="flex items-center gap-2 glass-darker px-6 py-3 rounded-2xl text-sm font-black text-brand-blue hover:scale-105 transition-transform">
-             <Github size={18} /> {t('docs.edit_on_github')} <ExternalLink size={16} />
-           </a>
         </div>
       </footer>
     </article>

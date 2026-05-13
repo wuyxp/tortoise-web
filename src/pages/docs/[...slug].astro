@@ -74,13 +74,13 @@ const badge = getBadge(doc.id);
       <nav class="flex items-center gap-3 text-[11px] font-black uppercase tracking-[0.15em] text-gray-400 mb-12">
         <a href={translatePath('/')} class="hover:text-brand-blue transition-colors">{t('docs.breadcrumb.home')}</a>
         <ChevronRight size={14} class="text-gray-300" />
-        <a href={translatePath('/docs/readme')} class="hover:text-brand-blue transition-colors">{t('docs.breadcrumb.docs')}</a>
+        <a href={translatePath('/docs/01-overview/product-overview')} class="hover:text-brand-blue transition-colors">{t('docs.breadcrumb.docs')}</a>
         <ChevronRight size={14} class="text-gray-300" />
         <span class="text-brand-green truncate">{doc.id}</span>
       </nav>
 
       <!-- Glass Content Wrap -->
-      <div class="glass p-8 md:p-16 rounded-[3rem] shadow-2xl relative w-full overflow-hidden">
+      <div class="glass p-8 md:p-16 rounded-[3rem] shadow-2xl relative w-full">
         <!-- Floating Badge -->
         <div class="absolute -top-6 left-12 glass-darker px-6 py-3 rounded-2xl flex items-center gap-3 text-sm font-black shadow-lg border-2 border-brand-blue/10">
            <BookOpen size={18} class={badge.color} />

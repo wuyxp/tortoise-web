@@ -23,6 +23,17 @@ const translatePath = useTranslatedPath(lang);
 
 const title = doc.data.title ?? doc.id.split('/').pop() ?? doc.id;
 const description = doc.data.description ?? `${title} — Tortoise 技术文档`;
+
+// Determine badge based on file path or category
+const getBadge = (id: string) => {
+  if (id.startsWith('architecture/')) return { text: 'OFFICIAL ARCHITECTURE', color: 'text-brand-blue' };
+  if (id.startsWith('04-narrative/')) return { text: 'NARRATIVE BIBLE', color: 'text-brand-green' };
+  if (id.startsWith('03-explorer/')) return { text: 'EXPLORER SPEC', color: 'text-brand-blue' };
+  if (id.includes('AUDIT')) return { text: 'PROJECT AUDIT', color: 'text-yellow-500' };
+  return { text: 'TECHNICAL DOCUMENT', color: 'text-brand-blue' };
+};
+
+const badge = getBadge(doc.id);
 const githubUrl = `${import.meta.env.PUBLIC_GITHUB_REPO ?? 'https://github.com/wuyxp/kotlin-stop-shortTV'}/blob/main/docs/${doc.id}.md`;
 ---
 
@@ -66,9 +77,9 @@ const githubUrl = `${import.meta.env.PUBLIC_GITHUB_REPO ?? 'https://github.com/w
       <!-- Glass Content Wrap -->
       <div class="glass p-8 md:p-16 rounded-[3rem] shadow-2xl relative w-full overflow-hidden">
         <!-- Floating Badge -->
-        <div class="absolute -top-6 left-12 glass-darker px-6 py-3 rounded-2xl flex items-center gap-3 text-sm font-black text-brand-blue shadow-lg border-2 border-brand-blue/10">
-           <BookOpen size={18} />
-           <span>INTERNAL DECISION LOG</span>
+        <div class="absolute -top-6 left-12 glass-darker px-6 py-3 rounded-2xl flex items-center gap-3 text-sm font-black shadow-lg border-2 border-brand-blue/10">
+           <BookOpen size={18} class={badge.color} />
+           <span class={badge.color}>{badge.text}</span>
         </div>
 
         <div class="prose-tortoise w-full">

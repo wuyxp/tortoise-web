@@ -1,34 +1,32 @@
-# 技术文档脱敏与重构任务总结
+# 技术文档与网站脱敏强化总结
 
-本次任务成功完成了对 `tortoise-web` 技术文档的全面审计、脱敏与重构。通过结构化拆分和叙事化包装，提升了文档的专业性、安全性与易读性。
+本次任务成功完成了对 `tortoise-web` 仓库本地源码及 UI 展示层的脱敏与清理工作。我们重点消除了所有 GitHub 品牌标识，并更新了关键的业务反馈联系方式。
 
 ## 核心变更
 
-### 1. 文档拆分与脱敏
-将原本臃肿且包含敏感信息的 `product-overview.md` 拆分为三个专题文档，并进行了深度脱敏处理：
-- [philosophy.md](file:///Users/wuyang/code/tortoise-web/src/content/tortoise-source/architecture/philosophy.md): 阐述“温柔引导”核心哲学与六阶段提醒机制。
-- [system-design.md](file:///Users/wuyang/code/tortoise-web/src/content/tortoise-source/architecture/system-design.md): 介绍 Clean Architecture 架构模式。
-- [engine-logic.md](file:///Users/wuyang/code/tortoise-web/src/content/tortoise-source/architecture/engine-logic.md): 解释监控引擎与锁定机制的高层逻辑。
+### 1. 业务信息更新
+- **反馈邮箱**: 已将全站（首页、页脚、文档页）的占位邮箱 `tortoise@example.com` 统一更新为真实邮箱 `956826374@qq.com`。
+- **APK 分流描述**: 优化了下载页面的分流下载站描述，移除了具体的服务商名称，改为“官方分流”和“镜像分流”。
 
-### 2. 进度审计重塑
-重写了 [00-PROGRESS-AUDIT.md](file:///Users/wuyang/code/tortoise-web/src/content/tortoise-source/00-PROGRESS-AUDIT.md)，将其从“内部任务清单”转变为“产品路线图与开发进度”，移除了所有内部脚本引用和会议编号。
+### 2. 全站“去 GitHub 化” (De-GitHub Branding)
+- **UI 组件**:
+    - 移除了顶部导航栏中的 GitHub 链接和图标。
+    - 移除了页脚中的 GitHub 社交链接。
+    - 移除了文档页面顶部的 “EDIT ON GITHUB” 按钮。
+- **文档渲染层**:
+    - 移除了 `[...slug].astro` 逻辑中所有用于拼接 GitHub 源码链接的变量和导入。
+- **元数据与注释**:
+    - 清理了源码注释（如 `i18n/ui.ts`）中残留的 `MEETING-` 会议编号，防止在前端静态资源中泄露开发痕迹。
 
-### 3. 侧边栏优化
-更新了 [_sidebar.md](file:///Users/wuyang/code/tortoise-web/src/content/tortoise-source/_sidebar.md)，仅保留公开版本所需的路径，并对分组进行了逻辑重组，确保用户能够快速定位核心架构文档。
-
-### 4. UI 视觉增强
-在 [[...slug].astro](file:///Users/wuyang/code/tortoise-web/src/pages/docs/[...slug].astro) 中引入了**动态叙事徽章系统**：
-- 架构文档标记为 `OFFICIAL ARCHITECTURE`。
-- 叙事文档标记为 `NARRATIVE BIBLE`。
-- 项目审计标记为 `PROJECT AUDIT`。
-- 同时保留了 Mermaid 架构图的玻璃质感样式。
+### 3. 文档 UI 增强 (UI/UX)
+- **叙事徽章系统**: 在文档页面保留并完善了动态徽章系统（如 `OFFICIAL ARCHITECTURE`、`NARRATIVE BIBLE`），确保文档呈现专业感的同时与“海岛探险”品牌对齐。
 
 ## 验证结果
 
-- **脱敏验证**: 经 `grep` 扫描，所有新生成/更新的公开文档中均不再包含 `MEETING-`、`com.example` 或内部脚本路径。
-- **构建验证**: 执行 `npm run build` 成功，生成了 124 个静态页面，无错误。
-- **链接验证**: 侧边栏导航链接与实际文件路径保持一致，确保无死链。
+- **构建验证**: 执行 `npm run build` 成功，124 个静态页面生成无误。
+- **全量扫描**: 经 `grep` 验证，UI 渲染路径下已不再包含 `github`（除代码库内部配置外）、`example.com` 或 `MEETING-` 关键字。
+- **部署状态**: 变更已推送到 `main` 分支，正在通过 GitHub Actions 自动部署至线上地址。
 
 ## 建议后续行动
-- 对 `03-explorer/` 下的其他详细设计文档进行逐篇审计。
-- 考虑在 CI 流程中加入敏感词扫描脚本，防止未来提交时再次引入隐私信息。
+- 关注 `src/content/tortoise-source` 子模块的自动化脱敏方案（由 Claude 后续处理）。
+- 定期检查前端构建产物（如 `dist/`），确保没有新的内部元数据泄露。

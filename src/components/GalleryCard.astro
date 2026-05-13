@@ -3,16 +3,17 @@ import { getLangFromUrl, useTranslations } from '../i18n/utils';
 
 interface Props {
   id: string;
-  title: string;
-  description: string;
   filename: string;
 }
 
-const { id, title, description, filename } = Astro.props;
+const { id, filename } = Astro.props;
 const imagePath = `/images/drawables/${filename}`;
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
+
+const title = t(`gallery.asset.${id}.title` as any);
+const description = t(`gallery.asset.${id}.desc` as any);
 ---
 
 <div

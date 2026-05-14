@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "@fontsource/lxgw-wenkai/index.css";
 
+/* 启用基于 class 的暗色模式 (Tailwind 4) */
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-mint: #EEF7F0;
   --color-lavender: #F5F6FF;
@@ -40,11 +43,11 @@
   background-color: rgba(255, 255, 255, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
-}
 
-.dark @utility glass {
-  background-color: rgba(17, 24, 39, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  .dark & {
+    background-color: rgba(17, 24, 39, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
 }
 
 @utility glass-darker {
@@ -52,11 +55,11 @@
   background-color: rgba(255, 255, 255, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
-}
 
-.dark @utility glass-darker {
-  background-color: rgba(17, 24, 39, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  .dark & {
+    background-color: rgba(17, 24, 39, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
 }
 
 @utility organic-radius {
@@ -76,14 +79,14 @@
     radial-gradient(at 0% 0%, hsla(232,88%,90%,1) 0, transparent 50%),
     radial-gradient(at 50% 0%, hsla(142,50%,95%,1) 0, transparent 50%),
     radial-gradient(at 100% 0%, hsla(232,88%,95%,1) 0, transparent 50%);
-}
 
-.dark @utility mesh-gradient {
-  background-color: #030712;
-  background-image:
-    radial-gradient(at 0% 0%, hsla(232,88%,15%,0.3) 0, transparent 50%),
-    radial-gradient(at 50% 0%, hsla(142,50%,10%,0.3) 0, transparent 50%),
-    radial-gradient(at 100% 0%, hsla(232,88%,15%,0.3) 0, transparent 50%);
+  .dark & {
+    background-color: #050b1d;
+    background-image:
+      radial-gradient(at 0% 0%, hsla(232,88%,15%,0.4) 0, transparent 50%),
+      radial-gradient(at 50% 0%, hsla(260,50%,10%,0.4) 0, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(232,88%,15%,0.4) 0, transparent 50%);
+  }
 }
 
 @layer base {

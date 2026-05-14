@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { Menu, X, Mail, Sun, Moon, Languages } from 'lucide-astro';
+import { Menu, X, Mail, Sun, Moon, Languages, MessageCircle } from 'lucide-astro';
 import { getLangFromUrl, useTranslations, useTranslatedPath } from '../i18n/utils';
 
 interface Props {
@@ -141,6 +141,7 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
           </p>
           <div class="flex gap-4 mt-8">
              <a href={`mailto:${feedbackEmail}`} class="p-3 rounded-2xl glass hover:text-brand-blue transition-all"><Mail size={24}/></a>
+             <button id="wechat-btn" class="p-3 rounded-2xl glass hover:text-brand-blue transition-all cursor-pointer" aria-label="WeChat"><MessageCircle size={24}/></button>
           </div>
         </div>
 
@@ -173,6 +174,30 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
         </div>
       </div>
     </footer>
+
+    <!-- WeChat QR Modal -->
+    <dialog id="wechat-modal" class="m-auto bg-transparent backdrop:bg-black/60 p-4 border-0">
+      <div class="glass-darker p-8 md:p-10 rounded-[3rem] border-2 border-brand-blue/20 max-w-sm mx-auto flex flex-col items-center gap-6 relative animate-fade-in shadow-2xl">
+        <button id="close-wechat-modal" class="absolute top-6 right-6 text-gray-400 hover:text-brand-blue transition-all hover:rotate-90">
+          <X class="w-6 h-6" />
+        </button>
+
+        <div class="text-center">
+          <h3 class="text-2xl font-black text-brand-blue mb-2">{lang === 'zh' ? '添加开发者微信' : 'Add Developer WeChat'}</h3>
+          <p class="text-sm text-gray-500 opacity-80">{lang === 'zh' ? '扫码与我建立联系' : 'Scan to connect with me'}</p>
+        </div>
+
+        <div class="relative group">
+          <div class="absolute -inset-4 bg-brand-green/5 rounded-[3rem] border border-brand-green/10 animate-pulse"></div>
+          <div class="absolute -inset-2 bg-white rounded-[2.8rem] shadow-xl"></div>
+          <img src="/images/wechat_qr.webp" alt="WeChat QR Code" class="relative w-48 h-48 object-contain rounded-2xl" />
+        </div>
+
+        <p class="text-[10px] font-mono text-gray-400 opacity-50 uppercase tracking-tighter text-center">
+          {lang === 'zh' ? '验证信息请注明: Tortoise 用户' : 'Please mention "Tortoise User" in request'}
+        </p>
+      </div>
+    </dialog>
 
     <script>
       const mobileMenuBtn = document.getElementById('mobile-menu-btn');
@@ -216,6 +241,28 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
 
       setupLangToggle('lang-toggle');
       setupLangToggle('lang-toggle-mobile');
+
+      // WeChat Modal Logic
+      const wechatBtn = document.getElementById('wechat-btn');
+      const wechatModal = document.getElementById('wechat-modal') as HTMLDialogElement;
+      const closeWechatBtn = document.getElementById('close-wechat-modal');
+
+      if (wechatBtn && wechatModal) {
+        wechatBtn.addEventListener('click', () => {
+          wechatModal.showModal();
+          document.body.style.overflow = 'hidden';
+        });
+      }
+
+      const handleCloseWechat = () => {
+        wechatModal?.close();
+        document.body.style.overflow = '';
+      };
+
+      closeWechatBtn?.addEventListener('click', handleCloseWechat);
+      wechatModal?.addEventListener('click', (e) => {
+        if (e.target === wechatModal) handleCloseWechat();
+      });
     </script>
   </body>
 </html>

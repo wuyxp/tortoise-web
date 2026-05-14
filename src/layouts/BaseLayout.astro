@@ -162,15 +162,24 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
         </div>
       </div>
 
-      <div class="max-w-7xl mx-auto px-6 mt-24 pt-12 border-t border-black/5 dark:border-white/5 flex flex-col md:row justify-between items-center gap-6">
-        <div class="flex items-center gap-4 text-xs font-bold text-gray-400">
-           <span>{t('footer.copyright')}</span>
-           <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
-           <span>CRYSTAL ISLAND EDITION</span>
+      <div class="max-w-7xl mx-auto px-6 mt-24 pt-12 border-t border-black/5 dark:border-white/5 flex flex-col items-center gap-8">
+        <div class="flex flex-col md:flex-row justify-between items-center w-full gap-6">
+          <div class="flex items-center gap-4 text-xs font-bold text-gray-400">
+             <span>{t('footer.copyright')}</span>
+             <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
+             <span>CRYSTAL ISLAND EDITION</span>
+          </div>
+          <div class="flex items-center gap-2 px-4 py-2 glass rounded-full text-[10px] font-black text-brand-blue">
+             <div class="w-2 h-2 bg-brand-green rounded-full animate-pulse"></div>
+             {t('footer.status')}
+          </div>
         </div>
-        <div class="flex items-center gap-2 px-4 py-2 glass rounded-full text-[10px] font-black text-brand-blue">
-           <div class="w-2 h-2 bg-brand-green rounded-full animate-pulse"></div>
-           {t('footer.status')}
+
+        <!-- ICP Filing -->
+        <div class="flex items-center justify-center">
+          <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener" class="text-[10px] font-bold text-gray-400 hover:text-brand-blue transition-colors tracking-widest uppercase">
+            京ICP备2023030497号-2
+          </a>
         </div>
       </div>
     </footer>

@@ -13,6 +13,13 @@
   --color-coach-card: #FFF5F0;
   --color-headline-blue: #4A6CF7;
 
+  /* 暗色模式下的柔和色值 */
+  --color-dark-bg: #050b1d;
+  --color-dark-surface: rgba(30, 41, 59, 0.4);
+  --color-dark-text: #94a3b8;
+  --color-dark-heading: #e2e8f0;
+  --color-dark-brand-blue: #818cf8; /* 更柔和的蓝色 */
+
   --font-display: "LXGW WenKai", sans-serif;
   --font-sans: "LXGW WenKai", ui-sans-serif, system-ui, sans-serif;
 
@@ -71,6 +78,10 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+
+  .dark & {
+    background-image: linear-gradient(to bottom right, var(--color-dark-brand-blue), #60a5fa, var(--color-brand-green));
+  }
 }
 
 @utility mesh-gradient {
@@ -91,22 +102,22 @@
 
 @layer base {
   body {
-    @apply font-sans transition-colors duration-500 overflow-x-hidden;
+    @apply font-sans transition-colors duration-500 overflow-x-hidden text-gray-700 dark:text-slate-400;
   }
 }
 
 /* Documentation Content Refinement */
 .prose-tortoise {
-  @apply max-w-none leading-relaxed text-gray-700 dark:text-gray-300;
+  @apply max-w-none leading-relaxed text-gray-700 dark:text-slate-300;
   word-break: break-word;
 }
 
 .prose-tortoise h1 {
-  @apply text-4xl font-bold text-headline-blue mt-12 mb-6 tracking-tight;
+  @apply text-4xl font-bold text-headline-blue dark:text-slate-200 mt-12 mb-6 tracking-tight;
 }
 
 .prose-tortoise h2 {
-  @apply text-2xl font-bold text-headline-blue mt-12 mb-6 flex items-center gap-3 py-2 border-b border-black/5 dark:border-white/5;
+  @apply text-2xl font-bold text-headline-blue dark:text-slate-200 mt-12 mb-6 flex items-center gap-3 py-2 border-b border-black/5 dark:border-white/5;
 }
 
 .prose-tortoise h2::before {

@@ -37,7 +37,7 @@ const apkSizeMb = import.meta.env.PUBLIC_APK_SIZE_MB ?? '80';
         <div class="inline-flex items-center gap-2 px-5 py-2 glass rounded-full text-sm font-black text-brand-blue animate-fade-in">
            <Sparkles size={16} /> <span>{t('hero.badge')}</span>
         </div>
-        <h1 class="text-5xl md:text-8xl font-black tracking-tight leading-[1.1]">
+        <h1 class="text-5xl md:text-8xl font-black tracking-tight leading-[1.1] dark:text-slate-100">
            {t('hero.title1')}<br />
            <span class="text-gradient">{t('hero.title2')}</span>
         </h1>
@@ -104,8 +104,8 @@ const apkSizeMb = import.meta.env.PUBLIC_APK_SIZE_MB ?? '80';
               </div>
            </div>
 
-           <h3 class="text-4xl font-black mb-6">{t('bento.stages.title')}</h3>
-           <p class="text-xl text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
+           <h3 class="text-4xl font-black mb-6 dark:text-slate-100">{t('bento.stages.title')}</h3>
+           <p class="text-xl text-gray-500 dark:text-slate-400 leading-relaxed font-medium">
              {t('bento.stages.description')}
            </p>
 
@@ -140,8 +140,8 @@ const apkSizeMb = import.meta.env.PUBLIC_APK_SIZE_MB ?? '80';
            </div>
 
            <div class="relative z-10">
-              <h3 class="text-3xl font-black mb-4">{t('bento.privacy.title')}</h3>
-              <p class="text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+              <h3 class="text-3xl font-black mb-4 dark:text-slate-100">{t('bento.privacy.title')}</h3>
+              <p class="text-gray-500 dark:text-slate-400 font-medium leading-relaxed">
                 {t('bento.privacy.description')}
               </p>
            </div>
@@ -156,13 +156,13 @@ const apkSizeMb = import.meta.env.PUBLIC_APK_SIZE_MB ?? '80';
               <div class="w-8 h-8 glass rounded-lg flex items-center justify-center"><Smartphone size={16} class="rotate-45" /></div>
            </div>
            <div>
-              <h4 class="font-black text-xl mb-1">{t('bento.brands.title')}</h4>
+              <h4 class="font-black text-xl mb-1 dark:text-slate-100">{t('bento.brands.title')}</h4>
               <p class="text-[10px] font-bold text-gray-400 tracking-widest uppercase">{t('bento.brands.subtitle')}</p>
            </div>
         </div>
 
         <!-- 4. Logic Block (Square, Dark) -->
-        <div class="md:col-span-1 bg-gray-900 dark:bg-white p-8 rounded-[3.5rem] flex flex-col items-center justify-center text-center gap-4 group hover:-translate-y-2 transition-all duration-500 relative overflow-hidden">
+        <div class="md:col-span-1 bg-gray-900 dark:bg-slate-800 p-8 rounded-[3.5rem] flex flex-col items-center justify-center text-center gap-4 group hover:-translate-y-2 transition-all duration-500 relative overflow-hidden">
            <div class="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity">
               <div class="grid grid-cols-4 gap-1 p-2 h-full">
                  {Array.from({length: 16}).map(() => <div class="bg-brand-blue rounded-sm"></div>)}
@@ -184,9 +184,9 @@ const apkSizeMb = import.meta.env.PUBLIC_APK_SIZE_MB ?? '80';
         <div class="absolute inset-0 noise opacity-5 pointer-events-none"></div>
 
         <div class="flex-1 space-y-10 relative z-10 text-center md:text-left">
-           <div class="inline-block px-5 py-2 glass rounded-2xl organic-radius text-sm font-black text-orange-600">{t('journal.badge')}</div>
-           <h3 class="text-4xl md:text-6xl font-black leading-tight">{t('journal.title1')}<br /><span class="text-gradient">{t('journal.title2')}</span></h3>
-           <p class="text-xl text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
+           <div class="inline-block px-5 py-2 glass rounded-2xl organic-radius text-sm font-black text-orange-600 dark:text-orange-400">{t('journal.badge')}</div>
+           <h3 class="text-4xl md:text-6xl font-black leading-tight dark:text-slate-100">{t('journal.title1')}<br /><span class="text-gradient">{t('journal.title2')}</span></h3>
+           <p class="text-xl text-gray-500 dark:text-slate-400 leading-relaxed font-medium">
              {t('journal.description')}
            </p>
            <div class="pt-6">
@@ -213,7 +213,7 @@ const apkSizeMb = import.meta.env.PUBLIC_APK_SIZE_MB ?? '80';
   <!-- 4. Download Crystal Panel -->
   <section id="download" class="py-32">
     <div class="max-w-4xl mx-auto px-6 text-center">
-      <h2 class="text-4xl md:text-6xl font-black mb-16 tracking-tight">{t('download.title1')}<br /><span class="text-gradient">{t('download.title2')}</span></h2>
+      <h2 class="text-4xl md:text-6xl font-black mb-16 tracking-tight dark:text-slate-100">{t('download.title1')}<br /><span class="text-gradient">{t('download.title2')}</span></h2>
 
       {(!showPlayStore && !showDomesticStore) ? (
         <DownloadCard

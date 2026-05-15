@@ -1,12 +1,11 @@
 # tortoise-web
 
 > Tortoise 主页 — 6-14 岁儿童短视频时间管理 App 官网与文档
-> 议题: [MEETING-2026-05-11-05-static-website-v1](https://github.com/wuyxp/kotlin-stop-shortTV/blob/main/docs/08-meetings/2026-05-11-04-static-website-v1.md)
 
 ## 架构
 
 - **Astro 6 + Tailwind 4** — 静态生成, 不需要服务器运行时
-- **git submodule** 拉 [Tortoise 主仓](https://github.com/wuyxp/kotlin-stop-shortTV) `docs/` → `src/content/tortoise-source/docs/` → Astro Content Collections 静态生成 `/docs/*` 路由
+- **docs 内容**通过 CI 从私有内容仓同步 → `src/content/tortoise-source/` → Astro Content Collections 静态生成 `/docs/*` 路由
 - **双发部署**: GitHub Pages (国外用户) + 阿里云 nginx (国内用户)
 - **变量化**: 域名 / 邮箱 / 商店 URL 全在 `.env` (复制 `.env.example`), 后续换域名只改一行
 

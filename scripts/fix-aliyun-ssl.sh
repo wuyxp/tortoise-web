@@ -16,7 +16,7 @@ set -euo pipefail
 
 DOMAIN="${SETUP_DOMAIN:-serpilo.com}"
 DEPLOY_PATH="${SETUP_DEPLOY_PATH:-/var/www/serpilo}"
-CERT_EMAIL="${SETUP_CERT_EMAIL:-956826374@qq.com}"
+CERT_EMAIL="${SETUP_CERT_EMAIL:-support@serpilo.com}"
 
 echo "==> 配置参数 DOMAIN=$DOMAIN DEPLOY_PATH=$DEPLOY_PATH CERT_EMAIL=$CERT_EMAIL"
 echo ""

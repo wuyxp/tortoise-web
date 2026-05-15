@@ -25,7 +25,7 @@ set -euo pipefail
 
 DOMAIN="${SETUP_DOMAIN:-serpilo.com}"
 DEPLOY_PATH="${SETUP_DEPLOY_PATH:-/var/www/serpilo}"
-CERT_EMAIL="${SETUP_CERT_EMAIL:-956826374@qq.com}"
+CERT_EMAIL="${SETUP_CERT_EMAIL:-support@serpilo.com}"
 CERT_DIR="/etc/nginx/ssl/letsencrypt/$DOMAIN"
 ACME_HOME="${ACME_HOME:-$HOME/.acme.sh}"
 NGINX_ONLY="${NGINX_ONLY:-0}"  # MEETING-2026-05-12-02: 仅更新 nginx config (跳过 cert 申请/续期, 不需要 Ali_Key/Secret)

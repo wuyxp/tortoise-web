@@ -1,8 +1,8 @@
 name: "Deploy (dual GitHub Pages + Aliyun nginx)"
 
-# 议题: MEETING-2026-05-11-06-docs-isolation
-# 架构: tortoise-web (PUBLIC) submodule 拉 wuyxp/tortoise-docs (PUBLIC)
-#       └─ tortoise-docs 由主仓 scripts/sync-public-docs.sh 同步 PRIVATE 主仓 docs/ 公开子集
+# 架构: tortoise-web (PUBLIC) checkout wuyxp/tortoise-docs (PRIVATE staging)
+#       └─ tortoise-docs 由主仓 scripts/sync-public-docs.sh 同步 docs/public/ 子集
+# MEETING-2026-05-15-04: tortoise-docs 已改为 PRIVATE，checkout 须用 TORTOISE_WEB_TOKEN PAT
 # 双发: 国外用户走 GitHub Pages, 国内用户走阿里云 nginx (任一失败不阻塞另一边)
 
 on:
@@ -29,13 +29,14 @@ jobs:
       - name: Checkout tortoise-web
         uses: actions/checkout@v4
 
-      - name: Checkout tortoise-docs (PUBLIC) into src/content/tortoise-source
-        # tortoise-docs 是 PUBLIC 仓, actions/checkout 跨仓 public 不需要 PAT.
+      - name: Checkout tortoise-docs (PRIVATE staging) into src/content/tortoise-source
+        # MEETING-2026-05-15-04: tortoise-docs 已改为 PRIVATE，须用 PAT 鉴权
         uses: actions/checkout@v4
         with:
           repository: wuyxp/tortoise-docs
           path: src/content/tortoise-source
           ref: main
+          token: ${{ secrets.TORTOISE_WEB_TOKEN }}
 
       - name: Verify docs content
         run: |
@@ -63,7 +64,7 @@ jobs:
           PUBLIC_FEEDBACK_EMAIL: ${{ secrets.PUBLIC_FEEDBACK_EMAIL || 'tortoise@example.com' }}
           PUBLIC_PLAY_STORE_URL: ${{ secrets.PUBLIC_PLAY_STORE_URL || '#' }}
           PUBLIC_DOMESTIC_STORE_URL: ${{ secrets.PUBLIC_DOMESTIC_STORE_URL || '#' }}
-          PUBLIC_GITHUB_REPO: ${{ secrets.PUBLIC_GITHUB_REPO || 'https://github.com/wuyxp/kotlin-stop-shortTV' }}
+          PUBLIC_GITHUB_REPO: ${{ secrets.PUBLIC_GITHUB_REPO || '#' }}
           # APK 直接下载 (MEETING-2026-05-12-02-apk-distribution)
           PUBLIC_APK_DOWNLOAD_URL: ${{ secrets.PUBLIC_APK_DOWNLOAD_URL || '#' }}
           PUBLIC_APK_DOWNLOAD_URL_CN: ${{ secrets.PUBLIC_APK_DOWNLOAD_URL_CN || '#' }}

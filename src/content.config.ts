@@ -2,16 +2,8 @@ import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
 // Content Layer API (Astro 5+):
-// 从 git submodule (wuyxp/tortoise-docs PUBLIC 仓) 拉 .md 作为 'docs' collection.
-//
-// MEETING-2026-05-11-06-docs-isolation: PRIVATE 主仓 docs/ 公开子集已 sync 到
-// PUBLIC tortoise-docs, root 是主题域目录 (不再有 docs/ 嵌套层).
-//
-// MEETING-2026-05-12-07-docs-public-pipeline (D-4 三态升级):
-// public 字段升级为 boolean | "user-facing" | "derived" | "internal".
-// 旧值 true/false 向后兼容 (true=可见, false=隐藏).
-// 新值 user-facing/derived = 可见 (派生 user-facing 篇 + 派生加工篇),
-// internal = 隐藏 (永不进公开流水线).
+// 从私有内容仓 (tortoise-docs) 同步的 .md 作为 'docs' collection.
+// public 字段三态: "user-facing" | "derived" | "internal" (旧 true/false 向后兼容).
 const docs = defineCollection({
   loader: glob({
     pattern: '**/*.md',

@@ -18,6 +18,7 @@ const years = [
     title: lang === 'zh' ? 'Y1「启航」' : 'Y1 "The Voyage Begins"',
     subtitle: lang === 'zh' ? '你不是一个人出发的' : 'You are not starting alone',
     image: '/images/drawables/chapter_y1_prologue.webp',
+    color: 'tide-gold',
     quote: lang === 'zh'
       ? '“你会的。我早就知道你会的。”'
       : '"You will do it. I always knew you would."',
@@ -30,6 +31,7 @@ const years = [
     title: lang === 'zh' ? 'Y2「远潮」' : 'Y2 "Distant Tides"',
     subtitle: lang === 'zh' ? '迷路是走进了没有名字的地方' : 'Getting lost is finding the unnamed',
     image: '/images/drawables/route_mistedge_entry.webp',
+    color: 'deep-cyan',
     quote: lang === 'zh'
       ? '“雾里找到的东西，不一样。”'
       : '"Things found in the mist are different."',
@@ -42,6 +44,7 @@ const years = [
     title: lang === 'zh' ? 'Y3「回响」' : 'Y3 "The Echo"',
     subtitle: lang === 'zh' ? '你知道有人在，所以敢往前走' : 'You dare to move forward knowing they are there',
     image: '/images/drawables/spineback_tree_spring.webp',
+    color: 'tide-gold',
     quote: lang === 'zh'
       ? '“岛记得每一只走过的小海龟。”'
       : '"The island remembers every little tortoise."',
@@ -54,6 +57,7 @@ const years = [
     title: lang === 'zh' ? 'Y4「沉钟」' : 'Y4 "The Sunken Bell"',
     subtitle: lang === 'zh' ? '越深的地方，越有光在等着' : 'The deeper you go, the more light waits',
     image: '/images/drawables/bell_bellwell_deep.webp',
+    color: 'deep-cyan',
     quote: lang === 'zh'
       ? '“最深的地方，也有人留过灯。”'
       : '"Even in the deepest abyss, someone left a light."',
@@ -66,6 +70,7 @@ const years = [
     title: lang === 'zh' ? 'Y5「古龟族」' : 'Y5 "The Ancient Kin"',
     subtitle: lang === 'zh' ? '旧的东西，在新人手里才有重量' : 'Old things gain weight in new hands',
     image: '/images/drawables/old_star_keepers_silhouettes.webp',
+    color: 'tide-gold',
     quote: lang === 'zh'
       ? '“你是一段很长的故事的一部分。”'
       : '"You are part of a very long story."',
@@ -78,6 +83,7 @@ const years = [
     title: lang === 'zh' ? 'Y6「守岛」' : 'Y6 "Guardian"',
     subtitle: lang === 'zh' ? '知道如何看着另一个人' : 'Knowing how to watch over another',
     image: '/images/drawables/lil_tan_awake.webp',
+    color: 'deep-cyan',
     quote: lang === 'zh'
       ? '“你已经不需要问我了。”'
       : '"You don\'t need to ask me anymore."',
@@ -90,6 +96,7 @@ const years = [
     title: lang === 'zh' ? 'Y7「黎明」' : 'Y7 "The Dawn"',
     subtitle: lang === 'zh' ? '出门散个步，灯塔交给你了' : 'Going for a walk, the lighthouse is yours',
     image: '/images/drawables/three_turtles_lighthouse.webp',
+    color: 'tide-gold',
     quote: lang === 'zh'
       ? '“灯塔的灯，现在是你的了。”'
       : '"The lighthouse lamp is yours now."',
@@ -104,20 +111,20 @@ const years = [
   <!-- Immersive Background -->
   <div class="fixed top-0 left-0 w-full h-full -z-20 pointer-events-none">
     <div class="absolute inset-0 bg-[#050b1d]"></div>
-    <div class="absolute top-0 left-1/4 w-[800px] h-[800px] bg-brand-blue/10 blur-[180px] rounded-full animate-pulse"></div>
-    <div class="absolute bottom-0 right-1/4 w-[800px] h-[800px] bg-brand-green/10 blur-[180px] rounded-full animate-pulse" style="animation-delay: 2s"></div>
+    <div class="absolute top-0 left-1/4 w-[800px] h-[800px] bg-tide-gold/5 blur-[180px] rounded-full animate-pulse"></div>
+    <div class="absolute bottom-0 right-1/4 w-[800px] h-[800px] bg-deep-cyan/10 blur-[180px] rounded-full animate-pulse" style="animation-delay: 2s"></div>
   </div>
 
   <main class="max-w-6xl mx-auto px-6 py-24 md:py-40">
     <!-- Story Header -->
     <header class="text-center mb-32 space-y-8">
-      <div class="inline-flex items-center gap-3 glass px-6 py-2 rounded-2xl text-brand-blue text-sm font-black tracking-widest uppercase">
+      <div class="inline-flex items-center gap-3 glass px-6 py-2 rounded-2xl text-tide-gold text-sm font-black tracking-widest uppercase">
         <BookOpen size={18} />
         <span>{lang === 'zh' ? '远航纪事' : 'THE CHRONICLES'}</span>
       </div>
       <h1 class="text-6xl md:text-8xl font-black text-white tracking-tighter leading-[1.1]">
         {lang === 'zh' ? '传承与' : 'HERITAGE &'}<br />
-        <span class="text-gradient">{lang === 'zh' ? '陪伴的海洋' : 'COMPANIONSHIP'}</span>
+        <span class="text-gradient-narrative">{lang === 'zh' ? '陪伴的海洋' : 'COMPANIONSHIP'}</span>
       </h1>
       <p class="text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto font-medium leading-relaxed">
         {lang === 'zh'
@@ -130,17 +137,17 @@ const years = [
     <!-- The Seven Years Timeline -->
     <div class="relative space-y-40">
       <!-- Vertical Line -->
-      <div class="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-brand-blue/30 to-transparent hidden md:block"></div>
+      <div class="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-tide-gold/20 to-transparent hidden md:block"></div>
 
       {years.map((year, index) => (
         <div class={`relative flex flex-col md:flex-row items-center gap-12 md:gap-24 ${index % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
           <!-- Year Content -->
           <div class="flex-1 space-y-6 text-center md:text-left">
-            <div class={`inline-block px-4 py-1 rounded-full text-xs font-black tracking-widest uppercase ${index % 2 === 0 ? 'bg-brand-blue/20 text-brand-blue' : 'bg-brand-green/20 text-brand-green'}`}>
+            <div class={`inline-block px-4 py-1 rounded-full text-xs font-black tracking-widest uppercase ${year.color === 'tide-gold' ? 'bg-tide-gold/20 text-tide-gold' : 'bg-deep-cyan/20 text-deep-cyan'}`}>
               {year.title}
             </div>
             <h2 class="text-3xl md:text-5xl font-black text-white tracking-tight">{year.subtitle}</h2>
-            <blockquote class="text-lg md:text-xl italic text-gray-400 border-l-4 border-brand-blue/40 pl-6 py-2 my-4">
+            <blockquote class={`text-lg md:text-xl italic text-gray-400 border-l-4 pl-6 py-2 my-4 ${year.color === 'tide-gold' ? 'border-tide-gold/40' : 'border-deep-cyan/40'}`}>
               {year.quote}
             </blockquote>
             <p class="text-lg text-gray-500 leading-relaxed">
@@ -151,14 +158,14 @@ const years = [
           <!-- Year Image Container -->
           <div class="flex-1 w-full max-w-md">
             <div class="relative group">
-              <div class="absolute -inset-4 bg-gradient-to-tr from-brand-blue/20 to-brand-green/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+              <div class={`absolute -inset-4 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 ${year.color === 'tide-gold' ? 'bg-tide-gold/20' : 'bg-deep-cyan/20'}`}></div>
               <div class="glass p-3 rounded-[3rem] border border-white/10 shadow-2xl relative z-10 overflow-hidden transform group-hover:scale-[1.03] transition-transform duration-500">
-                <img src={year.image} alt={year.title} class="w-full h-auto rounded-[2.2rem] fade-mask" />
+                <img src={year.image} alt={year.title} class="w-full h-auto rounded-[2.2rem] fade-mask" data-astro-cid-aflpmyu5 />
                 <div class="absolute inset-0 bg-gradient-to-t from-[#050b1d]/80 via-transparent to-transparent opacity-60"></div>
               </div>
 
               <!-- Indicator Dot -->
-              <div class={`absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-4 border-[#050b1d] shadow-lg hidden md:block z-20 ${index % 2 === 0 ? '-right-[5.5rem] bg-brand-blue' : '-left-[5.5rem] bg-brand-green'}`}></div>
+              <div class={`absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-4 border-[#050b1d] shadow-lg hidden md:block z-20 ${index % 2 === 0 ? '-right-[5.5rem]' : '-left-[5.5rem]'} ${year.color === 'tide-gold' ? 'bg-tide-gold' : 'bg-deep-cyan'}`}></div>
             </div>
           </div>
         </div>
@@ -168,7 +175,7 @@ const years = [
     <!-- Final CTA -->
     <section class="mt-60 text-center space-y-12">
       <div class="relative inline-block">
-        <div class="absolute -inset-20 bg-brand-blue/20 blur-[100px] rounded-full"></div>
+        <div class="absolute -inset-20 bg-tide-gold/20 blur-[100px] rounded-full"></div>
         <img src="/images/drawables/island_awakened.webp" alt="Island Awakened" class="relative w-64 h-64 mx-auto animate-float" />
       </div>
       <h3 class="text-4xl md:text-6xl font-black text-white">
@@ -181,7 +188,7 @@ const years = [
         }
       </p>
       <div class="pt-8">
-        <a href={translatePath('/docs/public/01-gentle-guidance-philosophy')} class="px-12 py-6 bg-brand-blue text-white rounded-[2.5rem] font-black text-xl shadow-2xl shadow-brand-blue/30 hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-4">
+        <a href={translatePath('/docs/public/01-gentle-guidance-philosophy')} class="px-12 py-6 bg-tide-gold text-white rounded-[2.5rem] font-black text-xl shadow-2xl shadow-tide-gold/30 hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-4">
           <Ship size={24} />
           {lang === 'zh' ? '深入了解技术哲学' : 'DIVE INTO PHILOSOPHY'}
         </a>
@@ -191,8 +198,8 @@ const years = [
 </BaseLayout>
 
 <style>
-  .text-gradient {
-    background-image: linear-gradient(to right, #818cf8, #60a5fa, #3daa6a);
+  .text-gradient-narrative {
+    background-image: linear-gradient(to right, #E8C77A, #818cf8, #4F8BAB);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;

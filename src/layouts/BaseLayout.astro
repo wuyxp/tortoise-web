@@ -76,6 +76,7 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
         <div class="hidden md:flex items-center gap-10">
           <div class="flex items-center gap-8 text-sm font-bold text-gray-600 dark:text-gray-300">
             <a href={translatePath('/')} class="hover:text-brand-blue transition-all hover:translate-y-[-1px]">{t('nav.home')}</a>
+            <a href={translatePath('/story')} class="hover:text-brand-blue transition-all hover:translate-y-[-1px]">{t('nav.story')}</a>
             <a href={translatePath('/docs/public/01-gentle-guidance-philosophy')} class="hover:text-brand-blue transition-all hover:translate-y-[-1px]">{t('nav.docs')}</a>
             <a href={translatePath('/gallery')} class="hover:text-brand-blue transition-all hover:translate-y-[-1px]">{t('nav.gallery')}</a>
           </div>
@@ -112,6 +113,7 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
       <!-- Mobile Nav Dropdown -->
       <div id="mobile-menu" class="hidden md:hidden glass border-t border-black/5 dark:border-white/5 px-6 py-8 space-y-6 shadow-2xl animate-fade-in">
         <a href={translatePath('/')} class="block text-2xl font-bold hover:text-brand-blue transition-colors">{t('nav.home')}</a>
+        <a href={translatePath('/story')} class="block text-2xl font-bold hover:text-brand-blue transition-colors">{t('nav.story')}</a>
         <a href={translatePath('/docs/public/01-gentle-guidance-philosophy')} class="block text-2xl font-bold hover:text-brand-blue transition-colors">{t('nav.docs')}</a>
         <a href={translatePath('/gallery')} class="block text-2xl font-bold hover:text-brand-blue transition-colors">{t('nav.gallery')}</a>
       </div>

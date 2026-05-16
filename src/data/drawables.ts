@@ -1,6 +1,6 @@
 export interface DrawableAsset {
   id: string;
-  category: 'Creatures' | 'Environment' | 'Items' | 'Story';
+  category: 'Creatures' | 'Environment' | 'Items' | 'Story' | 'Chapters' | 'Routes';
   filename: string;
 }
 
@@ -27,7 +27,6 @@ export const drawables: DrawableAsset[] = [
   { id: 'spineback-tree-spring', category: 'Environment', filename: 'spineback_tree_spring.webp' },
   { id: 'spineback-tree-summer', category: 'Environment', filename: 'spineback_tree_summer.webp' },
   { id: 'spineback-tree-winter', category: 'Environment', filename: 'spineback_tree_winter.webp' },
-  { id: 'mistedge-entry', category: 'Environment', filename: 'route_mistedge_entry.webp' },
 
   // Items
   { id: 'coin-eon', category: 'Items', filename: 'y1_coin_eon.webp' },
@@ -41,6 +40,10 @@ export const drawables: DrawableAsset[] = [
   { id: 'shell-rainbow', category: 'Items', filename: 'y1_shell_rainbow.webp' },
   { id: 'singing-scale', category: 'Items', filename: 'singing_scale.webp' },
   { id: 'ocean-heart', category: 'Items', filename: 'y1_ocean_heart.webp' },
+  { id: 'wood-dawn', category: 'Items', filename: 'y1_wood_dawn.webp' },
+  { id: 'stone-round', category: 'Items', filename: 'y1_stone_round.webp' },
+  { id: 'star-orange', category: 'Items', filename: 'y1_star_orange.webp' },
+  { id: 'star-purple', category: 'Items', filename: 'y1_star_purple.webp' },
 
   // Story
   { id: 'lil-tan-awake', category: 'Story', filename: 'lil_tan_awake.webp' },
@@ -55,4 +58,19 @@ export const drawables: DrawableAsset[] = [
   { id: 'island-sleeping', category: 'Story', filename: 'island_sleeping.webp' },
   { id: 'three-turtles-lighthouse', category: 'Story', filename: 'three_turtles_lighthouse.webp' },
   { id: 'old-star-keepers', category: 'Story', filename: 'old_star_keepers_silhouettes.webp' },
+  { id: 'captain-tort-waiting', category: 'Story', filename: 'captain_tort_waiting.webp' },
+  { id: 'captain-tort-listening', category: 'Story', filename: 'captain_tort_listening.webp' },
+  { id: 'explorer-prologue-bg', category: 'Story', filename: 'explorer_prologue_bg.webp' },
+
+  // Chapters
+  { id: 'chapter-y1-prologue', category: 'Chapters', filename: 'chapter_y1_prologue.webp' },
+  { id: 'chapter-y1-ch1', category: 'Chapters', filename: 'chapter_y1_ch1.webp' },
+  { id: 'chapter-y1-ch2', category: 'Chapters', filename: 'chapter_y1_ch2.webp' },
+  { id: 'chapter-y1-ch3', category: 'Chapters', filename: 'chapter_y1_ch3.webp' },
+  { id: 'chapter-y1-finale', category: 'Chapters', filename: 'chapter_y1_finale.webp' },
+
+  // Routes
+  { id: 'route-shallow-sea', category: 'Routes', filename: 'route_shallow_sea.webp' },
+  { id: 'route-starfield-sea', category: 'Routes', filename: 'route_starfield_sea.webp' },
+  { id: 'route-mistedge-entry', category: 'Routes', filename: 'route_mistedge_entry.webp' },
 ];

@@ -9,7 +9,7 @@ const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 const translatePath = useTranslatedPath(lang);
 
-const categories = ['Creatures', 'Environment', 'Items', 'Story'] as const;
+const categories = ['Chapters', 'Routes', 'Story', 'Creatures', 'Environment', 'Items'] as const;
 const title = `Gallery — Tortoise Exquisite Assets`;
 const description = t('gallery.description');
 

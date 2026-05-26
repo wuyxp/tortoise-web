@@ -15,12 +15,12 @@
   --color-tide-gold: #E8C77A;
   --color-deep-cyan: #4F8BAB;
 
-  /* 暗色模式下的柔和色值 */
-  --color-dark-bg: #050b1d;
-  --color-dark-surface: rgba(30, 41, 59, 0.4);
-  --color-dark-text: #94a3b8;
-  --color-dark-heading: #e2e8f0;
-  --color-dark-brand-blue: #818cf8; /* 更柔和的蓝色 */
+  /* 暗色模式下的柔和色值 (v2: PL 反馈仍刺眼 + 看不清, 升亮 + 暖化 + 提高 glass surface 可见度) */
+  --color-dark-bg: #161B26;            /* 升亮一档 (~11% L) + 暖化, 不再死冷蓝黑 */
+  --color-dark-surface: rgba(48, 56, 72, 0.55);  /* 暖灰 surface, alpha 提升让卡片可见 */
+  --color-dark-text: #B0BAC9;          /* body 略提亮防糊 */
+  --color-dark-heading: #CBD5E1;       /* 降一档 — slate-200 → slate-300, 不刺眼 */
+  --color-dark-brand-blue: #93A5FB;    /* 蓝色稍提亮一点防糊 */
 
   --font-display: "LXGW WenKai", sans-serif;
   --font-sans: "LXGW WenKai", ui-sans-serif, system-ui, sans-serif;
@@ -53,9 +53,10 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
 
+  /* v2: alpha 0.4 → 0.55 + border 0.1 → 0.18, 卡片在暗底更可见 (PL 反馈"看不清") */
   .dark & {
-    background-color: rgba(17, 24, 39, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(36, 44, 58, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.18);
   }
 }
 
@@ -65,9 +66,10 @@
   border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
 
+  /* v2: alpha 0.6 → 0.72 + border 0.2 → 0.28 + 升亮底色 */
   .dark & {
-    background-color: rgba(17, 24, 39, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(40, 48, 64, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.28);
   }
 }
 
@@ -93,12 +95,13 @@
     radial-gradient(at 50% 0%, hsla(142,50%,95%,1) 0, transparent 50%),
     radial-gradient(at 100% 0%, hsla(232,88%,95%,1) 0, transparent 50%);
 
+  /* v2: 暗底 #0F141C → #161B26 + alpha 提升, 整体更暖更可见 */
   .dark & {
-    background-color: #050b1d;
+    background-color: #161B26;
     background-image:
-      radial-gradient(at 0% 0%, hsla(232,88%,15%,0.4) 0, transparent 50%),
-      radial-gradient(at 50% 0%, hsla(260,50%,10%,0.4) 0, transparent 50%),
-      radial-gradient(at 100% 0%, hsla(232,88%,15%,0.4) 0, transparent 50%);
+      radial-gradient(at 0% 0%, hsla(232,35%,25%,0.4) 0, transparent 50%),
+      radial-gradient(at 50% 0%, hsla(280,30%,20%,0.35) 0, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(200,40%,22%,0.4) 0, transparent 50%);
   }
 }
 
@@ -128,7 +131,7 @@
 }
 
 .prose-tortoise h3 {
-  @apply text-xl font-bold text-gray-800 dark:text-white mt-8 mb-4;
+  @apply text-xl font-bold text-gray-800 dark:text-slate-200 mt-8 mb-4;
 }
 
 .prose-tortoise p { @apply my-5 text-lg; opacity: 0.9; }
@@ -204,5 +207,5 @@
   border-radius: 9999px;
 }
 .dark ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.18);
 }

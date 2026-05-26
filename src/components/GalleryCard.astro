@@ -7,7 +7,8 @@ interface Props {
 }
 
 const { id, filename } = Astro.props;
-const imagePath = `/images/drawables/${filename}`;
+// [via-sonnet-subagent] MEETING-2026-05-25-02 fix: V2 资产用绝对路径 (/v2/...), 不应再拼 /images/drawables/ 前缀
+const imagePath = filename.startsWith('/') ? filename : `/images/drawables/${filename}`;
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);

@@ -7,72 +7,72 @@ const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 const translatePath = useTranslatedPath(lang);
 
-const title = 'Island Story — Heritage & Companionship';
-const description = 'Explore the seven-year voyage of Captain Mora and Mori.';
+const title = 'A Seven-Year Story';
+const description = 'Captain Mora, Mori, and Cinta. Seven years on Turtle Island.';
 
 const years = [
   {
     id: 'y1',
-    title: 'Y1 "The Voyage Begins"',
-    subtitle: 'You are not starting alone',
+    title: 'Year 1 "Setting Out"',
+    subtitle: 'You\'re not setting off alone',
     image: '/v2/chapters/chapter_y1_prologue.webp',
     color: 'tide-gold',
-    quote: '"Light is passed on from one person to another."',
-    content: 'The day they set out, Captain Mora walked into the sea. It was his last time in the water, and Mori\'s first departure. Thirty stories, thirty stars, memories awakened.'
+    quote: '"Light, this is how it passes from one to the next."',
+    content: 'The day they set out, Captain Mora walked slowly into the sea. It was his only time in the water that year, and Mori\'s first journey out. That year, Mori lit thirty small lights.'
   },
   {
     id: 'y2',
-    title: 'Y2 "Distant Tides"',
-    subtitle: 'Getting lost is finding the unnamed',
+    title: 'Year 2 "Distant Tides"',
+    subtitle: 'Walking past the mist',
     image: '/v2/chapters/chapter_y2_prologue.webp',
     color: 'deep-cyan',
-    quote: '"Go as far as you can go over there."',
-    content: 'Mori saw a young Captain Mora in the mist. He walked a road without a name. In those uncharted waters, he understood the true meaning of heritage.'
+    quote: '"Out there — go as far as you can."',
+    content: 'Beyond the island there\'s always been a ring of white mist. That year, Mori walked into it. Far ahead, he saw a young turtle walking forward — only after a while did he realize it was Captain Mora, when Captain was young.'
   },
   {
     id: 'y3',
-    title: 'Y3 "The Echo"',
-    subtitle: 'You dare to move forward knowing they are there',
+    title: 'Year 3 "The Echo"',
+    subtitle: 'Going on his own today',
     image: '/v2/chapters/chapter_y3_prologue.webp',
     color: 'tide-gold',
-    quote: '"Starting today on your own. You know it yourself."',
-    content: 'The Spineback Tree grew its first leaf. Mori began choosing his own paths, knowing the island and the Captain were always behind him.'
+    quote: '"You already know yourself."',
+    content: 'On the highest point of the island, the Spineback Tree grew its first leaf. That morning, Mori glanced at Captain Mora, then set out on his own.'
   },
   {
     id: 'y4',
-    title: 'Y4 "The Sunken Bell"',
-    subtitle: 'The deeper you go, the more light waits',
+    title: 'Year 4 "The Sunken Bell"',
+    subtitle: 'Deeper than Captain ever went',
     image: '/v2/chapters/chapter_y4_prologue.webp',
     color: 'deep-cyan',
-    quote: '"You have gone to a place deeper than I have."',
-    content: 'Diving until the light vanished. Mori dove deeper than the Captain. In the eternal silence of the abyss, he found the lamp and made the ancient bell resonate through the ocean.'
+    quote: '"You\'ve gone to a place deeper than I have."',
+    content: 'That year, Mori dove to a place even Captain hadn\'t been. At the deepest point, a great bell. He touched it lightly. The bell didn\'t ring, but every fish on the surface heard it.'
   },
   {
     id: 'y5',
-    title: 'Y5 "The Ancient Kin"',
-    subtitle: 'Old things gain weight in new hands',
+    title: 'Year 5 "The Ancient Kin"',
+    subtitle: 'You\'re in this story too',
     image: '/v2/chapters/chapter_y5_prologue.webp',
     color: 'tide-gold',
     quote: '"You are part of a very long story."',
-    content: 'Silhouettes of seven ancestors appeared, leaving a fragmented star map. A forgotten history reconnected in Mori\'s hands; he was no longer just himself.'
+    content: 'That year, Captain Mora said: "I\'m not getting in the water this year. You go on your own." Mori saw seven shapes in the sea — like very, very old young turtles. They looked at him, then slowly faded.'
   },
   {
     id: 'y6',
-    title: 'Y6 "Guardian"',
-    subtitle: 'Knowing how to watch over another',
+    title: 'Year 6 "Guardian"',
+    subtitle: 'Now it\'s your turn to look after someone',
     image: '/v2/scenes/mori_at_island.webp',
     color: 'deep-cyan',
-    quote: '"He was holding a piece of driftwood. Mori recognized it. The one pushed back in Y3."',
-    content: 'Cinta drifted ashore. Mori watched over him with a familiar gaze — the same one Captain Mora once gave him. The companion became the guide.'
+    quote: '"He was holding a piece of driftwood. Mori knew that one."',
+    content: 'That year, a small turtle washed up in the shallows, holding a piece of driftwood. Mori knew that piece — he\'d pushed it back into the sea a few years before. She was a bit scared. Mori looked at her the way Captain Mora had once looked at him. Her name is Cinta.'
   },
   {
     id: 'y7',
-    title: 'Y7 "The Dawn"',
-    subtitle: 'Going for a walk, the lighthouse is yours',
+    title: 'Year 7 "Dawn"',
+    subtitle: 'The lighthouse is yours now',
     image: '/v2/scenes/mori_lighthouse.webp',
     color: 'tide-gold',
-    quote: '"The lighthouse is yours."',
-    content: 'The Time Mist cleared completely. Captain Mora left a letter, and Mori took over the responsibility of the watcher. Dawn has arrived, and light will forever illuminate the sea.'
+    quote: '"The lighthouse is yours now."',
+    content: 'That morning, the mist was gone. The sea was blue, all the way out. Captain Mora left a very short note, then walked. Mori lit the lighthouse that morning, and the lamp shone toward Cinta.'
   }
 ];
 ---
@@ -83,13 +83,13 @@ const years = [
       <!-- Header -->
       <div class="text-center mb-24 space-y-6">
         <div class="inline-flex items-center gap-2 px-4 py-1.5 glass rounded-full text-xs font-black text-brand-blue uppercase tracking-widest animate-fade-in">
-           <Sparkles size={14} /> <span>The Seven Years Epic</span>
+           <Sparkles size={14} /> <span>SEVEN YEARS</span>
         </div>
         <h1 class="text-5xl md:text-7xl font-black dark:text-slate-300 tracking-tight">
-          Seven Years, One <span class="text-gradient">Light</span>
+          Mori's <span class="text-gradient">Seven Years</span>
         </h1>
         <p class="text-xl text-gray-500 dark:text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed">
-          A story of companionship, growth, and heritage. Guided by Captain Mora, Mori sets off from Sandbell Shoal, through the Time Mist, until the entire ocean is lit.
+          One chapter per year. Captain Mora stays on the island. Mori grows up in the sea. In Year 6, he meets Cinta.
         </p>
       </div>
 
@@ -143,17 +143,17 @@ const years = [
         <div class="absolute -top-24 -right-24 w-64 h-64 bg-brand-green/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
         <div class="relative z-10 space-y-10">
            <h2 class="text-4xl md:text-6xl font-black dark:text-slate-300 leading-tight">
-             Light Up Your <br /><span class="text-gradient">Starshell Path</span>
+             Mori is <br /><span class="text-gradient">waiting</span>
            </h2>
            <p class="text-xl text-gray-500 dark:text-slate-400 max-w-xl mx-auto font-medium">
-             Your seven-year epic has only just begun. Mori is waiting, and so is Captain Mora.
+             Seven years is only just beginning.
            </p>
            <div class="flex flex-col sm:flex-row justify-center gap-6">
               <a href={translatePath('/') + '#download'} class="px-10 py-5 bg-brand-blue text-white rounded-3xl font-black text-lg shadow-2xl shadow-brand-blue/20 hover:scale-105 active:scale-95 transition-all">
-                Bring Mori Home
+                Get Tortoise
               </a>
               <a href={translatePath('/gallery')} class="px-10 py-5 glass rounded-3xl font-black text-lg hover:bg-white/60 dark:hover:bg-gray-800/60 transition-all">
-                View Gallery
+                See the Gallery
               </a>
            </div>
         </div>

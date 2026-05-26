@@ -7,200 +7,160 @@ const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 const translatePath = useTranslatedPath(lang);
 
-const title = lang === 'zh' ? '岛屿故事 — 传承与陪伴' : 'Island Story — Heritage & Companionship';
-const description = lang === 'zh'
-  ? '探索 Captain Tort 与小灰的七年远航纪事。'
-  : 'Explore the seven-year voyage of Captain Tort and Lil Grey.';
+const title = 'Island Story — Heritage & Companionship';
+const description = 'Explore the seven-year voyage of Captain Mora and Mori.';
 
 const years = [
   {
     id: 'y1',
-    title: lang === 'zh' ? 'Y1「启航」' : 'Y1 "The Voyage Begins"',
-    subtitle: lang === 'zh' ? '你不是一个人出发的' : 'You are not starting alone',
-    image: '/images/drawables/chapter_y1_prologue.webp',
+    title: 'Y1 "The Voyage Begins"',
+    subtitle: 'You are not starting alone',
+    image: '/v2/chapters/chapter_y1_prologue.webp',
     color: 'tide-gold',
-    quote: lang === 'zh'
-      ? '“你会的。我早就知道你会的。”'
-      : '"You will do it. I always knew you would."',
-    content: lang === 'zh'
-      ? '出发那天，Captain Tort 走进了海里。这是他最后一次下水，也是小灰第一次出发。三十个故事，三十颗星纹，记忆从此苏醒。'
-      : 'The day they set out, Captain Tort walked into the sea. It was his last time in the water, and Lil Grey\'s first departure. Thirty stories, thirty stars, memories awakened.'
+    quote: '"Light is passed on from one person to another."',
+    content: 'The day they set out, Captain Mora walked into the sea. It was his last time in the water, and Mori\'s first departure. Thirty stories, thirty stars, memories awakened.'
   },
   {
     id: 'y2',
-    title: lang === 'zh' ? 'Y2「远潮」' : 'Y2 "Distant Tides"',
-    subtitle: lang === 'zh' ? '迷路是走进了没有名字的地方' : 'Getting lost is finding the unnamed',
-    image: '/images/drawables/route_mistedge_entry.webp',
+    title: 'Y2 "Distant Tides"',
+    subtitle: 'Getting lost is finding the unnamed',
+    image: '/v2/chapters/chapter_y2_prologue.webp',
     color: 'deep-cyan',
-    quote: lang === 'zh'
-      ? '“雾里找到的东西，不一样。”'
-      : '"Things found in the mist are different."',
-    content: lang === 'zh'
-      ? '小灰走进了一条没有名字的路。在那片没有被地图标注的海域，他看见了年轻时的 Captain Tort，理解了什么是真正的传承。'
-      : 'Lil Grey walked a road without a name. In those uncharted waters, he saw a young Captain Tort and understood the true meaning of heritage.'
+    quote: '"Go as far as you can go over there."',
+    content: 'Mori saw a young Captain Mora in the mist. He walked a road without a name. In those uncharted waters, he understood the true meaning of heritage.'
   },
   {
     id: 'y3',
-    title: lang === 'zh' ? 'Y3「回响」' : 'Y3 "The Echo"',
-    subtitle: lang === 'zh' ? '你知道有人在，所以敢往前走' : 'You dare to move forward knowing they are there',
-    image: '/images/drawables/spineback_tree_spring.webp',
+    title: 'Y3 "The Echo"',
+    subtitle: 'You dare to move forward knowing they are there',
+    image: '/v2/chapters/chapter_y3_prologue.webp',
     color: 'tide-gold',
-    quote: lang === 'zh'
-      ? '“岛记得每一只走过的小海龟。”'
-      : '"The island remembers every little tortoise."',
-    content: lang === 'zh'
-      ? '龟脊树长出了第一片叶子。小灰开始自己选择方向，因为他知道，无论走到哪里，岛始终在那里，船长始终在身后。'
-      : 'The Spineback Tree grew its first leaf. Lil Grey began choosing his own paths, knowing the island and the Captain were always behind him.'
+    quote: '"Starting today on your own. You know it yourself."',
+    content: 'The Spineback Tree grew its first leaf. Mori began choosing his own paths, knowing the island and the Captain were always behind him.'
   },
   {
     id: 'y4',
-    title: lang === 'zh' ? 'Y4「沉钟」' : 'Y4 "The Sunken Bell"',
-    subtitle: lang === 'zh' ? '越深的地方，越有光在等着' : 'The deeper you go, the more light waits',
-    image: '/images/drawables/bell_bellwell_deep.webp',
+    title: 'Y4 "The Sunken Bell"',
+    subtitle: 'The deeper you go, the more light waits',
+    image: '/v2/chapters/chapter_y4_prologue.webp',
     color: 'deep-cyan',
-    quote: lang === 'zh'
-      ? '“最深的地方，也有人留过灯。”'
-      : '"Even in the deepest abyss, someone left a light."',
-    content: lang === 'zh'
-      ? '下潜，直到光芒消失。在万年沉寂的深渊，小灰找到了那盏灯，并让沉寂已久的古钟再次震动整片海洋。'
-      : 'Diving until the light vanished. In the eternal silence of the abyss, Lil Grey found the lamp and made the ancient bell resonate through the ocean.'
+    quote: '"You have gone to a place deeper than I have."',
+    content: 'Diving until the light vanished. Mori dove deeper than the Captain. In the eternal silence of the abyss, he found the lamp and made the ancient bell resonate through the ocean.'
   },
   {
     id: 'y5',
-    title: lang === 'zh' ? 'Y5「古龟族」' : 'Y5 "The Ancient Kin"',
-    subtitle: lang === 'zh' ? '旧的东西，在新人手里才有重量' : 'Old things gain weight in new hands',
-    image: '/images/drawables/old_star_keepers_silhouettes.webp',
+    title: 'Y5 "The Ancient Kin"',
+    subtitle: 'Old things gain weight in new hands',
+    image: '/v2/chapters/chapter_y5_prologue.webp',
     color: 'tide-gold',
-    quote: lang === 'zh'
-      ? '“你是一段很长的故事的一部分。”'
-      : '"You are part of a very long story."',
-    content: lang === 'zh'
-      ? '七位先祖的影子显现，留下一张残缺的星图。一段被遗忘的历史在小灰手中重新连接，他不再只是他自己，他是历史的延续。'
-      : 'Silhouettes of seven ancestors appeared, leaving a fragmented star map. A forgotten history reconnected in Lil Grey\'s hands; he was no longer just himself.'
+    quote: '"You are part of a very long story."',
+    content: 'Silhouettes of seven ancestors appeared, leaving a fragmented star map. A forgotten history reconnected in Mori\'s hands; he was no longer just himself.'
   },
   {
     id: 'y6',
-    title: lang === 'zh' ? 'Y6「守岛」' : 'Y6 "Guardian"',
-    subtitle: lang === 'zh' ? '知道如何看着另一个人' : 'Knowing how to watch over another',
-    image: '/images/drawables/lil_tan_awake.webp',
+    title: 'Y6 "Guardian"',
+    subtitle: 'Knowing how to watch over another',
+    image: '/v2/scenes/mori_at_island.webp',
     color: 'deep-cyan',
-    quote: lang === 'zh'
-      ? '“你已经不需要问我了。”'
-      : '"You don\'t need to ask me anymore."',
-    content: lang === 'zh'
-      ? '小棕漂流而至。小灰看着他，用了一个熟悉的眼神——那是 Captain Tort 当年看他的眼神。陪伴者，终成引路人。'
-      : 'Lil Tan drifted ashore. Lil Grey watched over him with a familiar gaze — the same one Captain Tort once gave him. The companion became the guide.'
+    quote: '"He was holding a piece of driftwood. Mori recognized it. The one pushed back in Y3."',
+    content: 'Cinta drifted ashore. Mori watched over him with a familiar gaze — the same one Captain Mora once gave him. The companion became the guide.'
   },
   {
     id: 'y7',
-    title: lang === 'zh' ? 'Y7「黎明」' : 'Y7 "The Dawn"',
-    subtitle: lang === 'zh' ? '出门散个步，灯塔交给你了' : 'Going for a walk, the lighthouse is yours',
-    image: '/images/drawables/three_turtles_lighthouse.webp',
+    title: 'Y7 "The Dawn"',
+    subtitle: 'Going for a walk, the lighthouse is yours',
+    image: '/v2/scenes/mori_lighthouse.webp',
     color: 'tide-gold',
-    quote: lang === 'zh'
-      ? '“灯塔的灯，现在是你的了。”'
-      : '"The lighthouse lamp is yours now."',
-    content: lang === 'zh'
-      ? '雾彻底散了。船长留下一封简短的信，走向了大海深处。小灰点亮了灯塔，海面上不再有时之雾，只有永恒的光。'
-      : 'The mist cleared completely. Leaving a brief note, the Captain walked into the deep. Lil Grey lit the lighthouse; the Time Mist was gone, replaced by eternal light.'
+    quote: '"The lighthouse is yours."',
+    content: 'The Time Mist cleared completely. Captain Mora left a letter, and Mori took over the responsibility of the watcher. Dawn has arrived, and light will forever illuminate the sea.'
   }
 ];
 ---
 
 <BaseLayout title={title} description={description}>
-  <!-- Background Light Glow (Aligned with Gallery/Index) -->
-  <div class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-40">
-     <div class="absolute top-1/4 right-0 w-[600px] h-[600px] bg-tide-gold/10 blur-[150px] rounded-full"></div>
-     <div class="absolute bottom-1/4 left-0 w-[600px] h-[600px] bg-deep-cyan/10 blur-[150px] rounded-full"></div>
-  </div>
-
-  <main class="max-w-6xl mx-auto px-6 py-24 md:py-40">
-    <!-- Story Header -->
-    <header class="text-center mb-32 space-y-8">
-      <div class="inline-flex items-center gap-3 glass px-6 py-2 rounded-2xl text-brand-blue text-sm font-black tracking-widest uppercase">
-        <BookOpen size={18} />
-        <span>{lang === 'zh' ? '远航纪事' : 'THE CHRONICLES'}</span>
-      </div>
-      <h1 class="text-6xl md:text-8xl font-black text-gray-900 dark:text-white tracking-tighter leading-[1.1]">
-        {lang === 'zh' ? '传承与' : 'HERITAGE &'}<br />
-        <span class="text-gradient-narrative">{lang === 'zh' ? '陪伴的海洋' : 'COMPANIONSHIP'}</span>
-      </h1>
-      <p class="text-xl md:text-2xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto font-medium leading-relaxed">
-        {lang === 'zh'
-          ? '“有人一直看着你，一直关注着你。你只管去面对。我们知道你，相信你，并且会指引你。”'
-          : '"Someone is always watching you, always caring. Just face it. We know you, we believe in you, and we will guide you."'
-        }
-      </p>
-    </header>
-
-    <!-- The Seven Years Timeline -->
-    <div class="relative space-y-40">
-      <!-- Vertical Line -->
-      <div class="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-tide-gold/20 to-transparent hidden md:block"></div>
-
-      {years.map((year, index) => (
-        <div class={`relative flex flex-col md:flex-row items-center gap-12 md:gap-24 ${index % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
-          <!-- Year Content -->
-          <div class="flex-1 space-y-6 text-center md:text-left">
-            <div class={`inline-block px-4 py-1 rounded-full text-xs font-black tracking-widest uppercase ${year.color === 'tide-gold' ? 'bg-tide-gold/20 text-tide-gold' : 'bg-deep-cyan/20 text-deep-cyan'}`}>
-              {year.title}
-            </div>
-            <h2 class="text-3xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight">{year.subtitle}</h2>
-            <blockquote class={`text-lg md:text-xl italic text-gray-600 dark:text-gray-400 border-l-4 pl-6 py-2 my-4 ${year.color === 'tide-gold' ? 'border-tide-gold/40' : 'border-deep-cyan/40'}`}>
-              {year.quote}
-            </blockquote>
-            <p class="text-lg text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
-              {year.content}
-            </p>
-          </div>
-
-          <!-- Year Image Container -->
-          <div class="flex-1 w-full max-w-md">
-            <div class="relative group">
-              <div class={`absolute -inset-4 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 ${year.color === 'tide-gold' ? 'bg-tide-gold/20' : 'bg-deep-cyan/20'}`}></div>
-              <div class="glass p-3 rounded-[3rem] border-2 border-white/20 dark:border-white/10 shadow-2xl relative z-10 overflow-hidden transform group-hover:scale-[1.03] transition-transform duration-500">
-                <img src={year.image} alt={year.title} class="w-full h-auto rounded-[2.2rem] fade-mask" />
-                <div class="absolute inset-0 bg-gradient-to-t from-white/10 dark:from-black/40 via-transparent to-transparent"></div>
-              </div>
-
-              <!-- Indicator Dot -->
-              <div class={`absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-4 border-white dark:border-[#050b1d] shadow-lg hidden md:block z-20 ${index % 2 === 0 ? '-right-[5.5rem]' : '-left-[5.5rem]'} ${year.color === 'tide-gold' ? 'bg-tide-gold' : 'bg-deep-cyan'}`}></div>
-            </div>
-          </div>
+  <main class="pt-32 pb-24">
+    <div class="max-w-5xl mx-auto px-6">
+      <!-- Header -->
+      <div class="text-center mb-24 space-y-6">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 glass rounded-full text-xs font-black text-brand-blue uppercase tracking-widest animate-fade-in">
+           <Sparkles size={14} /> <span>The Seven Years Epic</span>
         </div>
-      ))}
-    </div>
+        <h1 class="text-5xl md:text-7xl font-black dark:text-slate-100 tracking-tight">
+          Seven Years, One <span class="text-gradient">Light</span>
+        </h1>
+        <p class="text-xl text-gray-500 dark:text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed">
+          A story of companionship, growth, and heritage. Guided by Captain Mora, Mori sets off from Sandbell Shoal, through the Time Mist, until the entire ocean is lit.
+        </p>
+      </div>
 
-    <!-- Final CTA -->
-    <section class="mt-60 text-center space-y-12">
-      <div class="relative inline-block">
-        <div class="absolute -inset-20 bg-brand-blue/10 blur-[100px] rounded-full"></div>
-        <img src="/images/drawables/island_awakened.webp" alt="Island Awakened" class="relative w-64 h-64 mx-auto animate-float drop-shadow-2xl" />
+      <!-- Timeline -->
+      <div class="relative space-y-32">
+        <!-- Center Line (Desktop) -->
+        <div class="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-brand-blue/20 via-brand-green/20 to-transparent -translate-x-1/2 hidden md:block"></div>
+
+        {years.map((year, index) => (
+          <div class={`relative flex flex-col md:flex-row items-center gap-12 ${index % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
+            <!-- Image Card -->
+            <div class="flex-1 w-full group">
+              <div class="glass-frame p-2 organic-radius overflow-hidden shadow-2xl transition-all duration-700 group-hover:scale-[1.02] group-hover:-rotate-1">
+                <div class="relative aspect-[4/3] overflow-hidden organic-radius">
+                  <img src={year.image} alt={year.title} class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-8">
+                     <p class="text-white font-bold italic text-lg leading-relaxed">{year.quote}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Indicator Dot -->
+            <div class="absolute left-1/2 -translate-x-1/2 w-12 h-12 glass rounded-full hidden md:flex items-center justify-center z-10 shadow-xl border-4 border-white dark:border-gray-900">
+               <div class={`w-4 h-4 rounded-full bg-${year.color} animate-pulse`}></div>
+            </div>
+
+            <!-- Content Card -->
+            <div class="flex-1 space-y-6 text-center md:text-left">
+              <div class="space-y-2">
+                <span class={`text-sm font-black text-${year.color} uppercase tracking-widest`}>{year.title}</span>
+                <h2 class="text-3xl md:text-4xl font-black dark:text-slate-100">{year.subtitle}</h2>
+              </div>
+              <p class="text-lg text-gray-500 dark:text-slate-400 font-medium leading-relaxed">
+                {year.content}
+              </p>
+
+              <div class="pt-4 flex flex-wrap justify-center md:justify-start gap-4">
+                <div class="px-4 py-2 glass rounded-xl flex items-center gap-2 text-sm font-bold text-gray-600 dark:text-gray-300">
+                   {index === 0 ? <Anchor size={16} /> : index === 3 ? <Ship size={16} /> : <Map size={16} />}
+                   <span>{index === 0 ? 'Departure' : index === 3 ? 'Deep Dive' : 'Exploration'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
-      <h3 class="text-4xl md:text-6xl font-black text-gray-900 dark:text-white">
-        {lang === 'zh' ? '这不是结束' : 'THIS IS NOT THE END'}
-      </h3>
-      <p class="text-xl text-gray-500 dark:text-gray-400 max-w-xl mx-auto font-medium">
-        {lang === 'zh'
-          ? '这是传承完成的那一刻。灯塔的灯由你点亮，海面上不再有时之雾。'
-          : 'It is the moment inheritance is complete. The lighthouse lamp is lit by you, and the Time Mist is gone.'
-        }
-      </p>
-      <div class="pt-8">
-        <a href={translatePath('/docs/public/01-gentle-guidance-philosophy')} class="px-12 py-6 bg-brand-blue text-white rounded-[2.5rem] font-black text-xl shadow-2xl shadow-brand-blue/30 hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-4">
-          <Ship size={24} />
-          {lang === 'zh' ? '深入了解技术哲学' : 'DIVE INTO PHILOSOPHY'}
-        </a>
+
+      <!-- Final CTA -->
+      <div class="mt-48 text-center glass rounded-[3rem] p-12 md:p-24 relative overflow-hidden group">
+        <div class="absolute -top-24 -right-24 w-64 h-64 bg-brand-green/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+        <div class="relative z-10 space-y-10">
+           <h2 class="text-4xl md:text-6xl font-black dark:text-slate-100 leading-tight">
+             Light Up Your <br /><span class="text-gradient">Starshell Path</span>
+           </h2>
+           <p class="text-xl text-gray-500 dark:text-slate-400 max-w-xl mx-auto font-medium">
+             Your seven-year epic has only just begun. Mori is waiting, and so is Captain Mora.
+           </p>
+           <div class="flex flex-col sm:flex-row justify-center gap-6">
+              <a href={translatePath('/') + '#download'} class="px-10 py-5 bg-brand-blue text-white rounded-3xl font-black text-lg shadow-2xl shadow-brand-blue/20 hover:scale-105 active:scale-95 transition-all">
+                Bring Mori Home
+              </a>
+              <a href={translatePath('/gallery')} class="px-10 py-5 glass rounded-3xl font-black text-lg hover:bg-white/60 dark:hover:bg-gray-800/60 transition-all">
+                View Gallery
+              </a>
+           </div>
+        </div>
+
+        <!-- Decorative Background Image -->
+        <img src="/v2/scenes/mori_lighthouse.webp" class="absolute inset-0 w-full h-full object-cover opacity-5 group-hover:scale-110 transition-transform duration-1000 pointer-events-none" alt="" />
       </div>
-    </section>
+    </div>
   </main>
 </BaseLayout>
-
-<style>
-  .text-gradient-narrative {
-    background-image: linear-gradient(to right, #E8C77A, #818cf8, #4F8BAB);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-</style>

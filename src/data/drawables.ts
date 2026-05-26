@@ -23,10 +23,6 @@ export const drawables: DrawableAsset[] = [
   { id: 'coral-dawn', category: 'Environment', filename: 'y1_coral_dawn.webp' },
   { id: 'kelp-drift', category: 'Environment', filename: 'y1_kelp_drift.webp' },
   { id: 'anemone-dawn', category: 'Environment', filename: 'y1_anemone_dawn.webp' },
-  { id: 'spineback-tree-autumn', category: 'Environment', filename: 'spineback_tree_autumn.webp' },
-  { id: 'spineback-tree-spring', category: 'Environment', filename: 'spineback_tree_spring.webp' },
-  { id: 'spineback-tree-summer', category: 'Environment', filename: 'spineback_tree_summer.webp' },
-  { id: 'spineback-tree-winter', category: 'Environment', filename: 'spineback_tree_winter.webp' },
 
   // Items
   { id: 'coin-eon', category: 'Items', filename: 'y1_coin_eon.webp' },
@@ -38,36 +34,31 @@ export const drawables: DrawableAsset[] = [
   { id: 'spiral-snail', category: 'Items', filename: 'y1_spiral_snail.webp' },
   { id: 'compass-relic', category: 'Items', filename: 'y1_compass_relic.webp' },
   { id: 'shell-rainbow', category: 'Items', filename: 'y1_shell_rainbow.webp' },
-  { id: 'singing-scale', category: 'Items', filename: 'singing_scale.webp' },
   { id: 'ocean-heart', category: 'Items', filename: 'y1_ocean_heart.webp' },
   { id: 'wood-dawn', category: 'Items', filename: 'y1_wood_dawn.webp' },
   { id: 'stone-round', category: 'Items', filename: 'y1_stone_round.webp' },
   { id: 'star-orange', category: 'Items', filename: 'y1_star_orange.webp' },
   { id: 'star-purple', category: 'Items', filename: 'y1_star_purple.webp' },
 
-  // Story
-  { id: 'lil-tan-awake', category: 'Story', filename: 'lil_tan_awake.webp' },
-  { id: 'lil-tan-returned', category: 'Story', filename: 'lil_tan_returned.webp' },
-  { id: 'lil-tan-voyaging', category: 'Story', filename: 'lil_tan_voyaging.webp' },
-  { id: 'lil-tan-resting', category: 'Story', filename: 'lil_tan_resting_arrival.webp' },
-  { id: 'captain-tort-letter', category: 'Story', filename: 'captain_tort_letter.webp' },
-  { id: 'family-emblem-echo', category: 'Story', filename: 'family_emblem_echo.webp' },
-  { id: 'family-emblem-umbra', category: 'Story', filename: 'family_emblem_umbra.webp' },
-  { id: 'family-emblem-lumina', category: 'Story', filename: 'family_emblem_lumina.webp' },
+  // Story (V2)
+  { id: 'mori-solo', category: 'Story', filename: '/v2/characters/character_mori_solo.webp' },
+  { id: 'mora-listening', category: 'Story', filename: '/v2/scenes/captain_mora_listening.webp' },
+  { id: 'mori-at-island', category: 'Story', filename: '/v2/scenes/mori_at_island.webp' },
+  { id: 'mori-lighthouse', category: 'Story', filename: '/v2/scenes/mori_lighthouse.webp' },
+  { id: 'mori-resting', category: 'Story', filename: '/v2/scenes/mori_resting.webp' },
+  { id: 'mori-returning', category: 'Story', filename: '/v2/scenes/mori_returning.webp' },
+  { id: 'mori-swimming', category: 'Story', filename: '/v2/scenes/mori_swimming.webp' },
   { id: 'island-awakened', category: 'Story', filename: 'island_awakened.webp' },
   { id: 'island-sleeping', category: 'Story', filename: 'island_sleeping.webp' },
-  { id: 'three-turtles-lighthouse', category: 'Story', filename: 'three_turtles_lighthouse.webp' },
-  { id: 'old-star-keepers', category: 'Story', filename: 'old_star_keepers_silhouettes.webp' },
-  { id: 'captain-tort-waiting', category: 'Story', filename: 'captain_tort_waiting.webp' },
-  { id: 'captain-tort-listening', category: 'Story', filename: 'captain_tort_listening.webp' },
-  { id: 'explorer-prologue-bg', category: 'Story', filename: 'explorer_prologue_bg.webp' },
 
-  // Chapters
-  { id: 'chapter-y1-prologue', category: 'Chapters', filename: 'chapter_y1_prologue.webp' },
-  { id: 'chapter-y1-ch1', category: 'Chapters', filename: 'chapter_y1_ch1.webp' },
-  { id: 'chapter-y1-ch2', category: 'Chapters', filename: 'chapter_y1_ch2.webp' },
-  { id: 'chapter-y1-ch3', category: 'Chapters', filename: 'chapter_y1_ch3.webp' },
-  { id: 'chapter-y1-finale', category: 'Chapters', filename: 'chapter_y1_finale.webp' },
+  // Chapters (V2)
+  { id: 'chapter-y1-prologue', category: 'Chapters', filename: '/v2/chapters/chapter_y1_prologue.webp' },
+  { id: 'chapter-y2-prologue', category: 'Chapters', filename: '/v2/chapters/chapter_y2_prologue.webp' },
+  { id: 'chapter-y3-prologue', category: 'Chapters', filename: '/v2/chapters/chapter_y3_prologue.webp' },
+  { id: 'chapter-y4-prologue', category: 'Chapters', filename: '/v2/chapters/chapter_y4_prologue.webp' },
+  { id: 'chapter-y5-prologue', category: 'Chapters', filename: '/v2/chapters/chapter_y5_prologue.webp' },
+  { id: 'chapter-y6-prologue', category: 'Chapters', filename: '/v2/chapters/chapter_y6_prologue.webp' },
+  { id: 'chapter-y7-prologue', category: 'Chapters', filename: '/v2/chapters/chapter_y7_prologue.webp' },
 
   // Routes
   { id: 'route-shallow-sea', category: 'Routes', filename: 'route_shallow_sea.webp' },

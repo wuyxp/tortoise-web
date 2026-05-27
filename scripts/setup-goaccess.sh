@@ -52,11 +52,29 @@ if [ -z "$GA_USER" ] || [ -z "$GA_PASS" ]; then
   echo "  例子: 用户名 tortoise / 密码 随便一串你能记住的字符."
   echo ""
 
-  # 检查是否在 TTY (交互式), 不是的话给清楚的错误
-  if [ ! -t 0 ] && [ -z "$GA_USER" ]; then
-    echo "ERROR: 当前不是交互式 shell, 没法 prompt."
-    echo "       请直接 SSH 到 ECS 后跑本脚本, 或者预先 export GA_USER + GA_PASS."
-    exit 2
+  # stdin 被 pipe 占用 (curl ... | bash 模式) 时, fallback 到 /dev/tty 读终端
+  # 这是 curl-pipe-bash 安装脚本的标准做法
+  if [ ! -t 0 ]; then
+    if [ -r /dev/tty ]; then
+      exec < /dev/tty
+    else
+      echo "ERROR: 没有可用的终端 (stdin 被 pipe + /dev/tty 不可读)."
+      echo ""
+      echo "解决方法 (任选一种):"
+      echo ""
+      echo "方式 1 — process substitution (推荐, 同样的一行):"
+      echo "  sudo bash <(curl -sSL https://raw.githubusercontent.com/wuyxp/tortoise-web/main/scripts/setup-goaccess.sh)"
+      echo ""
+      echo "方式 2 — 先下载再跑:"
+      echo "  curl -sSL https://raw.githubusercontent.com/wuyxp/tortoise-web/main/scripts/setup-goaccess.sh -o /tmp/setup-goaccess.sh"
+      echo "  sudo bash /tmp/setup-goaccess.sh"
+      echo ""
+      echo "方式 3 — 预设环境变量 (无 prompt):"
+      echo "  export GA_USER='tortoise'"
+      echo "  export GA_PASS='你的密码'"
+      echo "  curl -sSL ... | sudo -E bash"
+      exit 2
+    fi
   fi
 
   read -p "请起一个用户名: " GA_USER

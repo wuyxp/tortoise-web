@@ -94,9 +94,14 @@ if [ -z "$GA_USER" ] || [ -z "$GA_PASS" ]; then
 fi
 
 echo ""
-echo "==> [1/6] 装 goaccess + apache2-utils (不装 mailutils, 它会拉 postfix 弹 dpkg 对话框卡死)"
-apt-get update -qq
-apt-get install -y -qq --no-install-recommends goaccess apache2-utils
+echo "==> [1/6] 装 goaccess + apache2-utils"
+echo "    (跳过 mailutils — 它会拉 postfix 弹 dpkg 对话框卡死. 想要邮件? 见脚本末尾提示)"
+echo ""
+echo "    -- apt-get update (1-3 min, 看进度) --"
+apt-get update
+echo ""
+echo "    -- apt-get install goaccess apache2-utils --"
+apt-get install -y --no-install-recommends goaccess apache2-utils
 
 echo "==> [2/6] 准备 goaccess 输出目录"
 mkdir -p "$DEPLOY_PATH/goaccess"

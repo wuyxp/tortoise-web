@@ -31,6 +31,9 @@
 
 set -euo pipefail
 
+# 防 apt 装包时弹 dpkg 交互配置 (postfix / iptables-persistent 等会卡住)
+export DEBIAN_FRONTEND=noninteractive
+
 DOMAIN="${SETUP_DOMAIN:-serpilo.com}"
 DEPLOY_PATH="${SETUP_DEPLOY_PATH:-/var/www/serpilo}"
 GA_USER="${GA_USER:-}"
@@ -86,20 +89,14 @@ if [ -z "$GA_USER" ] || [ -z "$GA_PASS" ]; then
     exit 2
   fi
 
-  # 邮件订阅可选
-  if [ -z "$GA_EMAIL" ]; then
-    echo ""
-    read -p "每天 08:00 发一封 summary 邮件给你 (可选, 不要直接回车跳过)? Email: " GA_EMAIL
-  fi
+  # 不再 prompt 邮件 — mailutils 拉 postfix 太重, 改成默认只本地日志
+  # (你想要邮件的话, 跑完手动: sudo apt-get install -y msmtp-mta + 配 /etc/msmtprc)
 fi
 
 echo ""
-echo "==> [1/6] 装 goaccess + apache2-utils + mailutils"
+echo "==> [1/6] 装 goaccess + apache2-utils (不装 mailutils, 它会拉 postfix 弹 dpkg 对话框卡死)"
 apt-get update -qq
-apt-get install -y -qq goaccess apache2-utils
-if [ -n "$GA_EMAIL" ]; then
-  apt-get install -y -qq mailutils || echo "    mailutils 装失败, daily summary 邮件功能将跳过 (本地日志仍会写)"
-fi
+apt-get install -y -qq --no-install-recommends goaccess apache2-utils
 
 echo "==> [2/6] 准备 goaccess 输出目录"
 mkdir -p "$DEPLOY_PATH/goaccess"
@@ -221,12 +218,15 @@ echo ""
 echo "  📅 每日 summary 本地日志:  $DAILY_LOG"
 echo "     SSH 上来后看: tail -50 $DAILY_LOG"
 echo "     第一份会在明天 08:00 (UTC) 后生成"
-if [ -n "$GA_EMAIL" ]; then
-  echo "     邮件订阅: $GA_EMAIL (每天 08:00 自动发)"
-fi
 echo ""
 echo "  🔄 dashboard 每 10 分钟自动刷新"
 echo ""
 echo "  改密码:  sudo htpasswd /etc/nginx/.goaccess_htpasswd $GA_USER"
 echo "  停用:    sudo crontab -e 删两行 + nginx 删 location"
+echo ""
+echo "  想要每日邮件: 跑完后单独装 msmtp (轻量, 不拉 postfix):"
+echo "      sudo apt-get install -y msmtp-mta bsd-mailx"
+echo "      sudo nano /etc/msmtprc   # 配 SMTP relay"
+echo "      然后改 /usr/local/bin/tortoise-daily-summary.sh 末尾加:"
+echo "          echo \"\$SUMMARY\" | mail -s 'Tortoise daily' your@email"
 echo ""

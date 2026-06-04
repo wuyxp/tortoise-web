@@ -151,7 +151,7 @@ Tortoise's target users include children under 13. We comply with the **Children
 - **No targeted advertising to children**: We do not engage in behavioral advertising, interest-based advertising, or retargeting to any user, including children under 13.
 - **Parental access and control**: Parents can view, modify, and delete all data via the app (see §7.5 below).
 - **Accidental collection**: If a parent believes we have inadvertently collected Personal Information from their child, please contact us at wu956826374@gmail.com. We will delete it promptly.
-- **Designed for Families program**: Tortoise has applied to participate in Google Play's Designed for Families program and complies with its supplemental terms.
+- **Families Policy & Teacher Approved program**: Tortoise complies with Google Play's Families Policy and has opted in to its Teacher Approved program for rating (the current program for children's apps, formerly branded "Designed for Families").
 
 ### 7.3 UK GDPR Compliance (Children Under 13 in the United Kingdom)
 

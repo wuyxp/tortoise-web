@@ -104,6 +104,7 @@ We do **not** request the following permissions: contacts, SMS, phone calls, loc
 - **Crash log transmission**: Firebase Crashlytics transmits logs to Google servers over HTTPS (TLS 1.2+).
 - **Remote Config delivery**: Firebase Remote Config uses HTTPS encryption.
 - **Network requests**: Tortoise only connects to the tortoise-web server during update checks, using HTTPS.
+- **Written information security program**: We maintain a written information security program proportionate to the sensitivity of the data — data minimization (no PII collected), local-first storage, salted-hash credential protection, HTTPS-only transmission, and lint-enforced PII guards in our analytics pipeline.
 
 ---
 
@@ -135,8 +136,8 @@ Tortoise is designed for children aged **6 to 14**. We take the protection of ch
 **This means**:
 
 - ❌ **Disabled**: Ad cookies, ad profiling, cross-app tracking, and personalized advertising — we never serve ads to children.
-- ✅ **Retained**: 4 anonymized aggregate events (Onboarding completed / Lock triggered / Service recovered / Chapter unlocked) — used to measure product quality.
-- ✅ **Strictly bounded**: The fields in these 4 events are strictly limited to: an anonymous random UUID (not a user identity) + app version + business enumerations. We **never** collect user ID, device ID, IMEI, MAC, IP, or advertising ID.
+- ✅ **Retained**: 4 aggregate events (Onboarding completed / Lock triggered / Service recovered / Chapter unlocked) — used to measure product quality.
+- ✅ **Strictly bounded**: The fields in these 4 events are strictly limited to: a pseudonymous random UUID (not linked to your or your child's real-world identity, but treated by us as personal data under GDPR for your protection) + app version + business enumerations. We **never** collect user ID, device ID, IMEI, MAC, IP, or advertising ID.
 
 Parents can view this status at: **Settings → About Tortoise → Privacy Options**. This is a permanent setting — we do not provide an option to turn it off. This is our commitment to children's privacy.
 
@@ -150,7 +151,7 @@ Tortoise's target users include children under 13. We comply with the **Children
 - **No targeted advertising to children**: We do not engage in behavioral advertising, interest-based advertising, or retargeting to any user, including children under 13.
 - **Parental access and control**: Parents can view, modify, and delete all data via the app (see §7.5 below).
 - **Accidental collection**: If a parent believes we have inadvertently collected Personal Information from their child, please contact us at wu956826374@gmail.com. We will delete it promptly.
-- **Designed for Families program**: Tortoise participates in Google Play's Designed for Families program and complies with its supplemental terms.
+- **Designed for Families program**: Tortoise has applied to participate in Google Play's Designed for Families program and complies with its supplemental terms.
 
 ### 7.3 UK GDPR Compliance (Children Under 13 in the United Kingdom)
 
@@ -253,7 +254,7 @@ The following tables set out your rights under the major applicable legal framew
 
 ---
 
-## 9. Data Retention
+## 9. Data Retention Policy
 
 - **Local data**: Retained until you uninstall Tortoise or manually clear data via Settings.
 - **Firebase Crashlytics crash logs**: Retained by Google for **90 days**, then automatically deleted. See [Google Firebase Privacy Policy](https://firebase.google.com/support/privacy).

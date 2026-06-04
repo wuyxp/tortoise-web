@@ -50,7 +50,7 @@ description: 海龟时光 (Tortoise) 隐私政策 — 6-14 岁儿童屏幕时间
 
 > **重要**: 即使你卸载海龟时光, 这些数据也会被 Android 系统一并删除. 我们没有云端备份, 没有账号, 也没有跨设备同步.
 
-### 3.2 上传给 Firebase 的信息 (经匿名化)
+### 3.2 上传给 Firebase 的信息 (经假名化处理)
 
 我们使用 Google Firebase 平台的以下服务. 这些服务由 Google 运营, Google 的隐私政策同时适用 ([https://firebase.google.com/support/privacy](https://firebase.google.com/support/privacy)):
 
@@ -101,6 +101,7 @@ description: 海龟时光 (Tortoise) 隐私政策 — 6-14 岁儿童屏幕时间
 - **崩溃日志上传**: Firebase Crashlytics 使用 HTTPS (TLS 1.2+) 加密传输到 Google 服务器
 - **配置下发**: Firebase Remote Config 使用 HTTPS 加密
 - **网络请求**: 仅升级检查时连接 tortoise-web 服务器, 使用 HTTPS
+- **书面信息安全程序**: 我们维护一套与数据敏感度相称的书面信息安全程序 — 数据最小化 (不采集 PII)、本地优先存储、加盐哈希凭证保护、仅 HTTPS 传输、分析管线的 lint 强制 PII 守门
 
 ---
 
@@ -132,8 +133,8 @@ description: 海龟时光 (Tortoise) 隐私政策 — 6-14 岁儿童屏幕时间
 **这意味着**:
 
 - ❌ **关闭**: 广告 cookie、广告画像、跨应用追踪、个性化广告 — 我们永不向孩子投放广告
-- ✅ **保留**: 4 个匿名聚合事件 (Onboarding 完成 / Lock 触发 / Service 复活 / 章节解锁) — 用于度量产品质量, 帮助我们改进
-- ✅ **守底**: 这 4 个事件的字段清单严格 — 仅匿名随机 UUID (非用户身份) + 应用版本 + 业务枚举. **永不收集** 用户 ID / 设备 ID / IMEI / MAC / IP / 广告 ID
+- ✅ **保留**: 4 个聚合事件 (Onboarding 完成 / Lock 触发 / Service 复活 / 章节解锁) — 用于度量产品质量, 帮助我们改进
+- ✅ **守底**: 这 4 个事件的字段清单严格 — 仅假名化随机 UUID (不连接你或孩子的真实身份, GDPR 下我们仍按个人数据对待它) + 应用版本 + 业务枚举. **永不收集** 用户 ID / 设备 ID / IMEI / MAC / IP / 广告 ID
 
 家长可以在 **设置 → 关于海龟时光 → 隐私选项** 中查看此状态. 这是永久行为, 我们不提供"打开" 选项 — 这是我们对儿童隐私的承诺.
 
@@ -199,7 +200,7 @@ description: 海龟时光 (Tortoise) 隐私政策 — 6-14 岁儿童屏幕时间
 
 ---
 
-## 9. 数据保留期
+## 9. 数据保留期 (数据留存政策)
 
 - **本地数据**: 保留直至你卸载海龟时光或在设置中清空
 - **Firebase Crashlytics 崩溃日志**: 由 Google 保留 90 天后自动删除 (见 [Google Firebase 政策](https://firebase.google.com/support/privacy))

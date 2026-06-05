@@ -152,6 +152,17 @@ server {
     ssl_session_timeout 1d;
     ssl_session_tickets off;
 
+    # version.json — UpdateChecker fetch 目标, 必须永远拿最新 (改了立即生效).
+    # MEETING-2026-06-05-09 F5: no-cache 防 nginx/CDN 缓存住旧 version.json → 致"坏包改回了客户端却还读旧的、恢复失效".
+    # = exact match 优先级最高(压过下面 ^~), 当 JSON 拉不当附件下载(app OkHttp 取 body, 浏览器也不该弹下载).
+    # 配合: 客户端 OkHttp 无 .cache() → 每次 onResume 真拉 → "改 version.json 即全客户端 onResume 自动恢复" 成立.
+    location = /downloads/version.json {
+        default_type application/json;
+        add_header Cache-Control 'no-cache, no-store, must-revalidate' always;
+        add_header X-Content-Type-Options 'nosniff' always;
+        autoindex off;
+    }
+
     # APK 下载支持 (MEETING-2026-05-12-02-apk-distribution)
     # ^~ 优先匹配, 防 SPA fallback try_files 误把 .apk 当 SPA 路由
     location ^~ /downloads/ {
@@ -161,6 +172,8 @@ server {
         }
         add_header Content-Disposition 'attachment' always;
         add_header X-Content-Type-Options 'nosniff' always;
+        # MEETING-2026-06-05-09 F5: APK/sha256 也 no-cache, 防缓存住旧 APK 而 version.json(no-cache)已换新 sha → 装时 sha256 mismatch.
+        add_header Cache-Control 'no-cache' always;
         autoindex off;  # 防列表泄露版本历史
     }
 

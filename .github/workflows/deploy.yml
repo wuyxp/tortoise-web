@@ -135,4 +135,11 @@ jobs:
           source: "dist/*"
           target: ${{ secrets.ALIYUN_DEPLOY_PATH }}
           strip_components: 1
-          rm: true
+          # MEETING-2026-06-06: 去掉 rm:true. rm:true 会在 copy 前整删 target 目录
+          # (ALIYUN_DEPLOY_PATH=/var/www/serpilo), 连带把 release.yml rsync 上来的
+          # /downloads/ (latest.apk + version.json + version.txt) 一起清掉 → APK 下载 404.
+          # 06-05 nginx 部署触发本 workflow → rm:true 清空 → serpilo.com/downloads/* 全 404.
+          # 改为 overwrite-merge: Astro 产物文件名带 hash, 覆盖即更新; /downloads/ 由
+          # release.yml 独立维护, 本 workflow 不得触碰. 代价: 源码删页面后旧 html 残留
+          # (可接受, 远好于反复清掉 APK).
+          rm: false

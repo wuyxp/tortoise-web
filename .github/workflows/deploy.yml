@@ -124,22 +124,35 @@ jobs:
           name: dist
           path: dist/
 
-      - name: Rsync dist to Aliyun nginx
-        # 注: GitHub Actions 不允许 if 条件直接访问 secrets (security 限制).
-        # secret 缺失时 step 会 fail, continue-on-error: true 不阻塞 deploy-pages.
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.ALIYUN_HOST }}
-          username: ${{ secrets.ALIYUN_SSH_USER }}
-          key: ${{ secrets.ALIYUN_SSH_KEY }}
-          source: "dist/*"
-          target: ${{ secrets.ALIYUN_DEPLOY_PATH }}
-          strip_components: 1
-          # MEETING-2026-06-06: 去掉 rm:true. rm:true 会在 copy 前整删 target 目录
-          # (ALIYUN_DEPLOY_PATH=/var/www/serpilo), 连带把 release.yml rsync 上来的
-          # /downloads/ (latest.apk + version.json + version.txt) 一起清掉 → APK 下载 404.
-          # 06-05 nginx 部署触发本 workflow → rm:true 清空 → serpilo.com/downloads/* 全 404.
-          # 改为 overwrite-merge: Astro 产物文件名带 hash, 覆盖即更新; /downloads/ 由
-          # release.yml 独立维护, 本 workflow 不得触碰. 代价: 源码删页面后旧 html 残留
-          # (可接受, 远好于反复清掉 APK).
-          rm: false
+      - name: Rsync dist to Aliyun nginx (--delete, 保护 /downloads + /.well-known)
+        # 注: GitHub Actions 不允许 if 条件直接访问 secrets, secret 缺失时 step fail,
+        # continue-on-error: true (见 job 级) 不阻塞 deploy-pages.
+        #
+        # 演进史:
+        # - MEETING-2026-06-06: appleboy/scp-action rm:true 会整删 target → 连带清掉
+        #   release.yml 维护的 /downloads/ (APK) → 改 rm:false (overwrite-merge).
+        # - MEETING-2026-06-12-08 go-live 暴露 rm:false 的代价成真: 源码删/改名的页面
+        #   在服务器**残留**且公开可达 (已删的内部 02-coin-pitch 仍 200 + 泄漏内容).
+        #   根治 = rsync --delete (dist 没有的旧文件即下线), 但用 --filter/--exclude
+        #   **白名单式保护**外部进程维护的目录, 不重蹈 rm:true 误删 /downloads 覆辙:
+        #     · /downloads/    — release.yml rsync 的 APK (latest.apk/version.json/txt)
+        #     · /.well-known/  — ECS 上 acme.sh SSL 续期的 challenge (cert-check.yml)
+        env:
+          ALIYUN_HOST: ${{ secrets.ALIYUN_HOST }}
+          ALIYUN_SSH_USER: ${{ secrets.ALIYUN_SSH_USER }}
+          ALIYUN_SSH_KEY: ${{ secrets.ALIYUN_SSH_KEY }}
+          ALIYUN_DEPLOY_PATH: ${{ secrets.ALIYUN_DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$ALIYUN_SSH_KEY" > ~/.ssh/aliyun_key
+          chmod 600 ~/.ssh/aliyun_key
+          ssh-keyscan -H "$ALIYUN_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+          # --filter='protect ...' 双保险: 即使排除规则边界出错, --delete 也绝不碰这两个外部目录
+          rsync -rltzv --delete \
+            --filter='protect /downloads/' \
+            --filter='protect /.well-known/' \
+            --exclude='/downloads/' \
+            --exclude='/.well-known/' \
+            -e "ssh -i ~/.ssh/aliyun_key -o StrictHostKeyChecking=accept-new" \
+            dist/ "$ALIYUN_SSH_USER@$ALIYUN_HOST:${ALIYUN_DEPLOY_PATH%/}/"

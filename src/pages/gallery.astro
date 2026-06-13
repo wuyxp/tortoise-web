@@ -10,7 +10,7 @@ const t = useTranslations(lang);
 const translatePath = useTranslatedPath(lang);
 
 const categories = ['Chapters', 'Routes', 'Story', 'Creatures', 'Environment', 'Items'] as const;
-const title = `Gallery — Tortoise Exquisite Assets`;
+const title = `Gallery — ${t('site.name')}`;
 const description = t('gallery.description');
 
 const groupedAssets = categories.map(category => ({

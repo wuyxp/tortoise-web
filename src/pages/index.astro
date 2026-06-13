@@ -11,7 +11,7 @@ const translatePath = useTranslatedPath(lang);
 const playStoreUrl = import.meta.env.PUBLIC_PLAY_STORE_URL ?? '#';
 const domesticStoreUrl = import.meta.env.PUBLIC_DOMESTIC_STORE_URL ?? '#';
 const feedbackEmail = import.meta.env.PUBLIC_FEEDBACK_EMAIL ?? 'support@serpilo.com';
-const siteName = import.meta.env.PUBLIC_SITE_NAME ?? 'Tortoise';
+const siteName = t('site.name');
 
 const showPlayStore = playStoreUrl !== '#';
 const showDomesticStore = domesticStoreUrl !== '#';

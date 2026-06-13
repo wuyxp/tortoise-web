@@ -27,7 +27,7 @@ const t = useTranslations(lang);
 const translatePath = useTranslatedPath(lang);
 
 const title = doc.data.title ?? doc.id.split('/').pop() ?? doc.id;
-const description = doc.data.description ?? `${title} — Tortoise 技术文档`;
+const description = doc.data.description ?? `${title} — Tortoise Time Docs`;
 
 // Determine badge based on file path or category
 const getBadge = (id: string) => {

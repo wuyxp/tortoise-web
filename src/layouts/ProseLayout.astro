@@ -1,0 +1,22 @@
+---
+// 纯 markdown 长文页 (隐私政策 / 条款等) 专用布局。
+// 复用 BaseLayout 的页头页脚,把 markdown 内容包进居中容器 + prose-tortoise 排版,
+// 与 docs/[...slug].astro 的内容样式一致 (修隐私页"裸 markdown 无样式" bug)。
+import BaseLayout from './BaseLayout.astro';
+
+// .md 页通过 layout 渲染时, frontmatter 走 Astro.props.frontmatter;
+// 兼容直接以组件方式传入的 title/description。
+const { frontmatter } = Astro.props;
+const title = frontmatter?.title ?? Astro.props.title;
+const description = frontmatter?.description ?? Astro.props.description;
+---
+
+<BaseLayout title={title} description={description}>
+  <article class="max-w-3xl mx-auto px-6 pt-16 pb-8">
+    <div class="glass p-8 md:p-14 rounded-[3rem] shadow-2xl">
+      <div class="prose-tortoise w-full">
+        <slot />
+      </div>
+    </div>
+  </article>
+</BaseLayout>

@@ -1,5 +1,5 @@
 ---
-layout: ../layouts/BaseLayout.astro
+layout: ../layouts/ProseLayout.astro
 title: 隐私政策
 description: 小龟时光 (Tortoise Time) 隐私政策 — 6-14 岁儿童屏幕时间管理 App 如何处理你的数据
 ---

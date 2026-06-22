@@ -1,5 +1,5 @@
 ---
-layout: ../../layouts/BaseLayout.astro
+layout: ../../layouts/ProseLayout.astro
 title: Privacy Policy
 description: Tortoise Time — Privacy Policy for the children's screen-time management app (ages 6-14)
 ---

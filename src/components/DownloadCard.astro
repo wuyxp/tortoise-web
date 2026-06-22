@@ -101,6 +101,15 @@ const sizeHint = t('download.size_hint').replace('{size}', sizeMb);
   ) : (
     <!-- 真状态: 下载按钮 + 副链 + 二维码 + 微信引导 + 系统要求 -->
     <div class="text-center relative z-10">
+      <!-- 预发内测声明 (PL 2026-06-21 显式授权 [via-sonnet-subagent] §1.补.12 例外): 数据可能清理 / 可能有 bug -->
+      <div class="max-w-xl mx-auto mb-10 flex items-start gap-3 text-left bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-3xl px-6 py-5">
+        <Info class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+        <div>
+          <p class="font-black text-amber-700 dark:text-amber-400 text-sm mb-1">{t('download.prerelease_badge')}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{t('download.prerelease_desc')}</p>
+        </div>
+      </div>
+
       <div class="flex flex-col items-center gap-6 mb-12">
         <a href={apkUrl}
            class="inline-block bg-brand-green text-white px-12 py-6 rounded-full font-black text-2xl shadow-[0_20px_50px_rgba(61,170,106,0.3)] hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(91,108,246,0.4)] transition-all duration-300">
@@ -170,7 +179,12 @@ const sizeHint = t('download.size_hint').replace('{size}', sizeMb);
             </div>
             <div class="flex items-center gap-3 text-sm text-gray-500">
               <Shield class="w-5 h-5 text-brand-blue/60" />
-              <span class="font-mono">{version} · <span class="bg-gray-100 dark:bg-gray-800 px-1 rounded">sha256:{sha256Short}</span></span>
+              <!-- 版本/指纹未注入时 (latest.apk 滚动包) 显示滚动构建说明, 不露 sha256:pending [via-sonnet-subagent] -->
+              {(version !== 'v0.0.0-pending' && sha256Fp !== 'pending') ? (
+                <span class="font-mono">{version} · <span class="bg-gray-100 dark:bg-gray-800 px-1 rounded">sha256:{sha256Short}</span></span>
+              ) : (
+                <span>{t('download.rolling_build')}</span>
+              )}
             </div>
           </div>
         </div>

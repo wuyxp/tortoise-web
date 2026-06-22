@@ -69,7 +69,9 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
             <span class="text-xl font-black text-gradient tracking-tight leading-none">
               {siteName}
             </span>
-            <span class="text-[8px] font-black tracking-[0.3em] text-gray-400 mt-1 uppercase">Turtle Island</span>
+            {lang === 'zh' && (
+              <span class="text-[8px] font-black tracking-[0.3em] text-gray-400 mt-1 uppercase">Tortoise Time</span>
+            )}
           </div>
         </a>
 
@@ -152,7 +154,7 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
           <h4 class="text-xs font-black uppercase tracking-[0.2em] text-gray-400">{t('footer.resources')}</h4>
           <ul class="space-y-4 font-bold text-gray-600 dark:text-gray-300">
             <li><a href={translatePath('/docs/public/01-gentle-guidance-philosophy')} class="hover:text-brand-blue transition-colors">{t('nav.docs')}</a></li>
-            <li><a href={translatePath('/docs/public/05-faq')} class="hover:text-brand-blue transition-colors">{t('footer.privacy')}</a></li>
+            <li><a href={translatePath('/privacy/')} class="hover:text-brand-blue transition-colors">{t('footer.privacy')}</a></li>
           </ul>
         </div>
 
@@ -170,7 +172,7 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
           <div class="flex items-center gap-4 text-xs font-bold text-gray-400">
              <span>{t('footer.copyright')}</span>
              <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
-             <span>TURTLE ISLAND EDITION</span>
+             <span>TORTOISE TIME</span>
           </div>
           <div class="flex items-center gap-2 px-4 py-2 glass rounded-full text-[10px] font-black text-brand-blue">
              <div class="w-2 h-2 bg-brand-green rounded-full animate-pulse"></div>

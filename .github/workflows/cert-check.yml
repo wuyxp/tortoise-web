@@ -61,7 +61,13 @@ jobs:
         if: steps.probe.outputs.alert == 'true'
         uses: actions/github-script@v7
         with:
+          # 告警发到私有仓 tortoise-docs, 不发本公开仓 (运维信息含 ssh/ECS/acme 命令,
+          # 公开仓 issue 用户提反馈时可见 = 侦察信息暴露 + 观感差). 用 PAT 跨仓写.
+          github-token: ${{ secrets.TORTOISE_WEB_TOKEN }}
           script: |
+            // 告警目标 = 私有仓 (PL 看得到, 公网用户看不到)
+            const TARGET_OWNER = 'wuyxp';
+            const TARGET_REPO = 'tortoise-docs';
             const reason = '${{ steps.probe.outputs.reason }}';
             const days = '${{ steps.probe.outputs.days_left }}';
             const expiry = '${{ steps.probe.outputs.expiry }}';
@@ -78,18 +84,18 @@ jobs:
             // 防重复: 查近 7 天是否已有同类 issue
             const since = new Date(Date.now() - 7*24*60*60*1000).toISOString();
             const existing = await github.rest.issues.listForRepo({
-              owner: context.repo.owner, repo: context.repo.repo,
+              owner: TARGET_OWNER, repo: TARGET_REPO,
               state: 'open', labels: 'cert-alert', since: since,
             });
             if (existing.data.length > 0) {
               console.log(`Existing #${existing.data[0].number}, comment`);
               await github.rest.issues.createComment({
-                owner: context.repo.owner, repo: context.repo.repo,
+                owner: TARGET_OWNER, repo: TARGET_REPO,
                 issue_number: existing.data[0].number, body: body,
               });
             } else {
               await github.rest.issues.create({
-                owner: context.repo.owner, repo: context.repo.repo,
+                owner: TARGET_OWNER, repo: TARGET_REPO,
                 title: title, body: body, labels: ['cert-alert', 'auto-generated'],
               });
             }

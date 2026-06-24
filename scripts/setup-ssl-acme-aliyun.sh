@@ -1,25 +1,24 @@
 #!/bin/bash
-# acme.sh + 阿里云 DNS API + Let's Encrypt DNS-01 challenge — 免费 SSL 自动续期.
-# 国内 IP HTTP-01 challenge 被拦, DNS-01 走阿里云 DNS API 加 TXT 验证, 100% 工作.
-# MEETING-2026-05-11-06-docs-isolation
+# acme.sh + Let's Encrypt HTTP-01 (webroot) challenge — 免费 SSL 自动续期.
+# MEETING-2026-06-24-01: NS 已迁阿里云 ESA, 原 DNS-01(dns_ali/云解析) 续期失效
+#   (acme 写 TXT 到云解析, 但权威 NS 现在是 ESA → LE 查不到 → 续期静默失败).
+#   acme.sh 无 ESA DNS 插件 → 改 HTTP-01 webroot, 验证请求穿 ESA 边缘回源到本机
+#   webroot, 不再依赖任何 DNS API / AccessKey.
+# 原 MEETING-2026-05-11-06-docs-isolation (DNS-01 版本, 已废)
 #
-# 前置 (PL 必做):
-#   1. 阿里云 RAM → 创建用户 (推荐 acme-dns-bot) → 拿 AccessKey ID + Secret
-#   2. 给该用户加权限 AliyunDNSFullAccess
+# ⚠️ 前置 (PL 必做, 因为开了 ESA「源站证书校验」会鸡生蛋):
+#   1. 跑本脚本前, 在 ESA 控制台「SSL/TLS → 源站证书」临时**关闭**源站证书校验
+#      (否则签发 dl 时 LE 验证回源, 而此刻证书还不含 dl → 校验 525, 签不下来).
+#   2. 跑完、cert 装好后, 再把源站证书校验**重新打开** (此后证书已含三域名, 回源校验全过).
+#   3. 确认 ESA 安全防护放行 LE 对 /.well-known/acme-challenge/ 的访问 (实测应可回源).
 #
-# ECS 上跑 (一行, AccessKey 通过 ENV 传, 不写入命令历史):
-#   read -s -p 'Ali_Key (AccessKey ID): '       Ali_Key       && echo
-#   read -s -p 'Ali_Secret (AccessKey Secret): ' Ali_Secret    && echo
-#   export Ali_Key Ali_Secret
+# ECS 上跑 (一行, HTTP-01 不需要任何凭证):
 #   curl -sSL https://raw.githubusercontent.com/wuyxp/tortoise-web/main/scripts/setup-ssl-acme-aliyun.sh | bash
 #
-# 脚本做的事:
-#   1. 装 acme.sh (持久, 自动 cron 续期)
-#   2. 用 DNS-01 challenge 申请 Let's Encrypt cert
-#   3. 装 cert 到 /etc/nginx/ssl/letsencrypt/$DOMAIN/
-#   4. 写 nginx 443 ssl config
-#   5. nginx -t + reload + 自检
-#   6. cron 自动续期已由 acme.sh install 时自动加 (60 天一次)
+# 关键顺序 (HTTP-01 与旧 DNS-01 不同): 必须**先写 nginx config 并 reload**, 让 443 能应答
+#   /.well-known/acme-challenge/, **再签发** (LE 经 ESA 回源 443 拉验证文件). 旧脚本"先签后写"
+#   在 webroot 模式下签不下来. 流程: 装 acme → (无证书则临时自签兜底) → 写 nginx+reload →
+#   签发 → 装新证书+reload → 自检.
 
 set -euo pipefail
 
@@ -28,99 +27,30 @@ DEPLOY_PATH="${SETUP_DEPLOY_PATH:-/var/www/serpilo}"
 CERT_EMAIL="${SETUP_CERT_EMAIL:-support@serpilo.com}"
 CERT_DIR="/etc/nginx/ssl/letsencrypt/$DOMAIN"
 ACME_HOME="${ACME_HOME:-$HOME/.acme.sh}"
-NGINX_ONLY="${NGINX_ONLY:-0}"  # MEETING-2026-05-12-02: 仅更新 nginx config (跳过 cert 申请/续期, 不需要 Ali_Key/Secret)
+NGINX_ONLY="${NGINX_ONLY:-0}"  # 1 = 仅刷 nginx config (cert 已存在, 不碰 cert), 不需凭证
 
-# ===== 0. 验证 ENV =====
+# ===== 0. 参数 =====
 echo "==> 配置参数"
-echo "    DOMAIN:      $DOMAIN"
+echo "    DOMAIN:      $DOMAIN (+ www + dl)"
 echo "    DEPLOY_PATH: $DEPLOY_PATH"
 echo "    CERT_EMAIL:  $CERT_EMAIL"
 echo "    CERT_DIR:    $CERT_DIR"
-echo "    NGINX_ONLY:  $NGINX_ONLY  ($([ "$NGINX_ONLY" = "1" ] && echo '仅更新 nginx config 模式 (cert 操作 skip)' || echo '完整模式 (含 cert 申请/续期)'))"
+echo "    NGINX_ONLY:  $NGINX_ONLY  ($([ "$NGINX_ONLY" = "1" ] && echo '仅刷 nginx config' || echo '完整模式 (含 HTTP-01 申请/续期)'))"
+echo ""
+echo "    HTTP-01 webroot, 不需要任何 DNS 凭证 (MEETING-2026-06-24-01)."
 echo ""
 
-if [ "$NGINX_ONLY" != "1" ] && { [ -z "${Ali_Key:-}" ] || [ -z "${Ali_Secret:-}" ]; }; then
-  echo "ERROR: Ali_Key 和 Ali_Secret 环境变量必须先 export (完整模式 cert 申请/续期需要)"
-  echo ""
-  echo "完整模式 (首次申请 / cert 即将到期续期, 需 Ali_Key/Secret):"
-  echo "  read -s -p 'Ali_Key (AccessKey ID): '       Ali_Key       && echo"
-  echo "  read -s -p 'Ali_Secret (AccessKey Secret): ' Ali_Secret    && echo"
-  echo "  export Ali_Key Ali_Secret"
-  echo "  curl -sSL ... | bash"
-  echo ""
-  echo "仅更新 nginx config 模式 (cert 已存在, 仅刷 nginx 配置, 0 凭证):"
-  echo "  curl -sSL ... | NGINX_ONLY=1 bash"
-  echo "  # 或: export NGINX_ONLY=1; curl -sSL ... | bash"
-  exit 1
-fi
-
-# ===== 1. 装 acme.sh =====
-if [ "$NGINX_ONLY" = "1" ]; then
-  echo "==> [1/5] [NGINX_ONLY=1] 跳过 acme.sh 安装/cert 申请/cert install (cert 已存在, 仅刷 nginx config)"
-  ACME=""  # 占位, [4/5] 不引用
-  # 验证 cert 文件确实存在 (NGINX_ONLY 前提是 cert 已装)
-  if [ ! -f "$CERT_DIR/fullchain.pem" ] || [ ! -f "$CERT_DIR/privkey.pem" ]; then
-    echo "ERROR: NGINX_ONLY=1 模式要求 $CERT_DIR/{fullchain,privkey}.pem 已存在"
-    echo "       但当前不存在 → 你需要先跑完整模式申请 cert (set Ali_Key/Ali_Secret + NGINX_ONLY=0)"
-    exit 1
-  fi
-  echo "    ✓ cert 已存在 $CERT_DIR/, 直跑 [4/5] 写 nginx config"
-else
-  echo "==> [1/5] 安装 acme.sh"
-  if [ ! -f "$ACME_HOME/acme.sh" ]; then
-    curl -sSL https://get.acme.sh | sh -s email="$CERT_EMAIL" 2>&1 | tail -3
-    echo "    ✓ acme.sh 已装到 $ACME_HOME"
-  else
-    echo "    ✓ acme.sh 已存在 $ACME_HOME, 跳过装"
-  fi
-
-  ACME="$ACME_HOME/acme.sh"
-  if [ ! -x "$ACME" ]; then
-    echo "ERROR: $ACME 不存在或不可执行"
-    exit 1
-  fi
-
-  # 默认 CA 用 Let's Encrypt (acme.sh 3.x 默认 ZeroSSL, 改回 LE)
-  "$ACME" --set-default-ca --server letsencrypt 2>&1 | tail -2
-
-  # ===== 2. 申请 cert (DNS-01) =====
-  echo "==> [2/5] 用 DNS-01 challenge 申请 Let's Encrypt cert"
-  echo "    (acme.sh 会调用阿里云 DNS API 加 TXT 记录, LE server 查 DNS 验证, 全程 ~30s)"
-
-  # Ali_Key + Ali_Secret 已 export, acme.sh dns_ali 插件自动读取
-  # 不加 --force: 已申请过的 cert 不会重新申请 (LE rate limit 5/week/domain), 仅
-  # 更新过期/即将过期的 cert
-  "$ACME" --issue --dns dns_ali \
-    -d "$DOMAIN" -d "www.$DOMAIN" \
-    --email "$CERT_EMAIL" \
-    --keylength 2048 2>&1 | tail -20 || \
-    echo "    (cert 已存在或 LE rate limit, 跳过 issue, 继续 install/nginx config)"
-
-  # ===== 3. 安装 cert 到 nginx 目录 (不 reload, 因 nginx config 可能旧) =====
-  echo "==> [3/5] 安装 cert 到 $CERT_DIR/ (不 reload, 留 [4/5] 写新 config 后 reload)"
-  mkdir -p "$CERT_DIR"
-
-  # reloadcmd 用 /bin/true 占位 — 当前 nginx config 可能是旧版 (上次 run 留下的
-  # 含 'http2 on;' 等不兼容 directive). 等 [4/5] 写新 config 后再 reload.
-  "$ACME" --install-cert -d "$DOMAIN" \
-    --key-file       "$CERT_DIR/privkey.pem" \
-    --fullchain-file "$CERT_DIR/fullchain.pem" \
-    --reloadcmd      "/bin/true"
-
-  chmod 600 "$CERT_DIR/privkey.pem"
-  echo "    ✓ cert + key 已装到 $CERT_DIR/"
-fi
-
-# ===== 4. 写 nginx config + reload =====
-echo "==> [4/5] 写 nginx HTTPS config + reload"
-cat > /etc/nginx/sites-available/tortoise-web <<EOF
+# ===== 函数: 写 nginx config + reload (幂等, 用 $CERT_DIR 现有证书) =====
+write_nginx_and_reload() {
+  echo "==> 写 nginx config (server_name 含 dl + 443 块带 acme-challenge location) + reload"
+  cat > /etc/nginx/sites-available/tortoise-web <<EOF
 # HTTP 80 → HTTPS 301
 server {
     listen 80;
     listen [::]:80;
-    server_name $DOMAIN www.$DOMAIN;
+    server_name $DOMAIN www.$DOMAIN dl.$DOMAIN;
 
-    # ACME challenge 兼容路径 (虽然 DNS-01 不用, 留备用)
+    # ACME HTTP-01 challenge (80 直连兜底; ESA 回源走 443 见下)
     location ^~ /.well-known/acme-challenge/ {
         default_type "text/plain";
         root $DEPLOY_PATH;
@@ -134,12 +64,11 @@ server {
 }
 
 # HTTPS 443
-# 注: 用 'listen 443 ssl http2;' 旧语法兼容 nginx <1.25.1 (Ubuntu 22.04 默认 1.18-1.24);
-# nginx 1.25.1+ 推荐独立 http2 on; 但旧语法会 deprecation warning 不报错, 兼容性更好
+# 注: 用 'listen 443 ssl http2;' 旧语法兼容 nginx <1.25.1 (Ubuntu 22.04 默认 1.18-1.24).
 server {
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
-    server_name $DOMAIN www.$DOMAIN;
+    server_name $DOMAIN www.$DOMAIN dl.$DOMAIN;
     root $DEPLOY_PATH;
     index index.html;
 
@@ -152,10 +81,19 @@ server {
     ssl_session_timeout 1d;
     ssl_session_tickets off;
 
+    # ACME HTTP-01 challenge (MEETING-2026-06-24-01): ESA 回源协议=HTTPS → LE 验证请求
+    # 经 ESA 301 到 HTTPS 后回源打到本机 443, 故 443 块也必须能应答 acme-challenge
+    # (原仅 80 块有, 回源走不到). ^~ 高优先, 压过下面 SPA fallback. 永不缓存.
+    location ^~ /.well-known/acme-challenge/ {
+        default_type "text/plain";
+        root $DEPLOY_PATH;
+        allow all;
+        try_files \$uri =404;
+        add_header Cache-Control 'no-cache, no-store' always;
+    }
+
     # version.json — UpdateChecker fetch 目标, 必须永远拿最新 (改了立即生效).
     # MEETING-2026-06-05-09 F5: no-cache 防 nginx/CDN 缓存住旧 version.json → 致"坏包改回了客户端却还读旧的、恢复失效".
-    # = exact match 优先级最高(压过下面 ^~), 当 JSON 拉不当附件下载(app OkHttp 取 body, 浏览器也不该弹下载).
-    # 配合: 客户端 OkHttp 无 .cache() → 每次 onResume 真拉 → "改 version.json 即全客户端 onResume 自动恢复" 成立.
     location = /downloads/version.json {
         default_type application/json;
         add_header Cache-Control 'no-cache, no-store, must-revalidate' always;
@@ -199,51 +137,107 @@ server {
 }
 EOF
 
-ln -sf /etc/nginx/sites-available/tortoise-web /etc/nginx/sites-enabled/
-# 准备 /downloads/ 目录 (空目录, 等 release.yml rsync 来填)
-mkdir -p $DEPLOY_PATH/downloads
-chown -R www-data:www-data $DEPLOY_PATH/downloads 2>/dev/null || true
-nginx -t
-systemctl reload nginx
-echo "    ✓ nginx reload OK"
+  ln -sf /etc/nginx/sites-available/tortoise-web /etc/nginx/sites-enabled/
+  rm -f /etc/nginx/sites-enabled/default
+  mkdir -p "$DEPLOY_PATH/downloads" "$DEPLOY_PATH/.well-known/acme-challenge"
+  chown -R www-data:www-data "$DEPLOY_PATH/downloads" "$DEPLOY_PATH/.well-known" 2>/dev/null || true
+  nginx -t
+  systemctl reload nginx
+  echo "    ✓ nginx reload OK"
+}
 
-# 把 acme.sh 续期 reloadcmd 改回 systemctl reload nginx (本次 install 用 /bin/true 占位)
-# 这样下次 acme.sh 自动续期后会 reload nginx 让新 cert 生效
-# NGINX_ONLY=1 模式跳过 (acme.sh 没装/不存在 ACME 变量)
-if [ "$NGINX_ONLY" != "1" ] && [ -n "$ACME" ]; then
-  "$ACME" --install-cert -d "$DOMAIN" \
-    --key-file       "$CERT_DIR/privkey.pem" \
-    --fullchain-file "$CERT_DIR/fullchain.pem" \
-    --reloadcmd      "systemctl reload nginx" 2>&1 | tail -3
-  echo "    ✓ 续期 reloadcmd 已设 (60 天后自动续期 + reload)"
-else
-  echo "    [NGINX_ONLY=1] 跳过续期 reloadcmd 重置 (cert 续期由完整模式管)"
+# ============================================================
+# NGINX_ONLY 模式: 仅刷 nginx config (cert 必须已存在)
+# ============================================================
+if [ "$NGINX_ONLY" = "1" ]; then
+  echo "==> [NGINX_ONLY=1] 仅刷 nginx config"
+  if [ ! -f "$CERT_DIR/fullchain.pem" ] || [ ! -f "$CERT_DIR/privkey.pem" ]; then
+    echo "ERROR: NGINX_ONLY=1 要求 $CERT_DIR/{fullchain,privkey}.pem 已存在; 当前不存在 → 先跑完整模式"
+    exit 1
+  fi
+  write_nginx_and_reload
+  echo "✓ nginx config 已刷新 (cert 未动)."
+  exit 0
 fi
 
-# ===== 5. 自检 + 续期信息 =====
-echo "==> [5/5] 自检"
-echo "    HTTP 80 (应 301):"
-curl -sI --max-time 5 -H "Host: $DOMAIN" "http://localhost/" 2>&1 | head -2
-echo ""
-echo "    HTTPS 443 localhost (应 200):"
-curl -skI --max-time 5 -H "Host: $DOMAIN" "https://localhost/" 2>&1 | head -2
-echo ""
-echo "    HTTPS 443 公网 (应 200):"
-curl -sI --max-time 8 "https://$DOMAIN" 2>&1 | head -3
-echo ""
-echo "    续期 cron (acme.sh install 时自动加, 60 天一次):"
-crontab -l 2>&1 | grep -i acme || echo "    (未找到 acme cron, 检查 systemd timer)"
+# ============================================================
+# 完整模式: HTTP-01 申请/续期 + 写 nginx config
+# ============================================================
 
-# ===== 6. AccessKey 提示 =====
-echo ""
-echo "==> 安全提醒"
-echo "    Ali_Key + Ali_Secret 已被 acme.sh 持久化到 $ACME_HOME/account.conf (内部用, 不外传)"
-echo "    续期时 acme.sh 自动用这对 key 调用阿里云 DNS API, 全自动"
-echo ""
-echo "    若你将来想 revoke 这对 AccessKey:"
-echo "    1. 阿里云 RAM → 用户 acme-dns-bot → AccessKey 管理 → 禁用/删除"
-echo "    2. ECS 上重跑本脚本 (用新 key)"
+# ===== 1. 装 acme.sh =====
+echo "==> [1/6] 安装 acme.sh"
+if [ ! -f "$ACME_HOME/acme.sh" ]; then
+  curl -sSL https://get.acme.sh | sh -s email="$CERT_EMAIL" 2>&1 | tail -3
+  echo "    ✓ acme.sh 已装到 $ACME_HOME"
+else
+  echo "    ✓ acme.sh 已存在 $ACME_HOME, 跳过装"
+fi
+ACME="$ACME_HOME/acme.sh"
+[ -x "$ACME" ] || { echo "ERROR: $ACME 不存在或不可执行"; exit 1; }
+# 默认 CA 用 Let's Encrypt (acme.sh 3.x 默认 ZeroSSL, 改回 LE)
+"$ACME" --set-default-ca --server letsencrypt 2>&1 | tail -2
 
+# ===== 2. 无证书兜底: 临时自签, 让 nginx 443 起得来 (后面被 LE 证书替换) =====
+echo "==> [2/6] 检查 $CERT_DIR (无证书则临时自签, 让 nginx 能起来收 acme-challenge)"
+mkdir -p "$CERT_DIR"
+if [ ! -f "$CERT_DIR/fullchain.pem" ] || [ ! -f "$CERT_DIR/privkey.pem" ]; then
+  echo "    无现成证书 → 生成临时自签 (10 年, 仅为让 443 启动, 随后被 LE 证书覆盖)"
+  openssl req -x509 -newkey rsa:2048 -nodes \
+    -keyout "$CERT_DIR/privkey.pem" -out "$CERT_DIR/fullchain.pem" \
+    -days 3650 -subj "/CN=$DOMAIN" 2>/dev/null
+  chmod 600 "$CERT_DIR/privkey.pem"
+else
+  echo "    ✓ 已有证书 (本次会被新签的三域名证书替换)"
+fi
+
+# ===== 3. 先写 nginx config + reload (让 443 能应答 acme-challenge, 再签发) =====
+echo "==> [3/6] 写 nginx config + reload (HTTP-01 前置: 443 必须先能服务验证路径)"
+write_nginx_and_reload
+
+# ===== 4. 申请 cert (HTTP-01 webroot, 三域名) =====
+echo "==> [4/6] HTTP-01 webroot 申请 Let's Encrypt cert (serpilo + www + dl)"
+echo "    LE 经 ESA 边缘回源拉 $DEPLOY_PATH/.well-known/acme-challenge/ 验证"
+echo "    ⚠️ 此刻 ESA「源站证书校验」必须临时关闭, 否则 dl 验证回源 525 (见脚本头前置)"
+# --force: 域名集从 (serpilo+www) 变 (serpilo+www+dl) 需强制重签; 日常 cron 续期按到期判定不受影响.
+"$ACME" --issue -w "$DEPLOY_PATH" \
+  -d "$DOMAIN" -d "www.$DOMAIN" -d "dl.$DOMAIN" \
+  --email "$CERT_EMAIL" \
+  --keylength 2048 --force 2>&1 | tail -25 || {
+    echo "ERROR: 签发失败. 排查: (1) ESA 源站证书校验是否已临时关? (2) ESA 安全防护是否拦了 /.well-known/acme-challenge/?"
+    echo "       (3) curl -I http://$DOMAIN/.well-known/acme-challenge/test 看能否穿 ESA 回源到本机"
+    exit 1
+  }
+
+# ===== 5. 装新 cert + reload (续期 reloadcmd 一并设好) =====
+echo "==> [5/6] 安装新证书到 $CERT_DIR/ + reload (续期 reloadcmd=reload nginx)"
+"$ACME" --install-cert -d "$DOMAIN" \
+  --key-file       "$CERT_DIR/privkey.pem" \
+  --fullchain-file "$CERT_DIR/fullchain.pem" \
+  --reloadcmd      "systemctl reload nginx" 2>&1 | tail -3
+chmod 600 "$CERT_DIR/privkey.pem"
+echo "    ✓ 三域名证书已装 + 续期 reloadcmd 已设 (60 天后自动续期 + reload)"
+
+# ===== 6. 自检 =====
+echo "==> [6/6] 自检"
+echo "    源站证书覆盖域名 (应含 serpilo + www + dl):"
+openssl x509 -in "$CERT_DIR/fullchain.pem" -noout -ext subjectAltName 2>/dev/null | tail -1
+echo "    源站证书到期:"
+openssl x509 -in "$CERT_DIR/fullchain.pem" -noout -enddate 2>/dev/null
 echo ""
-echo "✓ 全部完成. 浏览器开 https://$DOMAIN 应看到 Tortoise 主页, 锁标志绿色."
-echo "  cert 90 天到期前 acme.sh 自动续期 + 自动 reload nginx, 完全无人工."
+echo "    本机 HTTP 80 (应 301): $(curl -sI --max-time 5 -H "Host: $DOMAIN" http://localhost/ 2>&1 | head -1)"
+echo "    本机 HTTPS 443 (应 200): $(curl -skI --max-time 5 -H "Host: $DOMAIN" https://localhost/ 2>&1 | head -1)"
+echo ""
+echo "    续期任务:"
+crontab -l 2>&1 | grep -i acme || echo "    (crontab 无 acme, 检查 systemd timer: systemctl list-timers | grep acme)"
+
+# ===== 收尾提醒 =====
+echo ""
+echo "==> ⚠️ 跑完必做 (MEETING-2026-06-24-01):"
+echo "    1. 回 ESA 控制台「SSL/TLS → 源站证书」把【源站证书校验】重新打开"
+echo "       (此时 cert 已含 serpilo+www+dl, 回源校验会全过; dl 的 525 也随之消失)"
+echo "    2. 验证: curl -sI https://serpilo.com / https://www.serpilo.com / https://dl.serpilo.com 应全 200"
+echo ""
+echo "    续期: acme.sh cron 每 60 天经 HTTP-01 自动续期 + reload nginx, 不需任何凭证."
+echo "    监控: cert-check.yml (每周) 已改探源站证书(直连源站 IP, 非 serpilo.com 边缘), 续期失败 < 30 天会开 issue 告警."
+echo ""
+echo "✓ 全部完成. cert 覆盖 serpilo + www + dl 三域名, HTTP-01 自动续期, 无人工无凭证."

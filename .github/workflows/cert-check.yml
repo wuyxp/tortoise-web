@@ -1,15 +1,12 @@
 name: SSL cert expiry check
 
 # 议题: MEETING-2026-05-11-06-docs-isolation Phase B (P0-2)
-#       MEETING-2026-06-24-01: 改探【源站】证书, 不再探 serpilo.com 公网
-# Weekly cron — openssl s_client 直连【源站, IP 见 secret ALIYUN_HOST】解析 cert 到期日, <30 天自动开 Issue
-# 防 acme.sh 续期失败时静默, cert 过期 → (ESA 开了源站证书校验) 回源 502 挂站.
-#
-# ⚠️ 为什么探源站 IP 而不是 serpilo.com:
-#   NS 已迁 ESA, serpilo.com:443 现在打到 ESA 边缘 → 返回的是 ESA 边缘证书 (自动续期、
-#   永远新鲜) → 探它永远看不到会过期的那张【源站】Let's Encrypt 证书. 必须直连源站 IP.
-# ⚠️ 已知后续 (源站防护 H 上线后): ECS:443 只放行 ESA 回源 IP → GitHub runner 直连会被挡,
-#   本探测会失败. 届时需把监控改到 ECS 本地 cron, 或加站点健康(502)检查. 见 MEETING-2026-06-24-01 待办.
+#       MEETING-2026-06-24/25: 探 serpilo.com 公网(ESA 边缘) — 方案B 关了源站证书校验,
+#       源站证书已换 10 年自签、不再相关; 此处监控的是【ESA 边缘证书 + 站点可达性】.
+# Weekly cron — openssl s_client 探 serpilo.com:443 (ESA 边缘) 解析 cert 到期日, <30 天或探测失败自动开 Issue.
+#   - 探不通 = 站点 HTTPS 挂 (边缘/回源/源站任一断) → 告警.
+#   - 边缘证书由 ESA 自动续期 (过期前 30 天), 正常永不触发到期告警; 若 ESA 续期异常则兜底.
+#   - 走 ESA 公网, 不直连源站 → 源站防护(H)锁了 ECS 也不受影响.
 
 on:
   schedule:
@@ -28,16 +25,12 @@ jobs:
     steps:
       - name: Probe cert + parse expiry
         id: probe
-        env:
-          ORIGIN_HOST: ${{ secrets.ALIYUN_HOST }}   # 源站 IP/主机, 不在公开文件硬编码 (复用 deploy.yml 的 secret)
         run: |
           set -e
-          DOMAIN="serpilo.com"
-          ORIGIN_IP="$ORIGIN_HOST"   # 直连源站, SNI 带 DOMAIN; 探会过期的源站证书 (非 ESA 边缘证书)
-          if [ -z "$ORIGIN_IP" ]; then echo "ERROR: secret ALIYUN_HOST 未设"; exit 1; fi
+          DOMAIN="serpilo.com"   # 探 ESA 边缘 (公网), 监控边缘证书+站点可达; 源站防护后仍可用
 
-          # openssl s_client 直连源站 IP 拉 cert 链, openssl x509 解 enddate
-          EXPIRY=$(echo | openssl s_client -servername "$DOMAIN" -connect "$ORIGIN_IP:443" 2>/dev/null \
+          # openssl s_client 连 serpilo.com:443 (ESA 边缘) 拉 cert 链, openssl x509 解 enddate
+          EXPIRY=$(echo | openssl s_client -servername "$DOMAIN" -connect "$DOMAIN:443" 2>/dev/null \
             | openssl x509 -noout -enddate 2>/dev/null \
             | cut -d= -f2)
 
@@ -85,11 +78,11 @@ jobs:
 
             let title, body;
             if (reason === 'ssl-unreachable') {
-              title = `🚨 源站 SSL cert 探测失败 ${new Date().toISOString().slice(0,10)}`;
-              body = `cert-check 无法 openssl s_client 连【源站:443】.\n\n可能原因:\n- nginx 挂了 / SSL 配置错 / ECS 网络中断\n- **源站防护已上线**: ECS:443 只放行 ESA 回源 IP, GitHub runner 直连被挡 → 此时本探测需改到 ECS 本地 cron 或站点健康检查 (见 MEETING-2026-06-24-01)\n\nssh 进 ECS 跑:\n\`\`\`\nsystemctl status nginx\nopenssl x509 -in /etc/nginx/ssl/letsencrypt/serpilo.com/fullchain.pem -noout -enddate -ext subjectAltName\n\`\`\`\n\n如 cert 真过期, HTTP-01 重签 (无需凭证):\n\`\`\`\n~/.acme.sh/acme.sh --renew -d serpilo.com --force\n\`\`\``;
+              title = `🚨 serpilo.com HTTPS 探测失败 ${new Date().toISOString().slice(0,10)}`;
+              body = `cert-check 无法 openssl s_client 连 serpilo.com:443 (ESA 边缘).\n\n= 站点 HTTPS 挂了. 排查链路:\n- ESA 边缘是否正常 (ESA 控制台站点状态 / 边缘证书是否生效)\n- 回源是否通: \`curl -I https://serpilo.com/\` 看是否 502 (回源断) 或超时\n- 源站 nginx: ssh ECS \`systemctl status nginx\`\n- 源站防护若刚配错可能把 ESA 回源也挡了 → 核对安全组放行的回源 IP 段\n\n方案B 备注: 源站证书是 10 年自签、与此无关; 这里探的是边缘+站点可达.`;
             } else {
-              title = `⚠ 源站 SSL cert 即将过期 (剩 ${days} 天) ${expiry}`;
-              body = `cert-check 检测到【源站】cert 剩余 **${days} 天** (到期 ${expiry}).\n\nESA 开了源站证书校验 → 源站证书过期会致回源 502 挂站. acme.sh cron 60 天自动续期, 剩 < 30 天还没续 = 可能续期失败 (HTTP-01 challenge 被 ESA 拦?).\n\nssh 进 ECS 检查:\n\`\`\`\n~/.acme.sh/acme.sh --list\ntail -50 ~/.acme.sh/acme.sh.log\ncurl -I http://serpilo.com/.well-known/acme-challenge/probe   # 看能否穿 ESA 回源\n\`\`\`\n\n手动强制续期 (HTTP-01):\n\`\`\`\n~/.acme.sh/acme.sh --renew -d serpilo.com --force\n\`\`\``;
+              title = `⚠ serpilo.com 边缘证书即将过期 (剩 ${days} 天) ${expiry}`;
+              body = `cert-check 检测到 serpilo.com (ESA 边缘) 证书剩余 **${days} 天** (到期 ${expiry}).\n\nESA 免费边缘证书本应在过期前 30 天自动续期. 剩 < 30 天 = ESA 边缘证书续期可能异常.\n\n去 ESA 控制台 → SSL/TLS → 边缘证书, 看免费证书状态; 必要时手动重新申请/续期.\n\n(源站那张是 10 年自签, 不在此监控范围.)`;
             }
 
             // 防重复: 查近 7 天是否已有同类 issue

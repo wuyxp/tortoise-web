@@ -67,7 +67,7 @@ jobs:
           PUBLIC_GITHUB_REPO: ${{ secrets.PUBLIC_GITHUB_REPO || '#' }}
           # APK 直接下载 (MEETING-2026-05-12-02-apk-distribution)
           # 预发内测阶段默认直挂线上滚动包 latest.apk (PL 2026-06-21); 设 secret 可覆盖 (正式上架换 Play/版本化 URL)
-          PUBLIC_APK_DOWNLOAD_URL: ${{ secrets.PUBLIC_APK_DOWNLOAD_URL || 'https://serpilo.com/downloads/latest.apk' }}
+          PUBLIC_APK_DOWNLOAD_URL: ${{ secrets.PUBLIC_APK_DOWNLOAD_URL || 'https://dl.serpilo.com/downloads/latest.apk' }}
           PUBLIC_APK_DOWNLOAD_URL_CN: ${{ secrets.PUBLIC_APK_DOWNLOAD_URL_CN || '#' }}
           PUBLIC_APK_VERSION: ${{ secrets.PUBLIC_APK_VERSION || 'v0.0.0-pending' }}
           PUBLIC_APK_SHA256_FINGERPRINT: ${{ secrets.PUBLIC_APK_SHA256_FINGERPRINT || 'pending' }}

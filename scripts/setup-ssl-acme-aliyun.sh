@@ -35,6 +35,24 @@ echo "    CERT_DIR:    $CERT_DIR"
 echo "    NGINX_ONLY:  $NGINX_ONLY"
 echo ""
 
+# ===== 回源鉴权 (MEETING-2026-06-25-02): ESA 转换规则给回源加 X-Origin-Auth 密钥头,
+#   nginx 校验缺头/不符即 403 → 挡"绕过 ESA 直连源站"滥用. 零 IP 维护 (ESA 换回源 IP 不受影响).
+#   密钥经 ENV 传, 不入 git/不硬编码:
+#     SECRET=$(openssl rand -hex 16); ORIGIN_AUTH_SECRET=$SECRET bash <脚本>
+#   然后 ESA 控制台「规则→转换规则→修改请求头→ESA到源站」加 X-Origin-Auth=$SECRET (同一值).
+#   不传 ORIGIN_AUTH_SECRET = 不启用鉴权 (脚本照常跑, 只是源站不挡直连). =====
+ORIGIN_AUTH_SECRET="${ORIGIN_AUTH_SECRET:-}"
+if [ -n "$ORIGIN_AUTH_SECRET" ]; then
+  AUTH_GUARD="    # 回源鉴权 (MEETING-2026-06-25-02): 没带 ESA 注入的密钥头 = 直连绕过 → 403
+    if (\$http_x_origin_auth != \"$ORIGIN_AUTH_SECRET\") { return 403; }
+"
+  echo "    回源鉴权: ✅ 启用 (X-Origin-Auth 校验, 密钥长度 ${#ORIGIN_AUTH_SECRET})"
+else
+  AUTH_GUARD=""
+  echo "    回源鉴权: ⚠ 未启用 (传 ORIGIN_AUTH_SECRET=<密钥> 开启; 不传则源站不挡直连)"
+fi
+echo ""
+
 # ===== 函数: 写 nginx config + reload (幂等) =====
 write_nginx_and_reload() {
   echo "==> 写 nginx config (server_name 含 dl) + reload"
@@ -54,7 +72,7 @@ server {
     server_name $DOMAIN www.$DOMAIN dl.$DOMAIN;
     root $DEPLOY_PATH;
     index index.html;
-
+${AUTH_GUARD}
     ssl_certificate $CERT_DIR/fullchain.pem;
     ssl_certificate_key $CERT_DIR/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
@@ -153,7 +171,13 @@ echo "    证书 SAN (应含 serpilo + www + dl):"
 openssl x509 -in "$CERT_DIR/fullchain.pem" -noout -ext subjectAltName 2>/dev/null | tail -1
 echo "    证书到期 (应 ~10 年后):"
 openssl x509 -in "$CERT_DIR/fullchain.pem" -noout -enddate 2>/dev/null
-echo "    本机 HTTPS 443 (应 200): $(curl -skI --max-time 5 -H "Host: $DOMAIN" https://localhost/ 2>&1 | head -1)"
+if [ -n "$ORIGIN_AUTH_SECRET" ]; then
+  echo "    带密钥头 (应 200): $(curl -skI --max-time 5 -H "Host: $DOMAIN" -H "X-Origin-Auth: $ORIGIN_AUTH_SECRET" https://localhost/ 2>&1 | head -1)"
+  echo "    不带密钥头 (应 403, 证明鉴权生效): $(curl -skI --max-time 5 -H "Host: $DOMAIN" https://localhost/ 2>&1 | head -1)"
+else
+  echo "    本机 HTTPS 443 (应 200): $(curl -skI --max-time 5 -H "Host: $DOMAIN" https://localhost/ 2>&1 | head -1)"
+fi
 echo ""
 echo "✓ 完成. 源站 = 10 年自签 (回源不校验, 方案 B), 无 acme/无续期/无凭证."
+[ -n "$ORIGIN_AUTH_SECRET" ] && echo "  回源鉴权已开: 直连源站(无 X-Origin-Auth 头)= 403; 经 ESA(有头)= 正常." || true
 echo "  访客侧 HTTPS 由 ESA 边缘证书承载 (ESA 自动续期). 保持 ESA 源站证书校验【关闭】."

@@ -18,7 +18,7 @@ const showDomesticStore = domesticStoreUrl !== '#';
 
 // APK Distribution
 // 预发内测阶段: 默认直接挂线上滚动包 latest.apk (PL 2026-06-21); 正式上架后可用 env 覆盖
-const apkDownloadUrl = import.meta.env.PUBLIC_APK_DOWNLOAD_URL ?? 'https://serpilo.com/downloads/latest.apk';
+const apkDownloadUrl = import.meta.env.PUBLIC_APK_DOWNLOAD_URL ?? 'https://dl.serpilo.com/downloads/latest.apk';
 const apkDownloadUrlCn = import.meta.env.PUBLIC_APK_DOWNLOAD_URL_CN ?? '#';
 const apkVersion = import.meta.env.PUBLIC_APK_VERSION ?? 'v0.0.0-pending';
 const apkSha256Fp = import.meta.env.PUBLIC_APK_SHA256_FINGERPRINT ?? 'pending';

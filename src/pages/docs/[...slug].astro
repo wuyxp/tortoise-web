@@ -119,6 +119,9 @@ const jsonLd = faqLd ? [articleLd, faqLd] : articleLd;
              <span>{t('docs.source')}</span>
              <code class="bg-black/5 dark:bg-white/5 px-2 py-1 rounded text-[10px]">{doc.id}.md</code>
            </div>
+           <div class="flex items-center gap-3 px-4 py-2 glass rounded-2xl text-xs font-bold text-gray-400">
+             <span>{t('docs.maintained_by')}</span>
+           </div>
         </div>
       </footer>
     </article>

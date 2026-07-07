@@ -5,6 +5,7 @@ import Sidebar from '../../../components/Sidebar.astro';
 import TableOfContents from '../../../components/TableOfContents.astro';
 import { ChevronRight, BookOpen, PanelLeftClose, PanelRightClose, PanelLeft, PanelRight } from 'lucide-astro';
 import { getLangFromUrl, useTranslations, useTranslatedPath } from '../../../i18n/utils';
+import { buildFaqLd } from '../../../utils/structured-data';
 
 export async function getStaticPaths() {
   const enDocs = await getCollection('docs', ({ data, id }) => {
@@ -50,9 +51,13 @@ const articleLd = {
   author: { '@type': 'Organization', name: t('site.name') },
   publisher: { '@type': 'Organization', name: t('site.name') },
 };
+
+// FAQ 文档额外注入 FAQPage 结构化数据 (AI 引擎友好)
+const faqLd = doc.id.endsWith('05-faq') ? buildFaqLd(doc.body) : null;
+const jsonLd = faqLd ? [articleLd, faqLd] : articleLd;
 ---
 
-<BaseLayout title={title} description={description} jsonLd={articleLd}>
+<BaseLayout title={title} description={description} jsonLd={jsonLd}>
   <!-- Background Light Glow -->
   <div class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-40">
      <div class="absolute top-1/4 right-0 w-[500px] h-[500px] bg-brand-blue/10 blur-[150px] rounded-full"></div>

@@ -12,6 +12,9 @@ export const ui = {
     'nav.story': '故事',
     'nav.gallery': '图鉴',
     'site.name': '小龟时光',
+    // SEO 专用 (不显示在页面上, 只进 <title>/<meta>): 埋差异化长尾词
+    'seo.home.title': '不黑屏的儿童屏幕时间管理 App(6-14 岁)',
+    'seo.home.description': '小龟时光是面向 6-14 岁孩子的 Android 屏幕时间管理 App:六阶段温柔提醒,时间到不会突然黑屏;计时、设置、日记全部留在手机本地,不上传云端;省下来的屏幕时间会变成小海龟的探险。',
     'footer.description': '小龟时光 是面向 6-14 岁孩子的 Android App, 帮孩子管屏幕时间。',
     'footer.resources': '资源',
     'footer.support': '支持',
@@ -228,6 +231,9 @@ export const ui = {
     'nav.story': 'Story',
     'nav.gallery': 'Gallery',
     'site.name': 'Tortoise Time',
+    // SEO-only (not shown on page, feeds <title>/<meta>): long-tail differentiators
+    'seo.home.title': 'Gentle Screen Time App for Kids Aged 6-14',
+    'seo.home.description': 'Tortoise Time is an Android screen time app for kids aged 6-14. Six gentle stages instead of a sudden black screen, all data stays on the device (no cloud), and saved screen time turns into a little turtle\'s adventure.',
     'footer.description': 'Tortoise Time is an Android app for kids aged 6-14. It helps them manage screen time.',
     'footer.resources': 'Resources',
     'footer.support': 'Support',

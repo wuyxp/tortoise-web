@@ -23,9 +23,25 @@ const apkDownloadUrlCn = import.meta.env.PUBLIC_APK_DOWNLOAD_URL_CN ?? '#';
 const apkVersion = import.meta.env.PUBLIC_APK_VERSION ?? 'v0.0.0-pending';
 const apkSha256Fp = import.meta.env.PUBLIC_APK_SHA256_FINGERPRINT ?? 'pending';
 const apkSizeMb = import.meta.env.PUBLIC_APK_SIZE_MB ?? '32';
+
+// SEO: 关键词化标题/描述 + App 结构化数据
+const seoTitle = t('seo.home.title');
+const seoDescription = t('seo.home.description');
+const appLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: siteName,
+  operatingSystem: 'Android 7.0+',
+  applicationCategory: 'LifestyleApplication',
+  description: seoDescription,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  downloadUrl: apkDownloadUrl,
+  softwareVersion: apkVersion,
+  inLanguage: lang === 'zh' ? 'zh-CN' : 'en',
+};
 ---
 
-<BaseLayout>
+<BaseLayout title={seoTitle} description={seoDescription} jsonLd={appLd}>
   <!-- 1. Hero Section -->
   <section class="relative pt-24 pb-32 md:pt-40 md:pb-56 overflow-hidden">
     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] h-full -z-10 opacity-40">

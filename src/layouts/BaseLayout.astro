@@ -6,6 +6,10 @@ import { getLangFromUrl, useTranslations, useTranslatedPath } from '../i18n/util
 interface Props {
   title?: string;
   description?: string;
+  /** OG/Twitter 分享图 (站内绝对路径), 默认日出小龟插画 */
+  image?: string;
+  /** 页面级 JSON-LD 结构化数据 (单个或数组), 会与全局 Organization/WebSite 合并输出 */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const lang = getLangFromUrl(Astro.url);
@@ -15,12 +19,48 @@ const translatePath = useTranslatedPath(lang);
 const {
   title = t('site.name'),
   description = t('footer.description'),
+  image = '/images/illu_tortoise_sunrise.webp',
+  jsonLd,
 } = Astro.props;
 
 // 品牌名按语言走 i18n: 中文站「小龟时光」/ 英文站「Tortoise Time」(PUBLIC_SITE_NAME 已弃用)
 const siteName = t('site.name');
 const feedbackEmail = import.meta.env.PUBLIC_FEEDBACK_EMAIL ?? 'support@serpilo.com';
 const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
+
+// ---- SEO: canonical + hreflang 双语互链 (zh 默认无前缀 / en 走 /en) ----
+const site = Astro.site ?? new URL('https://serpilo.com');
+const pathname = Astro.url.pathname;
+const canonicalURL = new URL(pathname, site).href;
+// 去掉 /en 前缀得到「语言无关」基准路径, 再拼出两种语言的 URL
+const basePath = pathname.replace(/^\/en(?=\/|$)/, '') || '/';
+const zhURL = new URL(basePath, site).href;
+const enURL = new URL(basePath === '/' ? '/en/' : `/en${basePath}`, site).href;
+const ogImage = new URL(image, site).href;
+const ogLocale = lang === 'zh' ? 'zh_CN' : 'en_US';
+const inLanguage = lang === 'zh' ? 'zh-CN' : 'en';
+
+// ---- 全局结构化数据 (每页都出): Organization + WebSite ----
+const organizationLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: t('site.name'),
+  url: site.href,
+  logo: new URL('/images/illu_tortoise_wave.webp', site).href,
+  email: feedbackEmail,
+};
+const websiteLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: t('site.name'),
+  url: site.href,
+  inLanguage,
+};
+const structuredData = [
+  organizationLd,
+  websiteLd,
+  ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []),
+];
 ---
 
 <!doctype html>
@@ -30,13 +70,34 @@ const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
     <title>{fullTitle}</title>
+
+    <!-- Canonical + hreflang (双语互链) -->
+    <link rel="canonical" href={canonicalURL} />
+    <link rel="alternate" hreflang="zh-CN" href={zhURL} />
+    <link rel="alternate" hreflang="en" href={enURL} />
+    <link rel="alternate" hreflang="x-default" href={zhURL} />
 
     <!-- Open Graph -->
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:locale" content={lang === 'zh' ? 'zh_CN' : 'en_US'} />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:image" content={ogImage} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- 结构化数据 (JSON-LD): Organization + WebSite + 页面级 -->
+    {structuredData.map((obj) => (
+      <script type="application/ld+json" set:html={JSON.stringify(obj)} />
+    ))}
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <script is:inline>

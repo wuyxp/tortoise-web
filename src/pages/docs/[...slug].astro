@@ -40,9 +40,20 @@ const getBadge = (id: string) => {
 };
 
 const badge = getBadge(doc.id);
+
+// SEO: 文档结构化数据 (Article) — 帮搜索引擎/AI 理解这是一篇署名内容
+const articleLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description,
+  inLanguage: lang === 'zh' ? 'zh-CN' : 'en',
+  author: { '@type': 'Organization', name: t('site.name') },
+  publisher: { '@type': 'Organization', name: t('site.name') },
+};
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} jsonLd={articleLd}>
   <!-- Background Light Glow -->
   <div class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-40">
      <div class="absolute top-1/4 right-0 w-[500px] h-[500px] bg-brand-blue/10 blur-[150px] rounded-full"></div>
